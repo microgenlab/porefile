@@ -18,12 +18,20 @@ params.help = false
 
 def helpMessage() {
     log.info """
-	--------------------------
-	---> Long16S Pipeline <---
-	--------------------------
+    --------------------------
+    ---> Long16S Pipeline <---
+    --------------------------
     Usage:
     The typical command for running the pipeline is as follows:
-    nextflow run iferres/long16S --fq './data/*.fastq' --silva_fasta './SILVA138_SSU/SILVA_138_SSURef_NR99_tax_silva.fasta' --megabdb_map './MEGANDB/megan-map-Oct2019.db' --megandb_nucl './MEGANDB/megan-nucl-Oct2019.db' --cpus 4 -profile local
+    nextflow run iferres/long16S --fq 'data/*.fastq' \
+      --silva_fasta 'SILVA138_SSU/SILVA_138_SSURef_NR99_tax_silva.fasta' \
+      --megabdb_map 'MEGANDB/megan-map-Oct2019.db' \
+      --megandb_nucl 'MEGANDB/megan-nucl-Oct2019.db' \
+      --cpus 4 -profile local
+
+    Note: 
+    SILVA and MEGAN databases are must be provided. Provide those parameters between quotes.
+
     Mandatory arguments:
         --fq                          Path to input data (must be surrounded with quotes).
         --silva_fasta                 Path to silva fasta file.
