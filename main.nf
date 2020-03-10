@@ -25,30 +25,30 @@ def helpMessage() {
     The typical command for running the pipeline is as follows:
     nextflow run iferres/long16S --fq './data/*.fastq' --silva_fasta './SILVA138_SSU/SILVA_138_SSURef_NR99_tax_silva.fasta' --megabdb_map './MEGANDB/megan-map-Oct2019.db' --megandb_nucl './MEGANDB/megan-nucl-Oct2019.db' --cpus 4 -profile local
     Mandatory arguments:
-	--fq                          Path to input data (must be surrounded with quotes).
-	--silva_fasta                 Path to silva fasta file.
-	--megandb_map                 Path to megan-map-Oct2019.db file (date on filename may change).
-	--megandb_nucl                Path to megan-nucl-Oct2019.db file (date on filename may change).
-	-profile                      Configuration profile to use. Available: local, nagual.
+        --fq                          Path to input data (must be surrounded with quotes).
+        --silva_fasta                 Path to silva fasta file.
+        --megandb_map                 Path to megan-map-Oct2019.db file (date on filename may change).
+        --megandb_nucl                Path to megan-nucl-Oct2019.db file (date on filename may change).
+        -profile                      Configuration profile to use. Available: local, nagual.
 
     Other:
-	--cpus                        The max number of cpus to use on each process (Default: 4).
-	--stoptocheckparams           Whether to stop after Summary process to check parameters. Default: false.
+        --cpus                        The max number of cpus to use on each process (Default: 4).
+        --stoptocheckparams           Whether to stop after Summary process to check parameters. Default: false.
                                       If true, then the pipeline stops to allow user to check parameters. If
                                       everything is ok, then this parameter should be set to false, and resumed
                                       by using the -resume flag. Previous steps will be cached. If some params 
                                       are modified, then those processes affected by them and their dependant
                                       processes will be re run.
-	--nanofilt_quality            The '--quality' parameter of NanoFilt. Default: 8.
-	--nanofilt_maxlength          The '--maxlength' parameter of NanoFilt. Default: 1500.
-	--megan_lcaAlgorithm          The '--lcaAlgorithm' parameter of daa-meganizer (MEGAN). Default: naive.
-	--megan_lcaCoveragePercent    The '--lcaCoveragePercent' parameter of daa-meganizer (MEGAN). Default: 100.
+        --nanofilt_quality            The '--quality' parameter of NanoFilt. Default: 8.
+        --nanofilt_maxlength          The '--maxlength' parameter of NanoFilt. Default: 1500.
+        --megan_lcaAlgorithm          The '--lcaAlgorithm' parameter of daa-meganizer (MEGAN). Default: naive.
+        --megan_lcaCoveragePercent    The '--lcaCoveragePercent' parameter of daa-meganizer (MEGAN). Default: 100.
 
-	Authors: Cecilia Salazar (csalazar@pasteur.edu.uy) & Ignacio Ferres (iferres@pasteur.edu.uy)
-	Maintainer: Ignacio Ferres (iferres@pasteur.edu.uy)
+    Authors: Cecilia Salazar (csalazar@pasteur.edu.uy) & Ignacio Ferres (iferres@pasteur.edu.uy)
+    Maintainer: Ignacio Ferres (iferres@pasteur.edu.uy)
 	
-	Microbial Genomics Laboratory 
-	Institut Pasteur de Montevideo (Uruguay)
+    Microbial Genomics Laboratory 
+    Institut Pasteur de Montevideo (Uruguay)
 
     """.stripIndent()
 }
