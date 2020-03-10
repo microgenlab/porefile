@@ -18,6 +18,9 @@ params.help = false
 
 def helpMessage() {
     log.info """
+	--------------------------
+	---> Long16S Pipeline <---
+	--------------------------
     Usage:
     The typical command for running the pipeline is as follows:
     nextflow run iferres/long16S --fq './data/*.fastq' --silva_fasta './SILVA138_SSU/SILVA_138_SSURef_NR99_tax_silva.fasta' --megabdb_map './MEGANDB/megan-map-Oct2019.db' --megandb_nucl './MEGANDB/megan-nucl-Oct2019.db' --cpus 4 -profile local
@@ -38,6 +41,11 @@ def helpMessage() {
 	--nanofilt_maxlength          The '--maxlength' parameter of NanoFilt. Default: 1500.
 	--megan_lcaAlgorithm          The '--lcaAlgorithm' parameter of daa-meganizer (MEGAN). Default: naive.
 	--megan_lcaCoveragePercent    The '--lcaCoveragePercent' parameter of daa-meganizer (MEGAN). Default: 100.
+
+	Authors: Cecilia Salazar (csalazar@pasteur.edu.uy) & Ignacio Ferres (iferres@pasteur.edu.uy)
+	Maintainer: Ignacio Ferres (iferres@pasteur.edu.uy)
+	Microbial Genomics Laboratory, Institut Pasteur de Montevideo (Uruguay).
+
     """.stripIndent()
 }
 
