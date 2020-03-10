@@ -36,7 +36,9 @@ def helpMessage() {
 	--stoptocheckparams           Whether to stop after Summary process to check parameters. Default: false.
                                       If true, then the pipeline stops to allow user to check parameters. If
                                       everything is ok, then this parameter should be set to false, and resumed
-                                      by using the -resume flag. Previous steps are cached.
+                                      by using the -resume flag. Previous steps will be cached. If some params 
+                                      are modified, then those processes affected by them and their dependant
+                                      processes will be re run.
 	--nanofilt_quality            The '--quality' parameter of NanoFilt. Default: 8.
 	--nanofilt_maxlength          The '--maxlength' parameter of NanoFilt. Default: 1500.
 	--megan_lcaAlgorithm          The '--lcaAlgorithm' parameter of daa-meganizer (MEGAN). Default: naive.
@@ -44,7 +46,9 @@ def helpMessage() {
 
 	Authors: Cecilia Salazar (csalazar@pasteur.edu.uy) & Ignacio Ferres (iferres@pasteur.edu.uy)
 	Maintainer: Ignacio Ferres (iferres@pasteur.edu.uy)
-	Microbial Genomics Laboratory, Institut Pasteur de Montevideo (Uruguay).
+	
+	Microbial Genomics Laboratory 
+	Institut Pasteur de Montevideo (Uruguay)
 
     """.stripIndent()
 }
