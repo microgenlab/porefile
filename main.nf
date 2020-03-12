@@ -6,8 +6,8 @@ params.stoptocheckparams = false
 params.nanofilt_quality = 8
 params.nanofilt_maxlength = 1500
 params.silva_fasta = "$baseDir/SILVA138_SSU/SILVA_138_SSURef_NR99_tax_silva.fasta"
-params.megandb_map = "$baseDir/MEGANDB/megan-map-Oct2019.db"
-params.megandb_nucl = "$baseDir/MEGANDB/megan-nucl-Oct2019.db"
+params.megandb_s2t = "$baseDir/MEGANDB/SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map"
+params.megandb_a2t = "$baseDir/MEGANDB/nucl_acc2tax-Jul2019.abin"
 params.megan_lcaAlgorithm = "naive"
 params.megan_lcaCoveragePercent = 100
 params.help = false
@@ -23,7 +23,7 @@ def helpMessage() {
     --------------------------
     Usage:
     The typical command for running the pipeline is as follows:
-    nextflow run iferres/long16S --fq 'data/*.fastq' --silva_fasta 'SILVA138_SSU/SILVA_138_SSURef_NR99_tax_silva.fasta' --megabdb_map 'MEGANDB/megan-map-Oct2019.db' --megandb_nucl 'MEGANDB/megan-nucl-Oct2019.db' --cpus 4 -profile local
+    nextflow run iferres/long16S --fq 'data/*.fastq' --silva_fasta 'SILVA138_SSU/SILVA_138_SSURef_NR99_tax_silva.fasta' --megabdb_s2t 'MEGANDB/SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map' --megandb_a2t 'MEGANDB/nucl_acc2tax-Jul2019.abin' --cpus 4 -profile local
 
     Note: 
     SILVA and MEGAN databases are must be provided. Provide those parameters between quotes.
@@ -31,8 +31,8 @@ def helpMessage() {
     Mandatory arguments:
         --fq                          Path to input data (must be surrounded with quotes).
         --silva_fasta                 Path to silva fasta file.
-        --megandb_map                 Path to megan-map-Oct2019.db file (date on filename may change).
-        --megandb_nucl                Path to megan-nucl-Oct2019.db file (date on filename may change).
+        --megandb_s2t                 Path to SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map file.
+        --megandb_a2t                 Path to nucl_acc2tax-Jul2019.abin file.
         -profile                      Configuration profile to use. Available: local, nagual.
 
     Other:
@@ -342,16 +342,16 @@ process DAAConverter{
 }
 
 
-meganMap = Channel.fromPath(params.megandb_map)
-meganNucl = Channel.fromPath(params.megandb_nucl)
+meganS2T = Channel.fromPath(params.megandb_s2t)
+meganA2T = Channel.fromPath(params.megandb_a2t)
 
 process DAAMeganizer{
 	cpus params.cpus
 
 	input:
 	file daa from daaconv.flatten()
-	file mmap from meganMap.collect()
-	file nucl from meganNucl.collect()
+	file s2t from meganS2T.collect()
+	file a2t from meganA2T.collect()
 
 	output:
 	file "${daa.fileName}" into meganized
@@ -361,7 +361,7 @@ process DAAMeganizer{
 
 	shell:
 	"""
-	daa-meganizer -i ${daa.fileName} -p ${params.cpus} -a2t ${nucl} -s2t ${mmap} --lcaAlgorithm ${params.megan_lcaAlgorithm} --lcaCoveragePercent ${params.megan_lcaCoveragePercent}
+	daa-meganizer -i ${daa.fileName} -p ${params.cpus} -a2t ${a2t} -s2t ${s2t} --lcaAlgorithm ${params.megan_lcaAlgorithm} --lcaCoveragePercent ${params.megan_lcaCoveragePercent}
 	"""
 }
 
