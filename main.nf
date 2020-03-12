@@ -374,7 +374,7 @@ process ComputeComparison{
 	file "*" from meganized.collect()
 
 	output:
-	file "comparison.megan"
+	file "comparison.megan" into comparisonmegan
 	
 	when:
 	params.stoptocheckparams == false
@@ -385,8 +385,40 @@ process ComputeComparison{
 	"""
 }
 
+
+
+process ExtractOtuTable {
+	cpus 1
+	
+	publishDir "Megan_Comparison", mode: "copy"
+
+	input:
+	file fi from comparisonmegan
+	
+	output:
+	file "OTU_Table.tsv" into otutable
+
+	shell:
+	"""
+	rl <- readLines("Comparison2.megan")
+	snam <- strsplit(grep("^@Names", rl, value = TRUE), "\t")[[1]][-1]
+	
+	taxs <- grep("^TAX", rl)
+	taxs <- strsplit(rl[taxs], "\t")
+	taxs <- lapply(taxs, "[", -1)
+	names(taxs) <- lapply(taxs, "[", 1)
+	taxs <- lapply(taxs, "[", -1)
+	taxs <- lapply(taxs, as.integer)
+
+	nsam <- length(snam)
+	ln <- sapply(taxs, length)
+	addz <- nsam - ln 
+
+	mp <- t(mapply(function(x, add){c(x, rep(0, add))}, x=taxs, add=addz))
+	colnames(mp) <- snam
+
+	write.table(mp, file = "OTU_Table.tsv", quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+	"""
+}
 /*
-
-process ExtractBiome {}
-
 */
