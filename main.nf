@@ -7,7 +7,6 @@ params.nanofilt_quality = 8
 params.nanofilt_maxlength = 1500
 params.silva_fasta = "$baseDir/SILVA138_SSU/SILVA_138_SSURef_NR99_tax_silva.fasta"
 params.megandb_s2t = "$baseDir/MEGANDB/SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map"
-params.megandb_a2t = "$baseDir/MEGANDB/nucl_acc2tax-Jul2019.abin"
 params.megan_lcaAlgorithm = "naive"
 params.megan_lcaCoveragePercent = 100
 params.help = false
@@ -32,7 +31,6 @@ def helpMessage() {
         --fq                          Path to input data (must be surrounded with quotes).
         --silva_fasta                 Path to silva fasta file.
         --megandb_s2t                 Path to SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map file.
-        --megandb_a2t                 Path to nucl_acc2tax-Jul2019.abin file.
         -profile                      Configuration profile to use. Available: local, nagual.
 
     Other:
@@ -343,7 +341,6 @@ process DAAConverter{
 
 
 meganS2T = Channel.fromPath(params.megandb_s2t)
-meganA2T = Channel.fromPath(params.megandb_a2t)
 
 process DAAMeganizer{
 	cpus params.cpus
@@ -351,7 +348,6 @@ process DAAMeganizer{
 	input:
 	file daa from daaconv.flatten()
 	file s2t from meganS2T.collect()
-	file a2t from meganA2T.collect()
 
 	output:
 	file "${daa.fileName}" into meganized
@@ -361,7 +357,7 @@ process DAAMeganizer{
 
 	shell:
 	"""
-	daa-meganizer -i ${daa.fileName} -p ${params.cpus} -a2t ${a2t} -s2t ${s2t} --lcaAlgorithm ${params.megan_lcaAlgorithm} --lcaCoveragePercent ${params.megan_lcaCoveragePercent}
+	daa-meganizer -i ${daa.fileName} -p ${params.cpus} -s2t ${s2t} --lcaAlgorithm ${params.megan_lcaAlgorithm} --lcaCoveragePercent ${params.megan_lcaCoveragePercent}
 	"""
 }
 
@@ -400,7 +396,7 @@ process ExtractOtuTable {
 
 	shell:
 	"""
-	rl <- readLines("Comparison2.megan")
+	rl <- readLines("${fi}")
 	snam <- strsplit(grep("^@Names", rl, value = TRUE), "\t")[[1]][-1]
 	
 	taxs <- grep("^TAX", rl)
