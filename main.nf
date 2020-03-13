@@ -290,7 +290,7 @@ process LastAL {
 
 	shell:
 	"""
-	lastal -P${params.cpus} /opt/silva ${fa.fileName} > ${fa.baseName}.maf
+	lastal -P${params.cpus} /opt/silva/silva ${fa.fileName} > ${fa.baseName}.maf
 	
 	"""
 }
