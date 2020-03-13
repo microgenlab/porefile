@@ -5,8 +5,6 @@ params.cpus = 4
 params.stoptocheckparams = false
 params.nanofilt_quality = 8
 params.nanofilt_maxlength = 1500
-params.silva_fasta = "$baseDir/SILVA138_SSU/SILVA_138_SSURef_NR99_tax_silva.fasta"
-params.megandb_s2t = "$baseDir/MEGANDB/SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map"
 params.megan_lcaAlgorithm = "naive"
 params.megan_lcaCoveragePercent = 100
 params.help = false
@@ -22,15 +20,13 @@ def helpMessage() {
     --------------------------
     Usage:
     The typical command for running the pipeline is as follows:
-    nextflow run iferres/long16S --fq 'data/*.fastq' --silva_fasta 'SILVA138_SSU/SILVA_138_SSURef_NR99_tax_silva.fasta' --megabdb_s2t 'MEGANDB/SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map' --megandb_a2t 'MEGANDB/nucl_acc2tax-Jul2019.abin' --cpus 4 -profile local
+    nextflow run iferres/long16S --fq 'data/*.fastq' --cpus 4 -profile local
 
     Note: 
     SILVA and MEGAN databases are must be provided. Provide those parameters between quotes.
 
     Mandatory arguments:
         --fq                          Path to input data (must be surrounded with quotes).
-        --silva_fasta                 Path to silva fasta file.
-        --megandb_s2t                 Path to SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map file.
         -profile                      Configuration profile to use. Available: local, nagual.
 
     Other:
@@ -236,7 +232,7 @@ process Fastq2Fasta {
 	paste - - - - < ${ff} | cut -f 1,2 | sed 's/^@/>/' | tr "\t" "\n" > ${ff.baseName}.fasta
 	"""
 }
-
+/*
 silva = Channel.fromPath(params.silva_fasta)
 
 process MakeLastDB {
@@ -254,7 +250,7 @@ process MakeLastDB {
 	"""
 }
 
-/*
+
 process LastTrain {
 	cpus params.cpus
 
@@ -284,7 +280,6 @@ process LastAL {
 	input:
 	//file par from lastpars
 	file fa from fastas1
-	file idx from silvadb2.collect()
 
 	output:
 	file "${fa.baseName}.maf" into alignment
@@ -295,7 +290,7 @@ process LastAL {
 
 	shell:
 	"""
-	lastal -P${params.cpus} silva ${fa.fileName} > ${fa.baseName}.maf
+	lastal -P${params.cpus} /opt/silva ${fa.fileName} > ${fa.baseName}.maf
 	
 	"""
 }
@@ -340,14 +335,11 @@ process DAAConverter{
 }
 
 
-meganS2T = Channel.fromPath(params.megandb_s2t)
-
 process DAAMeganizer{
 	cpus params.cpus
 
 	input:
 	file daa from daaconv.flatten()
-	file s2t from meganS2T.collect()
 
 	output:
 	file "${daa.fileName}" into meganized
@@ -357,7 +349,7 @@ process DAAMeganizer{
 
 	shell:
 	"""
-	daa-meganizer -i ${daa.fileName} -p ${params.cpus} -s2t ${s2t} --lcaAlgorithm ${params.megan_lcaAlgorithm} --lcaCoveragePercent ${params.megan_lcaCoveragePercent}
+	daa-meganizer -i ${daa.fileName} -p ${params.cpus} --lcaAlgorithm ${params.megan_lcaAlgorithm} --lcaCoveragePercent ${params.megan_lcaCoveragePercent}
 	"""
 }
 

@@ -42,6 +42,20 @@ From: ubuntu:16.04
 	## Download DAA_Converter (jar) and make a executable script to call it
 	wget https://github.com/BenjaminAlbrecht84/DAA_Converter/releases/download/v0.9.0/DAA_Converter_v0.9.0.jar
 
+
+	## Download SILVA
+	mkdir /opt/silva
+	cd /opt/silva
+	wget https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/SILVA_138_SSURef_NR99_tax_silva.fasta.gz
+	gunzip SILVA_138_SSURef_NR99_tax_silva.fasta.gz
+	wget https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/taxmap_slv_ssu_ref_nr_138.txt.gz
+	gunzip taxmap_slv_ssu_ref_nr_138.txt.gz
+
+	## Make lastdb
+	lastdb -cR01 -P1 silva SILVA_138_SSURef_NR99_tax_silva.fasta
+	rm SILVA_138_SSURef_NR99_tax_silva.fasta
+	cd ../
+
 	## Clean
 	rm -rf MEGAN_Community_unix_6_15_0.sh last-1047 last-1047.zip
 
