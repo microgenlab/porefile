@@ -349,7 +349,7 @@ process DAAMeganizer{
 
 	shell:
 	"""
-	daa-meganizer -i ${daa.fileName} -p ${params.cpus} --lcaAlgorithm ${params.megan_lcaAlgorithm} --lcaCoveragePercent ${params.megan_lcaCoveragePercent}
+	daa-meganizer -i ${daa.fileName} -p ${params.cpus} -s2t /opt/silva/SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map --lcaAlgorithm ${params.megan_lcaAlgorithm} --lcaCoveragePercent ${params.megan_lcaCoveragePercent}
 	"""
 }
 
