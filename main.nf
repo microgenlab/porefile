@@ -388,6 +388,7 @@ process ExtractOtuTable {
 
 	shell:
 	"""
+	#!/usr/bin/env Rscript
 	rl <- readLines("${fi}")
 	snam <- strsplit(grep("^@Names", rl, value = TRUE), "\t")[[1]][-1]
 	
