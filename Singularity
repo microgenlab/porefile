@@ -48,12 +48,21 @@ From: ubuntu:16.04
 	cd /opt/silva
 	wget https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/SILVA_138_SSURef_NR99_tax_silva.fasta.gz
 	gunzip SILVA_138_SSURef_NR99_tax_silva.fasta.gz
+	# subset bacteria and archaea
+	grep -E "Archaea;|Bacteria;" SILVA_138_SSURef_NR99_tax_silva.fasta | cut -d " " -f1 | sed 's/>//g' > list.txt
+	seqtk subseq SILVA_138_SSURef_NR99_tax_silva.fasta list.txt > SILVA_138_SSURef_NR99_tax_silva_subseq.fasta
+	rm SILVA_138_SSURef_NR99_tax_silva.fasta
+	## Make lastdb
+	lastdb -cR01 -P1 silva SILVA_138_SSURef_NR99_tax_silva_subseq.fasta
+	rm SILVA_138_SSURef_NR99_tax_silva_subseq.fasta
+
 	wget https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/taxmap_slv_ssu_ref_nr_138.txt.gz
 	gunzip taxmap_slv_ssu_ref_nr_138.txt.gz
 
-	## Make lastdb
-	lastdb -cR01 -P1 silva SILVA_138_SSURef_NR99_tax_silva.fasta
-	rm SILVA_138_SSURef_NR99_tax_silva.fasta
+	# Download silva to ncbi synonyms mapping file
+	wget https://software-ab.informatik.uni-tuebingen.de/download/megan6/SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz
+	gunzip SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz
+	
 	cd ../
 
 	## Clean
