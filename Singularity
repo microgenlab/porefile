@@ -23,7 +23,7 @@ From: ubuntu:16.04
 	pip install git+https://github.com/rrwick/Porechop.git
 
 	## Install seqtk
-	git clone https://github.com/lh3/seqtk.git;
+	git clone https://github.com/lh3/seqtk.git
 	cd seqtk/
 	make
 	mv seqtk /usr/local/bin
