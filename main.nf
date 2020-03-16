@@ -349,7 +349,7 @@ process DAAMeganizer{
 
 	shell:
 	"""
-	daa-meganizer -i ${daa.fileName} -p ${params.cpus} -s2t /opt/silva/SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map --lcaAlgorithm ${params.megan_lcaAlgorithm} --lcaCoveragePercent ${params.megan_lcaCoveragePercent}
+	daa-meganizer -i ${daa.fileName} -p ${params.cpus} -s2t /opt/silva/SSURef_Nr99_138_tax_silva_to_NCBI_synonyms.map --lcaAlgorithm ${params.megan_lcaAlgorithm} --lcaCoveragePercent ${params.megan_lcaCoveragePercent}
 	"""
 }
 
@@ -410,4 +410,24 @@ process ExtractOtuTable {
 	"""
 }
 /*
+process GetTaxonomy {
+	cpus 1
+
+	publishDir "Megan_Comparison", mode: "copy"
+
+	input:
+	file "OTU_Table.tsv" from otutable
+
+	output:
+	file tax into taxonomy
+
+	shell:
+	"""
+	#!/usr/bin/env Rscript
+	taxmap <- read.csv("/opt/silva/taxmap_slv_ssu_ref_nr_138.txt", sep = "\t", stringsAsFactors=FALSE)
+	otu_table <- read.csv("OTU_Table.tsv", sep="\t", stringsAsFactors=FALSE)
+	
+	"""
+}
+
 */
