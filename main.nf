@@ -297,32 +297,11 @@ process LastAL {
 }
 // lastal -P${params.cpus} -p ${par} silva ${fa.fileName} > ${fa.baseName}.maf
 
-process LastAl_DAAConverter {
-
-	cpus params.cpus
-
-	input:
-	file fa from fastas2
-
-	output:
-	file "${faa.baseName}.daa" into daaconv1
-	file "${fa.fileName}" into fastas4
-
-        when:
-        !params.stoptocheckparams && !params.keepmaf
-
-        shell:
-	"""
-	lastal -P${params.cpus} /opt/silva/silva ${fa.fileName} | java -jar /opt/DAA_Converter_v0.9.0.jar -top 20 -p ${params.cpus} -r ${fa.fileName} -o ${fa.baseName}.daa
-	"""
-
-}
-
 process DAAConverter{
 	cpus params.cpus
 
 	input:
-	file fa from fastas3.mix(fastas4)
+	file fa from fastas3
 	file maf from alignment
 
 	output:
@@ -335,6 +314,27 @@ process DAAConverter{
 	"""
 	java -jar /opt/DAA_Converter_v0.9.0.jar -top 20 -p ${params.cpus} -i ${maf.fileName} -r ${fa.fileName} -o ${fa.baseName}.daa
 	"""
+}
+
+process LastAl_DAAConverter {
+
+	cpus params.cpus
+
+	input:
+	file fa from fastas2
+
+	output:
+	file "${faa.baseName}.daa" into daaconv1
+	//file "${fa.fileName}" into fastas4
+
+        when:
+        !params.stoptocheckparams && !params.keepmaf
+
+        shell:
+	"""
+	lastal -P${params.cpus} /opt/silva/silva ${fa.fileName} | java -jar /opt/DAA_Converter_v0.9.0.jar -top 20 -p ${params.cpus} -r ${fa.fileName} -o ${fa.baseName}.daa
+	"""
+
 }
 
 
