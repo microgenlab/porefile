@@ -2,6 +2,7 @@
 
 params.fq = "$baseDir/data/*.fastq"
 params.cpus = 4
+params.keepmaf = false
 params.stoptocheckparams = false
 params.nanofilt_quality = 8
 params.nanofilt_maxlength = 1500
@@ -286,7 +287,7 @@ process LastAL {
 	file "${fa.fileName}" into fastas3
 		
 	when:
-	params.stoptocheckparams == false
+	!params.stoptocheckparams && params.keepmaf
 
 	shell:
 	"""
@@ -295,25 +296,27 @@ process LastAL {
 	"""
 }
 // lastal -P${params.cpus} -p ${par} silva ${fa.fileName} > ${fa.baseName}.maf
-/*
+
 process LastAl_DAAConverter {
 
 	cpus params.cpus
 
 	input:
 	file fa from fastas1
-	file idx from silvadb.collect()
 
 	output:
 	file "${faa.baseName}.daa" into daaconv
 	file "${fa.fileName}" into fastas3
 
+        when:
+        !params.stoptocheckparams && !params.keepmaf
+
+        shell:
 	"""
-	lastal -P${params.cpus} silva ${fa.fileName} | java -jar /opt/DAA_Converter_v0.9.0.jar -top 20 -p ${params.cpus} -r ${fa.fileName} -o ${fa.baseName}.daa
+	lastal -P${params.cpus} /opt/silva/silva ${fa.fileName} | java -jar /opt/DAA_Converter_v0.9.0.jar -top 20 -p ${params.cpus} -r ${fa.fileName} -o ${fa.baseName}.daa
 	"""
 
 }
-*/
 
 process DAAConverter{
 	cpus params.cpus
@@ -326,7 +329,7 @@ process DAAConverter{
 	file "${fa.baseName}.daa" into daaconv
 	
 	when:
-	params.stoptocheckparams == false
+	!params.stoptocheckparams && params.keepmaf
 
 	shell:
 	"""
