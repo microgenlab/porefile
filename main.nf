@@ -305,7 +305,7 @@ process LastAl_DAAConverter {
 	file fa from fastas2
 
 	output:
-	file "${faa.baseName}.daa" into daaconv
+	file "${faa.baseName}.daa" into daaconv1
 	file "${fa.fileName}" into fastas4
 
         when:
@@ -326,7 +326,7 @@ process DAAConverter{
 	file maf from alignment
 
 	output:
-	file "${fa.baseName}.daa" into daaconv
+	file "${fa.baseName}.daa" into daaconv2
 	
 	when:
 	!params.stoptocheckparams && params.keepmaf
@@ -342,7 +342,7 @@ process DAAMeganizer{
 	cpus params.cpus
 
 	input:
-	file daa from daaconv.flatten()
+	file daa from daaconv1.mix(daaconv2).flatten()
 
 	output:
 	file "${daa.fileName}" into meganized
