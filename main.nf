@@ -324,7 +324,7 @@ process LastAl_DAAConverter {
 	file fa from fastas2
 
 	output:
-	file "${faa.baseName}.daa" into daaconv1
+	file "${fa.baseName}.daa" into daaconv1
 	//file "${fa.fileName}" into fastas4
 
         when:
