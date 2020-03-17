@@ -223,7 +223,7 @@ process Fastq2Fasta {
 	file ff from nanofilted2
 
 	output:
-	file "${ff.baseName}.fasta" into fastas1
+	file "${ff.baseName}.fasta" into fastas1, fastas2
 	
 	when:
 	params.stoptocheckparams == false
@@ -302,11 +302,11 @@ process LastAl_DAAConverter {
 	cpus params.cpus
 
 	input:
-	file fa from fastas1
+	file fa from fastas2
 
 	output:
 	file "${faa.baseName}.daa" into daaconv
-	file "${fa.fileName}" into fastas3
+	file "${fa.fileName}" into fastas4
 
         when:
         !params.stoptocheckparams && !params.keepmaf
@@ -322,7 +322,7 @@ process DAAConverter{
 	cpus params.cpus
 
 	input:
-	file fa from fastas3
+	file fa from fastas3.mix(fastas4)
 	file maf from alignment
 
 	output:
