@@ -1,0 +1,13 @@
+name: long16S
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - megan
+  - porechop
+  - nanofilt
+  - nanoplot
+  - last
+  - seqtk
+  - r-base
