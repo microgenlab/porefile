@@ -1,6 +1,7 @@
 #!/usr/bin/env nextflow
 
 params.fq = "$baseDir/data/*.fastq"
+params.outdir = "results"
 params.cpus = 4
 params.keepmaf = false
 params.stoptocheckparams = false
@@ -10,7 +11,7 @@ params.megan_lcaAlgorithm = "naive"
 params.megan_lcaCoveragePercent = 100
 params.help = false
 
-
+nextflow.preview.dsl = 2
 
 
 
@@ -56,4 +57,43 @@ def helpMessage() {
 if (params.help) {
     helpMessage()
     exit 0
+}
+
+include Concatenate from './modules/processes'
+include Demultiplex from './modules/processes'
+include Filter from './modules/processes'
+include NanoPlotNoFilt from './modules/processes'
+include NanoPlotFilt from './modules/processes'
+include {SummaryTable} from './modules/processes'
+include {Fastq2Fasta} from './modules/processes'
+include {LastAL} from './modules/processes'
+include {DAAConverter} from './modules/processes'
+include {DAAMeganizer} from './modules/processes'
+include {ComputeComparison} from './modules/processes'
+include {ExtractOtuTable} from './modules/processes'
+
+workflow {
+  Channel.fromPath(params.fq)
+    .set{ fqs_ch }
+  Concatenate( fqs_ch.collect() )
+  Demultiplex( Concatenate.out )
+  Demultiplex.out
+    .flatten()
+    .map { file -> tuple(file.baseName, file) }
+    .set{ barcode_ch }
+  Filter( barcode_ch )
+  NanoPlotNoFilt( barcode_ch )
+  NanoPlotFilt( Filter.out )
+  NanoPlotNoFilt.out.counts
+    .mix( NanoPlotFilt.out.counts )
+    .set{ counts_ch }
+  SummaryTable( counts_ch.collect() )
+  Fastq2Fasta( Filter.out )
+  LastAL( Fastq2Fasta.out )
+  DAAConverter( LastAL.out )
+  DAAMeganizer( DAAConverter.out )
+  ComputeComparison( DAAConverter.out.collect() )
+  ExtractOtuTable( ComputeComparison.out )
+  /*
+  */
 }
