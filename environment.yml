@@ -4,10 +4,10 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - megan
   - porechop
   - nanofilt
   - nanoplot
+  - seqtk
   - last
   - minimap2
   - r-base
