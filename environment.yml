@@ -9,6 +9,5 @@ dependencies:
   - nanofilt
   - nanoplot
   - last
-  - seqtk
   - minimap2
   - r-base
