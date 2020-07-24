@@ -1,5 +1,7 @@
 #!/usr/bin/env nextflow
 
+nextflow.preview.dsl = 2
+
 params.fq = "$baseDir/data/*.fastq"
 params.silvaDir = "$baseDir/silva"
 params.downloadSilvaFiles = false
@@ -14,10 +16,6 @@ params.nanofilt_maxlength = 1500
 params.megan_lcaAlgorithm = "naive"
 params.megan_lcaCoveragePercent = 100
 params.help = false
-
-
-
-nextflow.preview.dsl = 2
 
 
 
@@ -65,6 +63,10 @@ if (params.help) {
     exit 0
 }
 
+if ( ! (params.minimap2 || params.last) ){
+  println("You must specify either --minimap2 or --last, or both.")
+  System.exit(1)
+}
 
 // include modules
 include Concatenate from './modules/processes'
@@ -113,7 +115,8 @@ workflow {
     Minimap2Workflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
     Minimap2Workflow.out
       .set{ to_compare_ch }
-  } else if ( params.last ) {
+  }
+  if ( params.last ) {
     LastWorkflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
     LastWorkflow.out
       .set{ to_compare_ch }
