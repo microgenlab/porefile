@@ -151,7 +151,7 @@ process NanoPlotFilt {
 	label "small_cpus"
 	label "small_mem"
 
-	publishDir "$params.outdir/NanoPlots", pattern: "NanoPlot*", mode: "copy"
+	publishDir "$params.outdir/NanoPlots", pattern: "NanoPlot*/*", mode: "copy"
 
 	input:
 	tuple val(barcode_id), file("Filt_${barcode_id}.fastq")
@@ -394,7 +394,7 @@ process MakeMinimapDB {
 
 	shell:
 	"""
-	minimap2 -k 15 -d silva_k15.mmi silva_SSU_tax.fasta
+	minimap2 -t ${task.cpus} -k 15 -d silva_k15.mmi silva_SSU_tax.fasta
 	"""
 }
 
@@ -412,7 +412,7 @@ process Minimap2 {
 
 	shell:
 	"""
-	minimap2 -ax map-ont silva_k15.mmi Filt_${barcode_id}.fastq > ${barcode_id}.sam
+	minimap2 -t ${task.cpus} -ax map-ont silva_k15.mmi Filt_${barcode_id}.fastq > ${barcode_id}.sam
 	"""
 }
 
