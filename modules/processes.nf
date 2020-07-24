@@ -1,5 +1,70 @@
 
 
+process downloadFasta {
+	label 'internet'
+	label 'small_cpus'
+	label 'small_mem'
+
+	output:
+	path("*.fasta")
+
+	script:
+	"""
+	wget ${params.silvaFastaURL}
+	gunzip *gz
+	"""
+}
+
+/*
+process downloadTaxmap {
+	label 'internet'
+	label 'small_cpus'
+	label 'small_mem'
+
+	output:
+	path("*.txt")
+
+	script:
+	"""
+	wget ${params.silvaTaxMapURL}
+	gunzip *gz
+	"""
+}
+*/
+process downloadAccTaxID {
+	label 'internet'
+	label 'small_cpus'
+	label 'small_mem'
+
+	output:
+	path("*acc_taxid")
+
+	script:
+	"""
+	wget ${params.silvaAccTaxIDURL}
+	gunzip *gz
+	"""
+}
+
+
+process trimAccTaxID {
+	label 'small_cpus'
+	label 'small_mem'
+
+	input:
+	path("*.acc_taxid")
+
+
+	output:
+	path("SSURef_Nr99_tax_silva_to_NCBI_synonyms.map")
+
+
+	script:
+	$/
+	cat *.acc_taxid | sed "s/\.\([0-9]\+\)\.\([0-9]\+\)//g" > SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
+	/$
+}
+
 process Concatenate {
 	label "small_cpus"
 	label "small_mem"
@@ -161,6 +226,28 @@ process Fastq2Fasta {
 	"""
 }
 
+process MakeLastDB {
+	label "big_cpus"
+	label "big_mem"
+
+	input:
+	path("silva_SSU_tax.fasta")
+
+	output:
+	path("silva.bck")
+	path("silva.des")
+	path("silva.prj")
+	path("silva.sds")
+	path("silva.ssp")
+	path("silva.suf")
+	path("silva.tis")
+
+
+	shell:
+	"""
+	lastdb -cR01 -P${task.cpus} silva silva_SSU_tax.fasta
+	"""
+}
 
 process LastAL {
 	label "big_cpus"
@@ -170,6 +257,13 @@ process LastAL {
 
 	input:
 	tuple val(barcode_id), path("${barcode_id}.fasta")
+	path("silva.bck")
+	path("silva.des")
+	path("silva.prj")
+	path("silva.sds")
+	path("silva.ssp")
+	path("silva.suf")
+	path("silva.tis")
 
 	output:
 	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.maf")
@@ -179,7 +273,7 @@ process LastAL {
 
 	shell:
 	"""
-	lastal -P${task.cpus} /opt/silva/silva ${barcode_id}.fasta > ${barcode_id}.maf
+	lastal -P${task.cpus} silva ${barcode_id}.fasta > ${barcode_id}.maf
 
 	"""
 }
@@ -188,7 +282,6 @@ process DAAConverter{
 	label "big_cpus"
 	label "big_mem"
 	tag "$barcode_id"
-	cpus params.cpus
 
 	input:
 	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.maf")
@@ -212,6 +305,7 @@ process DAAMeganizer{
 
 	input:
 	tuple val(barcode_id), file("${barcode_id}.daa")
+	path("SSURef_Nr99_tax_silva_to_NCBI_synonyms.map")
 
 	output:
 	tuple val(barcode_id), file("${barcode_id}.daa")
@@ -221,7 +315,7 @@ process DAAMeganizer{
 
 	shell:
 	"""
-	daa-meganizer -i ${barcode_id}.daa -p ${task.cpus} -s2t /opt/silva/SSURef_Nr99_138_tax_silva_to_NCBI_synonyms.map --lcaAlgorithm ${params.megan_lcaAlgorithm} --lcaCoveragePercent ${params.megan_lcaCoveragePercent}
+	daa-meganizer -i ${barcode_id}.daa -p ${task.cpus} -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map --lcaAlgorithm ${params.megan_lcaAlgorithm} --lcaCoveragePercent ${params.megan_lcaCoveragePercent}
 	"""
 }
 
@@ -286,3 +380,57 @@ process ExtractOtuTable {
 	write.table(mp, file = "OTU_Table.tsv", quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
 	"""
 }
+
+
+process MakeMinimapDB {
+	label "small_cpus"
+	label "big_mem"
+
+	input:
+	path("silva_SSU_tax.fasta")
+
+	output:
+	path("silva_k15.mmi")
+
+	shell:
+	"""
+	minimap2 -k 15 -d silva_k15.mmi silva_SSU_tax.fasta
+	"""
+}
+
+process Minimap2 {
+	tag "$barcode_id"
+	label "big_cpus"
+	label "small_mem"
+
+	input:
+	tuple val(barcode_id), path("Filt_${barcode_id}.fastq")
+	path("silva_k15.mmi")
+
+	output:
+	tuple val(barcode_id), path("${barcode_id}.sam"), path("Filt_${barcode_id}.fastq")
+
+	shell:
+	"""
+	minimap2 -ax map-ont silva_k15.mmi Filt_${barcode_id}.fastq > ${barcode_id}.sam
+	"""
+}
+
+process Sam2Rma {
+	tag "$barcode_id"
+	label "big_cpus"
+	label "small_mem"
+
+	input:
+	tuple val(barcode_id), path("${barcode_id}.sam"), path("${barcode_id}.fastq")
+	path("SSURef_Nr99_tax_silva_to_NCBI_synonyms.map")
+
+	output:
+	tuple val(barcode_id), path("${barcode_id}.rma")
+
+	shell:
+	"""
+	sam2rma -i ${barcode_id}.sam -r ${barcode_id}.fastq -o ${barcode_id}.rma -lg -alg longReads -lcp 80 -ram readCount -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map -v
+	"""
+}
+

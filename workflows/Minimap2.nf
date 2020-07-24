@@ -7,11 +7,13 @@ include Sam2Rma from '../modules/processes'
 workflow Minimap2Workflow {
     take:
         filtered_ch
-        silva
+        silva_fasta_ch
+        acctax
+
     main:
-        MakeMinimapDB( silva )
-        Minimap2( filtered_ch )
-        Sam2Rma( Minimap2.out )
+        MakeMinimapDB( silva_fasta_ch )
+        Minimap2( filtered_ch, MakeMinimapDB.out )
+        Sam2Rma( Minimap2.out, acctax )
     emit:
         Sam2Rma.out
 }

@@ -1,8 +1,12 @@
 #!/usr/bin/env nextflow
 
 params.fq = "$baseDir/data/*.fastq"
+params.silvaDir = "$baseDir/silva"
+params.downloadSilvaFiles = false
 params.outdir = "results"
-params.cpus = 4
+//params.cpus = 4
+params.minimap2 = false
+params.last = false
 params.keepmaf = false
 params.stoptocheckparams = false
 params.nanofilt_quality = 8
@@ -10,6 +14,8 @@ params.nanofilt_maxlength = 1500
 params.megan_lcaAlgorithm = "naive"
 params.megan_lcaCoveragePercent = 100
 params.help = false
+
+
 
 nextflow.preview.dsl = 2
 
@@ -59,20 +65,33 @@ if (params.help) {
     exit 0
 }
 
+
+// include modules
 include Concatenate from './modules/processes'
 include Demultiplex from './modules/processes'
 include Filter from './modules/processes'
 include NanoPlotNoFilt from './modules/processes'
 include NanoPlotFilt from './modules/processes'
-include {SummaryTable} from './modules/processes'
-include {Fastq2Fasta} from './modules/processes'
-include {LastAL} from './modules/processes'
-include {DAAConverter} from './modules/processes'
-include {DAAMeganizer} from './modules/processes'
-include {ComputeComparison} from './modules/processes'
-include {ExtractOtuTable} from './modules/processes'
+include SummaryTable from './modules/processes'
+include ComputeComparison from './modules/processes'
+include ExtractOtuTable from './modules/processes'
+
+// include sub-workflows
+include {DownloadSilva} from './workflows/Download'
+include {LastWorkflow} from './workflows/Last'
+include {Minimap2Workflow} from './workflows/Minimap2'
 
 workflow {
+  if ( params.downloadSilvaFiles ){
+    DownloadSilva()
+    DownloadSilva.out.fasta
+      .set{ silva_fasta_ch }
+    DownloadSilva.out.acctax
+      .set{ silva_acctax_ch }
+  } /*else {
+    Channel.fromPath( "${params.silvaDir}" )
+      .set{ raw_silva_ch }
+  }*/
   Channel.fromPath(params.fq)
     .set{ fqs_ch }
   Concatenate( fqs_ch.collect() )
@@ -82,18 +101,23 @@ workflow {
     .map { file -> tuple(file.baseName, file) }
     .set{ barcode_ch }
   Filter( barcode_ch )
+  Filter.out
+    .set{ filtered_ch }
   NanoPlotNoFilt( barcode_ch )
   NanoPlotFilt( Filter.out )
   NanoPlotNoFilt.out.counts
     .mix( NanoPlotFilt.out.counts )
     .set{ counts_ch }
   SummaryTable( counts_ch.collect() )
-  Fastq2Fasta( Filter.out )
-  LastAL( Fastq2Fasta.out )
-  DAAConverter( LastAL.out )
-  DAAMeganizer( DAAConverter.out )
-  ComputeComparison( DAAConverter.out.collect() )
+  if ( params.minimap2 ) {
+    Minimap2Workflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
+    Minimap2Workflow.out
+      .set{ to_compare_ch }
+  } else if ( params.last ) {
+    LastWorkflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
+    LastWorkflow.out
+      .set{ to_compare_ch }
+  }
+  ComputeComparison( to_compare_ch.collect() )
   ExtractOtuTable( ComputeComparison.out )
-  /*
-  */
 }
