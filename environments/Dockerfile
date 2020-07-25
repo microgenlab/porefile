@@ -30,7 +30,7 @@ RUN wget -P /opt https://software-ab.informatik.uni-tuebingen.de/download/megan6
 	find "$MEGAN"/tools -type f | while read -r file; do b=$(basename "$file"); ln -fs "$file" /usr/local/bin/"$b"; sed -i -e "s@\"\$0\"@\"$file\"@" "$file"; done  && \
 	ln -fs "$MEGAN"/MEGAN /usr/local/bin/MEGAN && \
 	sed -i -e "s@\"\$0\"@\"$MEGAN/MEGAN\"@" "$MEGAN"/MEGAN  && \
-	rm /opt/MEGAN_Community_unix_6_15_0.sh
+	rm /opt/MEGAN_Community_unix_6_18_0.sh
 
 RUN wget -P /opt https://github.com/BenjaminAlbrecht84/DAA_Converter/releases/download/v0.9.0/DAA_Converter_v0.9.0.jar
 
