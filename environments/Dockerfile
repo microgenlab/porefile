@@ -11,6 +11,7 @@ RUN apt update -y && apt upgrade -y && apt install -y \
       libz-dev \
       bc \
       xvfb \
+      gnupg \
       software-properties-common && \
     apt clean -y && \
     apt autoremove -y
