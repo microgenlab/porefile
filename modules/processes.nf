@@ -70,21 +70,21 @@ process Concatenate {
 	label "small_mem"
 
 	input:
-	file "*"
+	file "*fastq"
 
 	output:
 	file "allfq.fastq"
 
-	shell:
+	script:
 	"""
-	cat * > allfq.fastq
+	cat *fastq > allfq.fastq
 	"""
 }
 
 
 process Demultiplex {
 	label "big_cpus"
-	label "small_mem"
+	label "big_mem"
 
 	input:
 	file fq
@@ -101,8 +101,7 @@ process Demultiplex {
 
 process Filter {
 	tag "$barcode_id"
-	label "big_cpus"
-	label "small_mem"
+	label "small_cpus"
 
 	input:
 	tuple val(barcode_id), file("${barcode_id}.fastq")
@@ -208,8 +207,8 @@ process SummaryTable{
 
 process Fastq2Fasta {
 	tag "$barcode_id"
-	label "big_cpus"
-	label "big_mem"
+	label "small_cpus"
+	label "small_mem"
 
 	input:
 	tuple val(barcode_id), path("${barcode_id}.fastq")
@@ -301,7 +300,6 @@ process DAAConverter{
 process DAAMeganizer{
 	tag "$barcode_id"
 	label "big_cpus"
-	label "big_mem"
 
 	input:
 	tuple val(barcode_id), file("${barcode_id}.daa")
@@ -383,7 +381,7 @@ process ExtractOtuTable {
 
 
 process MakeMinimapDB {
-	label "small_cpus"
+	label "big_cpus"
 	label "big_mem"
 
 	input:
@@ -401,7 +399,6 @@ process MakeMinimapDB {
 process Minimap2 {
 	tag "$barcode_id"
 	label "big_cpus"
-	label "small_mem"
 
 	input:
 	tuple val(barcode_id), path("Filt_${barcode_id}.fastq")
@@ -419,7 +416,6 @@ process Minimap2 {
 process Sam2Rma {
 	tag "$barcode_id"
 	label "big_cpus"
-	label "small_mem"
 
 	input:
 	tuple val(barcode_id), path("${barcode_id}.sam"), path("${barcode_id}.fastq")
