@@ -123,13 +123,13 @@ process NanoPlotNoFilt {
 	label "small_cpus"
 	label "small_mem"
 
-	publishDir "$params.outdir/NanoPlots", pattern: "NanoPlot*", mode: "copy"
+	publishDir "$params.outdir/NanoPlots/${barcode_id}/Raw", mode: "copy"
 
 	input:
 	tuple val(barcode_id), file("${barcode_id}.fastq")
 
 	output:
-	tuple val(barcode_id), path("Nanoplot.NoFilt.${barcode_id}"), emit: nanoplot, optional: true
+	tuple val(barcode_id), path("${barcode_id}_Raw_*"), emit: nanoplot, optional: true
 	tuple val(barcode_id), path("count_NoFilt_${barcode_id}.txt"), emit: counts
 
 	script:
@@ -139,7 +139,7 @@ process NanoPlotNoFilt {
 	echo \$COUNT > count_NoFilt_${barcode_id}.txt
 	if [ "\$COUNT" -gt "\$TWO" ]
 	then
-		NanoPlot -t ${task.cpus} --fastq ${barcode_id}.fastq -o Nanoplot.NoFilt.${barcode_id}
+		NanoPlot -t ${task.cpus} --fastq ${barcode_id}.fastq -p ${barcode_id}_Raw_
 	fi
 	"""
 }
@@ -150,13 +150,13 @@ process NanoPlotFilt {
 	label "small_cpus"
 	label "small_mem"
 
-	publishDir "$params.outdir/NanoPlots", pattern: "NanoPlot*/*", mode: "copy"
+	publishDir "$params.outdir/NanoPlots/${barcode_id}/Filtered", mode: "copy"
 
 	input:
 	tuple val(barcode_id), file("Filt_${barcode_id}.fastq")
 
 	output:
-	tuple val(barcode_id), path("Nanoplot.${barcode_id}"), emit: nanoplot, optional: true
+	tuple val(barcode_id), path("${barcode_id}_Filtered_*"), emit: nanoplot, optional: true
 	tuple val(barcode_id), path("count_Filt_${barcode_id}.txt"), emit: counts
 
 	script:
@@ -166,7 +166,7 @@ process NanoPlotFilt {
 	echo \$COUNT > count_Filt_${barcode_id}.txt
 	if [ "\$COUNT" -gt "\$TWO" ]
 	then
-		NanoPlot -t ${task.cpus} --fastq Filt_${barcode_id}.fastq -o Nanoplot.${barcode_id}
+		NanoPlot -t ${task.cpus} --fastq Filt_${barcode_id}.fastq -p ${barcode_id}_Filtered_
 	fi
 	"""
 }
@@ -300,6 +300,7 @@ process DAAConverter{
 process DAAMeganizer{
 	tag "$barcode_id"
 	label "big_cpus"
+	scratch true
 
 	input:
 	tuple val(barcode_id), file("${barcode_id}.daa")
