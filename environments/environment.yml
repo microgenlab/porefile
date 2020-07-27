@@ -1,4 +1,4 @@
-name: long16S
+name: porefile
 channels:
   - conda-forge
   - bioconda

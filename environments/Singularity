@@ -34,7 +34,7 @@ From: conda/miniconda3
 	conda env create -f /environment.yml && conda clean -a
 
 %environment
-	export PATH="$PATH:/usr/local/envs/long16S/bin"
+	export PATH="$PATH:/usr/local/envs/porefile/bin"
 
 %labels
 	Authors: Cecilia Salazar (csalazar@pasteur.edu.uy) & Ignacio Ferres (iferres@pasteur.edu.uy)

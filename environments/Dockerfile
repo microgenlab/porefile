@@ -36,4 +36,4 @@ RUN wget -P /opt https://github.com/BenjaminAlbrecht84/DAA_Converter/releases/do
 
 COPY environment.yml /
 RUN conda env create -f /environment.yml && conda clean -a
-ENV PATH $PATH:/usr/local/envs/long16S/bin
+ENV PATH $PATH:/usr/local/envs/porefile/bin
