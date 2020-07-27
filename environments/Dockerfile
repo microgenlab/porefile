@@ -1,6 +1,5 @@
 FROM conda/miniconda3
 
-MAINTAINER Ignacio Ferres <iferres@pasteur.edu.uy>
 LABEL authors="Cecilia Salazar <csalazar@pasteur.edu.uy> & Ignacio Ferres <iferres@pasteur.edu.uy>"
 
 RUN apt update -y && apt upgrade -y && apt install -y \
