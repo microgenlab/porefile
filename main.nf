@@ -69,14 +69,14 @@ if ( ! (params.minimap2 || params.last) ){
 }
 
 // include modules
-include Concatenate from './modules/processes'
-include Demultiplex from './modules/processes'
-include Filter from './modules/processes'
-include NanoPlotNoFilt from './modules/processes'
-include NanoPlotFilt from './modules/processes'
-include SummaryTable from './modules/processes'
-include ComputeComparison from './modules/processes'
-include ExtractOtuTable from './modules/processes'
+include {Concatenate} from './modules/processes'
+include {Demultiplex} from './modules/processes'
+include {Filter} from './modules/processes'
+include {NanoPlotNoFilt} from './modules/processes'
+include {NanoPlotFilt} from './modules/processes'
+include {SummaryTable} from './modules/processes'
+include {ComputeComparison} from './modules/processes'
+include {ExtractOtuTable} from './modules/processes'
 
 // include sub-workflows
 include {DownloadSilva} from './workflows/Download'

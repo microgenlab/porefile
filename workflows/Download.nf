@@ -5,10 +5,10 @@ params.silvaFastaURL = "https://www.arb-silva.de/fileadmin/silva_databases/curre
 params.silvaAccTaxIDURL = "https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/tax_slv_ssu_138.acc_taxid.gz"
 
 
-include downloadFasta from '../modules/processes'
+include {downloadFasta} from '../modules/processes'
 //include downloadTaxmap from '../modules/processes'
-include downloadAccTaxID from '../modules/processes' 
-include trimAccTaxID from '../modules/processes'
+include {downloadAccTaxID} from '../modules/processes' 
+include {trimAccTaxID} from '../modules/processes'
 
 
 workflow DownloadSilva {

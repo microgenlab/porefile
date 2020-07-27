@@ -1,10 +1,10 @@
 nextflow.preview.dsl = 2
 
-include MakeLastDB from '../modules/processes'
-include Fastq2Fasta from '../modules/processes'
-include LastAL from '../modules/processes'
-include DAAConverter from '../modules/processes'
-include DAAMeganizer from '../modules/processes'
+include {MakeLastDB} from '../modules/processes'
+include {Fastq2Fasta} from '../modules/processes'
+include {LastAL} from '../modules/processes'
+include {DAAConverter} from '../modules/processes'
+include {DAAMeganizer} from '../modules/processes'
 
 workflow LastWorkflow {
     take:

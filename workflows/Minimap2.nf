@@ -1,8 +1,8 @@
 nextflow.preview.dsl = 2
 
-include MakeMinimapDB from '../modules/processes'
-include Minimap2 from '../modules/processes'
-include Sam2Rma from '../modules/processes'
+include {MakeMinimapDB} from '../modules/processes'
+include {Minimap2} from '../modules/processes'
+include {Sam2Rma} from '../modules/processes'
 
 workflow Minimap2Workflow {
     take:
