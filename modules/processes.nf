@@ -322,44 +322,49 @@ process DAAMeganizer{
 
 
 process ComputeComparison{
+	tag "$workflow_ch"
 	label "small_cpus"
 	label "small_mem"
+	
 
 	publishDir "$params.outdir/Megan_Comparison", mode: "copy"
 
 	input:
 	file "*"
+	val(workflow_ch)
 
 	output:
-	file "comparison.megan"
+	file("${workflow_ch}_comparison.megan")
 
 	when:
 	params.stoptocheckparams == false
 
 	shell:
 	"""
-	xvfb-run --auto-servernum --server-num=1 /usr/local/bin/compute-comparison -i ./* -o comparison.megan
+	xvfb-run --auto-servernum --server-num=1 /usr/local/bin/compute-comparison -i ./* -o ${workflow_ch}_comparison.megan
 	"""
 }
 
 
 
 process ExtractOtuTable {
+	tag "$workflow_ch"
 	label "small_cpus"
 	label "small_mem"
 
 	publishDir "$params.outdir/Megan_Comparison", mode: "copy"
 
 	input:
-	file "comparison.megan"
+	file("${workflow_ch}_comparison.megan")
+	val(workflow_ch)
 
 	output:
-	file "OTU_Table.tsv"
+	path("${workflow_ch}_OTU_Table.tsv")
 
 	shell:
 	"""
 	#!/usr/bin/env Rscript
-	rl <- readLines("comparison.megan")
+	rl <- readLines("${workflow_ch}_comparison.megan")
 	snam <- strsplit(grep("^@Names", rl, value = TRUE), "\t")[[1]][-1]
 
 	taxs <- grep("^TAX", rl)
@@ -376,7 +381,7 @@ process ExtractOtuTable {
 	mp <- t(mapply(function(x, add){c(x, rep(0, add))}, x=taxs, add=addz))
 	colnames(mp) <- snam
 
-	write.table(mp, file = "OTU_Table.tsv", quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+	write.table(mp, file = "${workflow_ch}_OTU_Table.tsv", quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
 	"""
 }
 

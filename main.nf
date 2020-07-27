@@ -26,23 +26,28 @@ def helpMessage() {
     --------------------------
     Usage:
     The typical command for running the pipeline is as follows:
-    nextflow run iferres/long16S --fq 'data/*.fastq' --cpus 4 -profile local
-
-    Note:
-    SILVA and MEGAN databases are must be provided. Provide those parameters between quotes.
+    nextflow run microgenlab/long16S --fq 'data/*.fastq' --minimap2 --downloadSilvaFiles
 
     Mandatory arguments:
         --fq                          Path to input data (must be surrounded with quotes).
-        -profile                      Configuration profile to use. Available: local, nagual.
+        --minimap2 or --last          One, or both flags, to select workflow.
 
     Other:
-        --cpus                        The max number of cpus to use on each process (Default: 4).
+        -profile                      Configuration profile to use. Available: standard (default), nagual, gcp.
+        --outdir                      Name of the results directory. Default: "results".
+      
+    Boolean control:    
+        --downloadSilvaFiles          Whether to download SILVA files. Requires internet connection.
         --stoptocheckparams           Whether to stop after Summary process to check parameters. Default: false.
                                       If true, then the pipeline stops to allow user to check parameters. If
                                       everything is ok, then this parameter should be set to false, and resumed
                                       by using the -resume flag. Previous steps will be cached. If some params
                                       are modified, then those processes affected by them and their dependant
                                       processes will be re run.
+        --keepmaf                     
+        
+
+    Process specific parameters:
         --nanofilt_quality            The '--quality' parameter of NanoFilt. Default: 8.
         --nanofilt_maxlength          The '--maxlength' parameter of NanoFilt. Default: 1500.
         --megan_lcaAlgorithm          The '--lcaAlgorithm' parameter of daa-meganizer (MEGAN). Default: naive.
@@ -115,12 +120,19 @@ workflow {
     Minimap2Workflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
     Minimap2Workflow.out
       .set{ to_compare_ch }
+    Channel.value( "minimap2" )
+      .set{ workflow_ch }
+    ComputeComparison( to_compare_ch.collect() , workflow_ch )
+    ExtractOtuTable( ComputeComparison.out, workflow_ch )
   }
   if ( params.last ) {
     LastWorkflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
     LastWorkflow.out
       .set{ to_compare_ch }
+    Channel.value( "last" )
+      .set{ workflow_ch }
+    ComputeComparison( to_compare_ch.collect() , workflow_ch )
+    ExtractOtuTable( ComputeComparison.out, workflow_ch )
   }
-  ComputeComparison( to_compare_ch.collect() )
-  ExtractOtuTable( ComputeComparison.out )
+  
 }
