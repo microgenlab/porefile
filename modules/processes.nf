@@ -388,7 +388,6 @@ process ExtractOtuTable {
 
 process MakeMinimapDB {
 	label "big_cpus"
-	label "big_mem"
 
 	input:
 	path("silva_SSU_tax.fasta")
