@@ -85,6 +85,7 @@ process Concatenate {
 process Demultiplex {
 	label "big_cpus"
 	label "big_mem"
+	scratch true
 
 	input:
 	file fq
