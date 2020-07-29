@@ -118,7 +118,7 @@ process Filter {
 }
 
 
-process NanoPlotNoFilt {
+process NanoPlotRaw {
 	tag "$barcode_id"
 	label "small_cpus"
 	label "small_mem"
@@ -130,13 +130,13 @@ process NanoPlotNoFilt {
 
 	output:
 	tuple val(barcode_id), path("${barcode_id}_Raw_*"), emit: nanoplot, optional: true
-	tuple val(barcode_id), path("count_NoFilt_${barcode_id}.txt"), emit: counts
+	tuple val(barcode_id), path("count_Raw_${barcode_id}.txt"), emit: counts
 
 	script:
 	"""
 	COUNT=\$(echo \$(cat ${barcode_id}.fastq | wc -l)/4 | bc)
 	TWO=2
-	echo \$COUNT > count_NoFilt_${barcode_id}.txt
+	echo \$COUNT > count_Raw_${barcode_id}.txt
 	if [ "\$COUNT" -gt "\$TWO" ]
 	then
 		NanoPlot -t ${task.cpus} --fastq ${barcode_id}.fastq -p ${barcode_id}_Raw_
@@ -188,11 +188,11 @@ process SummaryTable{
 	"""
 	#!/usr/bin/env Rscript
 	filt_files <- list.files(pattern = "_Filt_")
-	nofilt_files <- list.files(pattern = "_NoFilt_")
+	raw_files <- list.files(pattern = "_Raw_")
 	filt_files <- setNames(filt_files, gsub("^count_Filt_|[.]txt\$", "", filt_files))
-	nofilt_files <- setNames(nofilt_files, gsub("^count_NoFilt_|[.]txt\$", "", nofilt_files))
+	raw_files <- setNames(raw_files, gsub("^count_Raw_|[.]txt\$", "", raw_files))
 
-	lp <- lapply(list(RawReads = nofilt_files, Filtered = filt_files), function(x) {
+	lp <- lapply(list(RawReads = raw_files, Filtered = filt_files), function(x) {
 		vapply(x, readLines, FUN.VALUE=NA_character_)
 	})
 

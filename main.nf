@@ -77,7 +77,7 @@ if ( ! (params.minimap2 || params.last) ){
 include {Concatenate} from './modules/processes'
 include {Demultiplex} from './modules/processes'
 include {Filter} from './modules/processes'
-include {NanoPlotNoFilt} from './modules/processes'
+include {NanoPlotRaw} from './modules/processes'
 include {NanoPlotFilt} from './modules/processes'
 include {SummaryTable} from './modules/processes'
 
@@ -108,9 +108,9 @@ workflow {
   Filter( barcode_ch )
   Filter.out
     .set{ filtered_ch }
-  NanoPlotNoFilt( barcode_ch )
+  NanoPlotRaw( barcode_ch )
   NanoPlotFilt( Filter.out )
-  NanoPlotNoFilt.out.counts
+  NanoPlotRaw.out.counts
     .mix( NanoPlotFilt.out.counts )
     .set{ counts_ch }
   SummaryTable( counts_ch.collect() )
