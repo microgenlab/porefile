@@ -52,7 +52,7 @@ process trimAccTaxID {
 	label 'small_mem'
 
 	input:
-	path("*.acc_taxid")
+	file "tax_slv_ssu_138.acc_taxid"
 
 
 	output:
@@ -60,9 +60,9 @@ process trimAccTaxID {
 
 
 	script:
-	$/
-	cat *.acc_taxid | sed "s/\.\([0-9]\+\)\.\([0-9]\+\)//g" > SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
-	/$
+	"""
+	cat tax_slv_ssu_138.acc_taxid | awk -F '[.\\t]' '{print \$1 "\\t" \$4}' > SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
+	"""
 }
 
 process Concatenate {
@@ -221,30 +221,43 @@ process Fastq2Fasta {
 
 	shell:
 	"""
-	paste - - - - < ${barcode_id}.fastq | cut -f 1,2 | sed 's/^@/>/' | tr "\t" "\n" > ${barcode_id}.fasta
+	seqtk seq -A ${barcode_id}.fastq > ${barcode_id}.fasta
 	"""
 }
 
 process MakeLastDB {
 	label "big_cpus"
-	label "big_mem"
 
 	input:
 	path("silva_SSU_tax.fasta")
 
 	output:
-	path("silva.bck")
-	path("silva.des")
-	path("silva.prj")
-	path("silva.sds")
-	path("silva.ssp")
-	path("silva.suf")
-	path("silva.tis")
-
+	file "silva.*"
 
 	shell:
 	"""
 	lastdb -cR01 -P${task.cpus} silva silva_SSU_tax.fasta
+	"""
+}
+
+process LastTrain {
+	tag "$barcode_id"
+	label "big_cpus"
+
+	input:
+	tuple val(barcode_id), path("${barcode_id}.fasta")
+	file "*"
+	
+	
+	output:
+	tuple val(barcode_id), path("${barcode_id}.par")
+		
+	when:
+	!params.stoptocheckparams
+
+	shell:
+	"""
+	last-train -P${task.cpus} -Q0 silva ${barcode_id}.fasta > ${barcode_id}.par 
 	"""
 }
 
@@ -255,14 +268,8 @@ process LastAL {
 	publishDir "$params.outdir/LastAL", enabled: params.keepmaf, pattern: "*.maf", mode: "copy"
 
 	input:
-	tuple val(barcode_id), path("${barcode_id}.fasta")
-	path("silva.bck")
-	path("silva.des")
-	path("silva.prj")
-	path("silva.sds")
-	path("silva.ssp")
-	path("silva.suf")
-	path("silva.tis")
+	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.par")
+	path "*"
 
 	output:
 	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.maf")
@@ -272,7 +279,7 @@ process LastAL {
 
 	shell:
 	"""
-	lastal -P${task.cpus} silva ${barcode_id}.fasta > ${barcode_id}.maf
+	lastal -P${task.cpus} -p ${barcode_id}.par silva ${barcode_id}.fasta > ${barcode_id}.maf
 
 	"""
 }
@@ -307,7 +314,7 @@ process DAAMeganizer{
 	path("SSURef_Nr99_tax_silva_to_NCBI_synonyms.map")
 
 	output:
-	tuple val(barcode_id), file("${barcode_id}.daa")
+	file("${barcode_id}.daa")
 
 	when:
 	params.stoptocheckparams == false
@@ -427,7 +434,7 @@ process Sam2Rma {
 	path("SSURef_Nr99_tax_silva_to_NCBI_synonyms.map")
 
 	output:
-	tuple val(barcode_id), path("${barcode_id}.rma")
+	path("${barcode_id}.rma")
 
 	shell:
 	"""
