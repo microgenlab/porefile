@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 
-nextflow.preview.dsl = 2
+nextflow.enable.dsl = 2
 
 params.fq = "$baseDir/data/*.fastq"
 params.silvaDir = "$baseDir/silva"
@@ -80,8 +80,6 @@ include {Filter} from './modules/processes'
 include {NanoPlotNoFilt} from './modules/processes'
 include {NanoPlotFilt} from './modules/processes'
 include {SummaryTable} from './modules/processes'
-include {ComputeComparison} from './modules/processes'
-include {ExtractOtuTable} from './modules/processes'
 
 // include sub-workflows
 include {DownloadSilva} from './workflows/Download'
@@ -118,21 +116,8 @@ workflow {
   SummaryTable( counts_ch.collect() )
   if ( params.minimap2 ) {
     Minimap2Workflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
-    Minimap2Workflow.out
-      .set{ to_compare_ch }
-    Channel.value( "minimap2" )
-      .set{ workflow_ch }
-    ComputeComparison( to_compare_ch.collect() , workflow_ch )
-    ExtractOtuTable( ComputeComparison.out, workflow_ch )
   }
   if ( params.last ) {
     LastWorkflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
-    LastWorkflow.out
-      .set{ to_compare_ch }
-    Channel.value( "last" )
-      .set{ workflow_ch }
-    ComputeComparison( to_compare_ch.collect() , workflow_ch )
-    ExtractOtuTable( ComputeComparison.out, workflow_ch )
   }
-  
 }
