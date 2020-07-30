@@ -3,11 +3,7 @@
 nextflow.enable.dsl = 2
 
 params.fq = "$baseDir/data/*.fastq"
-params.silva-ssuref-nr99-fasta = "$baseDir/silvadb/Exports/SILVA_138_SSURef_NR99_tax_silva.fasta.gz"
-params.silva-tax-slv-ssu-acc-taxid = "$baseDir/silvadb/Exports/taxonomy/tax_slv_ssu_138.acc_taxid.gz"
-//params.downloadSilvaFiles = false
 params.outdir = "results"
-//params.cpus = 4
 params.minimap2 = false
 params.last = false
 params.keepmaf = false
@@ -83,21 +79,16 @@ include {NanoPlotFilt} from './modules/processes'
 include {SummaryTable} from './modules/processes'
 
 // include sub-workflows
-include {DownloadSilva} from './workflows/Download'
+include {SetSilva} from './workflows/Silva'
 include {LastWorkflow} from './workflows/Last'
 include {Minimap2Workflow} from './workflows/Minimap2'
 
 workflow {
-  if ( params.downloadSilvaFiles ){
-    DownloadSilva()
-    DownloadSilva.out.fasta
+  SetSilva()
+    SetSilva.out.fasta
       .set{ silva_fasta_ch }
-    DownloadSilva.out.acctax
+    SetSilva.out.acctax
       .set{ silva_acctax_ch }
-  } /*else {
-    Channel.fromPath( "${params.silvaDir}" )
-      .set{ raw_silva_ch }
-  }*/
   Channel.fromPath(params.fq)
     .set{ fqs_ch }
   Concatenate( fqs_ch.collect() )

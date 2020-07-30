@@ -1,4 +1,20 @@
 
+process gunzip {
+	label 'small_cpus'
+	label 'small_mem'
+
+	input:
+	file "*"
+
+	output:
+	file "*"
+
+	script:
+	"""
+	gunzip *
+	"""
+}
+
 
 process downloadFasta {
 	label 'internet'
