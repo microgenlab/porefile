@@ -3,8 +3,9 @@
 nextflow.enable.dsl = 2
 
 params.fq = "$baseDir/data/*.fastq"
-params.silvaDir = "$baseDir/silva"
-params.downloadSilvaFiles = false
+params.silva-ssuref-nr99-fasta = "$baseDir/silvadb/Exports/SILVA_138_SSURef_NR99_tax_silva.fasta.gz"
+params.silva-tax-slv-ssu-acc-taxid = "$baseDir/silvadb/Exports/taxonomy/tax_slv_ssu_138.acc_taxid.gz"
+//params.downloadSilvaFiles = false
 params.outdir = "results"
 //params.cpus = 4
 params.minimap2 = false
@@ -21,9 +22,9 @@ params.help = false
 
 def helpMessage() {
     log.info """
-    --------------------------
-    ---> Long16S Pipeline <---
-    --------------------------
+    --------------------------------------------------------
+    ---> porefile: a full-length 16S profiling Pipeline <---
+    --------------------------------------------------------
     Usage:
     The typical command for running the pipeline is as follows:
     nextflow run microgenlab/long16S --fq 'data/*.fastq' --minimap2 --downloadSilvaFiles
