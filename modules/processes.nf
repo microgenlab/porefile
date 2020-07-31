@@ -11,7 +11,7 @@ process gunzip {
 
 	script:
 	"""
-	gunzip *
+	gunzip -f *.gz
 	"""
 }
 
@@ -31,22 +31,6 @@ process downloadFasta {
 	"""
 }
 
-/*
-process downloadTaxmap {
-	label 'internet'
-	label 'small_cpus'
-	label 'small_mem'
-
-	output:
-	path("*.txt")
-
-	script:
-	"""
-	wget ${params.silvaTaxMapURL}
-	gunzip *gz
-	"""
-}
-*/
 process downloadAccTaxID {
 	label 'internet'
 	label 'small_cpus'
@@ -125,7 +109,6 @@ process Filter {
 
 	output:
 	tuple val(barcode_id), file("Filt_${barcode_id}.fastq")
-	// file "${x.baseName}" into nanofilted2
 
 	shell:
 	"""

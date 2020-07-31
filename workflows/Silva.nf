@@ -1,12 +1,13 @@
 nextflow.preview.dsl = 2
 
-params.silva-ssuref-nr99-fasta = "$baseDir/silvadb/Exports/SILVA_138_SSURef_NR99_tax_silva.fasta.gz"
-params.silva-tax-slv-ssu-acc-taxid = "$baseDir/silvadb/Exports/taxonomy/tax_slv_ssu_138.acc_taxid.gz"
+params.silvaFasta = "$baseDir/silvadb/Exports/SILVA_138_SSURef_NR99_tax_silva.fasta.gz"
+params.silvaAccTaxID = "$baseDir/silvadb/Exports/taxonomy/tax_slv_ssu_138.acc_taxid.gz"
 
 params.silvaFastaURL = "https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/SILVA_138_SSURef_NR99_tax_silva.fasta.gz"
 params.silvaAccTaxIDURL = "https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/tax_slv_ssu_138.acc_taxid.gz"
 
-
+include {gunzip as gunzipFasta} from '../modules/processes'
+include {gunzip as gunzipAccTaxid} from '../modules/processes'
 include {downloadFasta} from '../modules/processes'
 include {downloadAccTaxID} from '../modules/processes' 
 include {trimAccTaxID} from '../modules/processes'
@@ -15,9 +16,8 @@ include {trimAccTaxID} from '../modules/processes'
 workflow SetSilva {
     main:
 
-    parfasta = file( params.silva-ssuref-nr99-fasta )
-    paracctax = file( params.silva-tax-slv-ssu-acc-taxid )
-    Channel.empty().set{ stage_to_gunzip }
+    parfasta = file( params.silvaFasta )
+    paracctax = file( params.silvaAccTaxID )
 
     if ( ! parfasta.exists() ){
 
@@ -28,9 +28,15 @@ workflow SetSilva {
     } else{
         
         if ( parfasta.getExtension() == "gz" ){
-             stage_to_gunzip.mix( Channel.from(parfasta) )
-                .set{ stage_to_gunzip }
+
+            gunzipFasta( parfasta )
+            gunzipFasta.out
+                .set{ silva_fasta_ch }
+
         } else if ( parfasta.getExtension() == "fasta" ){
+
+            Channel.from( parfasta )
+                .set{ silva_fasta_ch }
 
         }else{
             println("Unrecognized silva extension (not gz nor fasta).")
@@ -43,15 +49,20 @@ workflow SetSilva {
 
         downloadAccTaxID()
         downloadAccTaxID.out
-        trimAccTaxID( downloadAccTaxID.out )
-            .set{ silva_acctax_ch }
+            .set{ to_trim }
 
     } else{
 
         if ( paracctax.getExtension() == "gz" ){
-            stage_to_gunzip.mix( Channel.from(paracctax) )
-                .set{ stage_to_gunzip }
+            
+            gunzipAccTaxid( paracctax )
+            gunzipAccTaxid.out
+                .set{ to_trim }
+
         } else if ( paracctax.getExtension() == "acc_taxid" ){
+            
+            Channel.from( paracctax )
+                .set{ to_trim }
 
         }else{
             println("Unrecognized silva extension (not gz nor acc_taxid).")
@@ -59,9 +70,10 @@ workflow SetSilva {
         }
 
     }
-    
-    
-    
+
+    trimAccTaxID( to_trim )
+    trimAccTaxID.out
+            .set{ silva_acctax_ch }
     
     emit: 
     fasta = silva_fasta_ch
