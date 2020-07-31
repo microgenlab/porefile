@@ -368,6 +368,9 @@ process ExtractOtuTable {
 	output:
 	path("${workflow_ch}_OTU_Table.tsv")
 
+	when:
+	params.stoptocheckparams == false
+
 	shell:
 	"""
 	#!/usr/bin/env Rscript
@@ -400,11 +403,11 @@ process MakeMinimapDB {
 	path("silva_SSU_tax.fasta")
 
 	output:
-	path("silva_k15.mmi")
+	path("silva_k${params.minimap2_k}.mmi")
 
 	shell:
 	"""
-	minimap2 -t ${task.cpus} -k 15 -d silva_k15.mmi silva_SSU_tax.fasta
+	minimap2 -t ${task.cpus} -k ${params.minimap2_k} -d silva_k${params.minimap2_k}.mmi silva_SSU_tax.fasta
 	"""
 }
 
@@ -414,14 +417,17 @@ process Minimap2 {
 
 	input:
 	tuple val(barcode_id), path("Filt_${barcode_id}.fastq")
-	path("silva_k15.mmi")
+	path("silva_k${params.minimap2_k}.mmi")
 
 	output:
 	tuple val(barcode_id), path("${barcode_id}.sam"), path("Filt_${barcode_id}.fastq")
 
+	when:
+	params.stoptocheckparams == false
+
 	shell:
 	"""
-	minimap2 -t ${task.cpus} -ax map-ont silva_k15.mmi Filt_${barcode_id}.fastq > ${barcode_id}.sam
+	minimap2 -t ${task.cpus} -ax ${params.minimap2_x} silva_k${params.minimap2_k}.mmi Filt_${barcode_id}.fastq > ${barcode_id}.sam
 	"""
 }
 
@@ -435,6 +441,9 @@ process Sam2Rma {
 
 	output:
 	path("${barcode_id}.rma")
+
+	when:
+	params.stoptocheckparams == false
 
 	shell:
 	"""

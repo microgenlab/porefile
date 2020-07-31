@@ -12,6 +12,8 @@ params.nanofilt_quality = 8
 params.nanofilt_maxlength = 1500
 params.megan_lcaAlgorithm = "naive"
 params.megan_lcaCoveragePercent = 100
+params.minimap2_k = 15
+params.minimap2_x = "map-ont"
 params.help = false
 
 
@@ -23,25 +25,42 @@ def helpMessage() {
     --------------------------------------------------------
     Usage:
     The typical command for running the pipeline is as follows:
-    nextflow run microgenlab/long16S --fq 'data/*.fastq' --minimap2 --downloadSilvaFiles
+    nextflow run microgenlab/long16S --fq 'data/*.fastq' --minimap2
 
     Mandatory arguments:
         --fq                          Path to input data (must be surrounded with quotes).
-        --minimap2 or --last          One, or both flags, to select workflow.
+        --minimap2 or --last          One or both flags to select workflow.
 
     Other:
-        -profile                      Configuration profile to use. Available: standard (default), nagual, gcp.
+        --silvaFasta                  Path to SILVA_*_SSURef_NR99_tax_silva.fasta.gz file. You can provide it 
+                                      either compressed (.gz) or not. If not provided, the workflow automatically
+                                      adds a download step (you must have internet connection).
+        --silvaFastaURL               URL to SILVA_*_SSURef_NR99_tax_silva.fasta.gz file. It will be used if you
+                                      don't provide the --silvaFasta parameter (above). Default is:
+                                      'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/SILVA_138_SSURef_NR99_tax_silva.fasta.gz',
+                                      change it if you want to download another SILVA version.
+        --silvaAccTaxID               Path to tax_slv_ssu_*.acc_taxid.gz file. You can provide it either
+                                      compressed (.gz) or not. If not provided, the workflow automatically adds
+                                      a download step (you must have internet connection).
+        --silvaAccTaxIDURL            URL to tax_slv_ssu_*.acc_taxid.gz file. It will be used if you don't 
+                                      provide the --silvaAccTaxID parameter (above). Default is:
+                                      'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/tax_slv_ssu_138.acc_taxid.gz',
+                                      change it if you want to download another SILVA version.
         --outdir                      Name of the results directory. Default: "results".
       
     Boolean control:    
-        --downloadSilvaFiles          Whether to download SILVA files. Requires internet connection.
-        --stoptocheckparams           Whether to stop after Summary process to check parameters. Default: false.
-                                      If true, then the pipeline stops to allow user to check parameters. If
-                                      everything is ok, then this parameter should be set to false, and resumed
-                                      by using the -resume flag. Previous steps will be cached. If some params
-                                      are modified, then those processes affected by them and their dependant
-                                      processes will be re run.
-        --keepmaf                     
+        --stoptocheckparams           Set this option to stop the pipeline after Summary process to check parameters.
+                                      If set, then the pipeline stops to allow user to check parameters. If
+                                      everything is ok, then this parameter should be removed, and resumed
+                                      by using the -resume flag (only one '-'!). Previous steps will be cached. 
+                                      If some params are modified, then those processes affected by them and their
+                                      dependant processes will be re run. Specially useful for checking NanoFilt
+                                      parameters. Don't forget to allways use the -resume option!
+        --keepmaf                     Use this flag if you want to copy .maf files (last workflow) to the results
+                                      directory. Since generating the .maf files is time consuming and resource 
+                                      intensive, and that people generally discard the 'work' directory, we decide
+                                      to give this option to the users. Take into account that maf files are usually
+                                      HUGE, and the file copy operation can take some time. 
         
 
     Process specific parameters:
