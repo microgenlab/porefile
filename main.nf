@@ -70,6 +70,16 @@ if ( ! (params.minimap2 || params.last) ){
   System.exit(1)
 }
 
+if (! params.fq ){
+  println("You must provide at least 1 fastq file using --fq flag.")
+  System.exit(1)
+}
+
+Channel
+  .fromPath(params.fq, checkIfExists: true)
+  .ifEmpty { exit 1, "Non fastq files found: ${params.fq}" }
+  .set{ fqs_ch }
+
 // include modules
 include {Concatenate} from './modules/processes'
 include {Demultiplex} from './modules/processes'
@@ -89,8 +99,6 @@ workflow {
       .set{ silva_fasta_ch }
     SetSilva.out.acctax
       .set{ silva_acctax_ch }
-  Channel.fromPath(params.fq)
-    .set{ fqs_ch }
   Concatenate( fqs_ch.collect() )
   Demultiplex( Concatenate.out )
   Demultiplex.out
