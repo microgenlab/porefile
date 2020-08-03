@@ -66,8 +66,12 @@ def helpMessage() {
     Process specific parameters:
         --nanofilt_quality            The '--quality' parameter of NanoFilt. Default: 8.
         --nanofilt_maxlength          The '--maxlength' parameter of NanoFilt. Default: 1500.
-        --megan_lcaAlgorithm          The '--lcaAlgorithm' parameter of daa-meganizer (MEGAN). Default: naive.
+        --megan_lcaAlgorithm          The '--lcaAlgorithm' parameter of daa-meganizer (MEGAN). Default: naive. Possible
+                                      values are: 'naive', 'weighed', or 'longReads'.
         --megan_lcaCoveragePercent    The '--lcaCoveragePercent' parameter of daa-meganizer (MEGAN). Default: 100.
+        --minimap2_k                  The '-k' parameter of minimap2. Default: 15.
+        --minimap2_x                  The '-x' parameter of minimap2. Default: 'map-ont'. Possible values: 'map-ont', 
+                                      'asm5', 'asm10', 'asm20'.
 
     Authors: Cecilia Salazar (csalazar@pasteur.edu.uy) & Ignacio Ferres (iferres@pasteur.edu.uy)
     Maintainer: Ignacio Ferres (iferres@pasteur.edu.uy)
