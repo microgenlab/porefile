@@ -447,7 +447,7 @@ process Sam2Rma {
 
 	shell:
 	"""
-	sam2rma -i ${barcode_id}.sam -r ${barcode_id}.fastq -o ${barcode_id}.rma -lg -alg longReads -lcp 80 -ram readCount -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map -v
+	sam2rma -i ${barcode_id}.sam -r ${barcode_id}.fastq -o ${barcode_id}.rma -lg -alg ${params.megan_lcaAlgorithm} -lcp ${params.megan_lcaCoveragePercent} -ram readCount -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
 	"""
 }
 
