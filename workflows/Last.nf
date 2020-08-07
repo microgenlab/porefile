@@ -19,6 +19,12 @@ workflow LastWorkflow {
         MakeLastDB.out.collect()
             .set{ lastdb_ch }
         Fastq2Fasta( filtered_ch )
+        if ( params.last ){
+            Last( Fastq2Fasta.out, lastdb_ch )
+        }
+        if ( params.lasttrain ){
+            Train( Fastq2Fasta.out, lastdb_ch )
+        }
         LastTrain( Fastq2Fasta.out, lastdb_ch )
         Fastq2Fasta.out.join( LastTrain.out )
             .set{ to_align }
