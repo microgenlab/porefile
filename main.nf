@@ -6,6 +6,7 @@ params.fq = "$baseDir/data/*.fastq"
 params.outdir = "results"
 params.minimap2 = false
 params.last = false
+params.lasttrain = false
 params.keepmaf = false
 params.stoptocheckparams = false
 params.nanofilt_quality = 8
@@ -140,7 +141,7 @@ workflow {
   if ( params.minimap2 ) {
     Minimap2Workflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
   }
-  if ( params.last ) {
+  if ( params.last || params.lasttrain  ) {
     LastWorkflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
   }
 }
