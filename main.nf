@@ -111,10 +111,12 @@ include {Filter} from './modules/processes'
 include {NanoPlotRaw} from './modules/processes'
 include {NanoPlotFilt} from './modules/processes'
 include {SummaryTable} from './modules/processes'
+include {ExtractOtuTable} from './modules/processes'
+include {ComputeComparison} from './modules/processes'
 
 // include sub-workflows
 include {SetSilva} from './workflows/Silva'
-include {LastWorkflow} from './workflows/Last'
+include {LastWorkflow} from './workflows/LastWorkflow'
 include {Minimap2Workflow} from './workflows/Minimap2'
 
 workflow {
@@ -138,10 +140,19 @@ workflow {
     .mix( NanoPlotFilt.out.counts )
     .set{ counts_ch }
   SummaryTable( counts_ch.collect() )
+  Channel.empty()
+    .set{ stage_to_comprare_ch }
   if ( params.minimap2 ) {
     Minimap2Workflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
+      stage_to_comprare_ch.mix( Minimap2Workflow.out )
+        .set{ stage_to_comprare_ch }
+      
   }
   if ( params.last || params.lasttrain  ) {
     LastWorkflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
+      stage_to_comprare_ch.mix( LastWorkflow.out )
+        .set{ stage_to_comprare_ch }
   }
+  ComputeComparison( stage_to_comprare_ch )
+  ExtractOtuTable( ComputeComparison.out )
 }
