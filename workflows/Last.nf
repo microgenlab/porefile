@@ -4,20 +4,24 @@ nextflow.enable.dsl = 2
 include {LastAL} from '../modules/processes'
 include {DAAConverter} from '../modules/processes'
 include {DAAMeganizer} from '../modules/processes'
-include {ComputeComparison} from '../modules/processes'
-include {ExtractOtuTable} from '../modules/processes'
 
-workflow Train {
+workflow Last {
     take:
+        fasta_ch
+        lastdb_ch
+        acctax
 
     main:
-        Channel.value( "lasttrain" )
-            .set{ workflow_ch }
-        Fastq2Fasta.out
-            .set{ to_align }
-        LastAL( to_align , lastdb_ch )
-        DAAConverter( LastAL.out )
+        selected_wf = "last"
+        LastAL( fasta_ch , lastdb_ch )
+        ali_ch = Channel.from(selected_wf)
+            .combine( LastAL.out )
+        DAAConverter( ali_ch )
         DAAMeganizer( DAAConverter.out , acctax )
-        ComputeComparison( DAAMeganizer.out.collect(), workflow_ch )
-        ExtractOtuTable( ComputeComparison.out, workflow_ch)
+        DAAMeganizer.out
+            .groupTuple()
+            .set{ last_out_ch }
+    
+    emit:
+        last_out_ch
 }

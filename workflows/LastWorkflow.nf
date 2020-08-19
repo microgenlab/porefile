@@ -18,11 +18,22 @@ workflow LastWorkflow {
         MakeLastDB.out.collect()
             .set{ lastdb_ch }
         Fastq2Fasta( filtered_ch )
+        Fastq2Fasta.out 
+            .set{ fasta_ch }
+        Channel.empty()
+            .set{ to_compare_ch }
         if ( params.last ){
-            Last( Fastq2Fasta.out, lastdb_ch )
+            Last( fasta_ch, lastdb_ch, acctax )
+            to_compare_ch.mix( Last.out )
+                .set{ to_compare_ch }
         }
         if ( params.lasttrain ){
-            Train( Fastq2Fasta.out, lastdb_ch )
+            Train( fasta_ch, lastdb_ch, acctax )
+            to_compare_ch.mix( Train.out )
+                .set{ to_compare_ch }
         }
+
+    emit:
+        to_compare_ch
         
 }
