@@ -31,22 +31,22 @@ process downloadFasta {
 	"""
 }
 
-process downloadAccTaxID {
+process downloadMeganSynMap {
 	label 'internet'
 	label 'small_cpus'
 	label 'small_mem'
 
 	output:
-	path("*acc_taxid")
+	path("*")
 
 	script:
 	"""
-	wget ${params.silvaAccTaxIDURL}
+	wget ${params.meganSynMapURL}
 	gunzip *gz
 	"""
 }
 
-
+/*
 process trimAccTaxID {
 	label 'small_cpus'
 	label 'small_mem'
@@ -64,6 +64,7 @@ process trimAccTaxID {
 	cat tax_slv_ssu_138.acc_taxid | awk -F '[.\\t]' '{print \$1 "\\t" \$4}' > SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
 	"""
 }
+*/
 
 process Concatenate {
 	label "small_cpus"
