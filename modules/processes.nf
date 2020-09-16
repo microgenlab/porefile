@@ -16,7 +16,7 @@ process gunzip {
 }
 
 
-process downloadFasta {
+process downloadSilvaFasta {
 	label 'internet'
 	label 'small_cpus'
 	label 'small_mem'
@@ -31,6 +31,55 @@ process downloadFasta {
 	"""
 }
 
+process downloadSilvaTaxNcbiSp {
+	label 'internet'
+	label 'small_cpus'
+	label 'small_mem'
+
+	output:
+	path("*.txt")
+
+	script:
+	"""
+	wget ${params.silvaTaxNcbiSpURL}
+	gunzip *gz
+	"""
+}
+
+process downloadSilvaTaxmap {
+	label 'internet'
+	label 'small_cpus'
+	label 'small_mem'
+
+	output:
+	path("*.txt")
+
+	script:
+	"""
+	wget ${params.silvaTaxmapURL}
+	gunzip *gz
+	"""
+}
+
+process generateSynonyms {
+	label 'small_cpus'
+	label 'small_mem'
+
+	input:
+	file "tax_ncbi-species_ssu_ref_nr99_VERSION.txt"
+	file "taxmap_ncbi_ssu_ref_nr99_VERSION.txt"
+
+	output:
+	file "SSURef_Nr99_tax_silva_to_NCBI_synonyms.map"
+
+	shell:
+	"""
+	#!/usr/bin/env Rscript
+	
+	"""
+}
+
+/*
 process downloadMeganSynMap {
 	label 'internet'
 	label 'small_cpus'
@@ -46,7 +95,7 @@ process downloadMeganSynMap {
 	"""
 }
 
-/*
+
 process trimAccTaxID {
 	label 'small_cpus'
 	label 'small_mem'
