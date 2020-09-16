@@ -31,22 +31,22 @@ process downloadFasta {
 	"""
 }
 
-process downloadAccTaxID {
+process downloadMeganSynMap {
 	label 'internet'
 	label 'small_cpus'
 	label 'small_mem'
 
 	output:
-	path("*acc_taxid")
+	path("*")
 
 	script:
 	"""
-	wget ${params.silvaAccTaxIDURL}
+	wget ${params.meganSynMapURL}
 	gunzip *gz
 	"""
 }
 
-
+/*
 process trimAccTaxID {
 	label 'small_cpus'
 	label 'small_mem'
@@ -64,6 +64,7 @@ process trimAccTaxID {
 	cat tax_slv_ssu_138.acc_taxid | awk -F '[.\\t]' '{print \$1 "\\t" \$4}' > SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
 	"""
 }
+*/
 
 process Concatenate {
 	label "small_cpus"
@@ -85,7 +86,6 @@ process Concatenate {
 process Demultiplex {
 	label "big_cpus"
 	label "big_mem"
-	scratch true
 
 	input:
 	file fq
@@ -268,6 +268,28 @@ process LastAL {
 	publishDir "$params.outdir/LastAL", enabled: params.keepmaf, pattern: "*.maf", mode: "copy"
 
 	input:
+	tuple val(barcode_id), path("${barcode_id}.fasta")
+	path "*"
+
+	output:
+	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.maf")
+
+	when:
+	!params.stoptocheckparams
+
+	shell:
+	"""
+	lastal -P${task.cpus} silva ${barcode_id}.fasta > ${barcode_id}.maf
+	"""
+}
+
+process LastALPar {
+	label "big_cpus"
+	label "big_mem"
+	tag "$barcode_id"
+	publishDir "$params.outdir/LastAL", enabled: params.keepmaf, pattern: "*.maf", mode: "copy"
+
+	input:
 	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.par")
 	path "*"
 
@@ -280,7 +302,6 @@ process LastAL {
 	shell:
 	"""
 	lastal -P${task.cpus} -p ${barcode_id}.par silva ${barcode_id}.fasta > ${barcode_id}.maf
-
 	"""
 }
 
@@ -290,10 +311,10 @@ process DAAConverter{
 	tag "$barcode_id"
 
 	input:
-	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.maf")
+	tuple val(selected_wf), val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.maf")
 
 	output:
-	tuple val(barcode_id), file("${barcode_id}.daa")
+	tuple val(selected_wf), val(barcode_id), file("${barcode_id}.daa")
 
 	when:
 	!params.stoptocheckparams
@@ -307,14 +328,13 @@ process DAAConverter{
 process DAAMeganizer{
 	tag "$barcode_id"
 	label "big_cpus"
-	scratch true
 
 	input:
-	tuple val(barcode_id), file("${barcode_id}.daa")
+	tuple val(selected_wf), val(barcode_id), file("${barcode_id}.daa")
 	path("SSURef_Nr99_tax_silva_to_NCBI_synonyms.map")
 
 	output:
-	file("${barcode_id}.daa")
+	tuple val(selected_wf), file("${barcode_id}.daa")
 
 	when:
 	params.stoptocheckparams == false
@@ -329,44 +349,41 @@ process DAAMeganizer{
 
 
 process ComputeComparison{
-	tag "$workflow_ch"
+	tag "$selected_wf"
 	label "small_cpus"
 	label "small_mem"
 	
-
 	publishDir "$params.outdir/Megan_Comparison", mode: "copy"
 
 	input:
-	file "*"
-	val(workflow_ch)
+	tuple val(selected_wf), file("*")
 
 	output:
-	file("${workflow_ch}_comparison.megan")
+	tuple val(selected_wf), file("${selected_wf}_comparison.megan")
 
 	when:
 	params.stoptocheckparams == false
 
 	shell:
 	"""
-	xvfb-run --auto-servernum --server-num=1 /usr/local/bin/compute-comparison -i ./* -o ${workflow_ch}_comparison.megan
+	xvfb-run --auto-servernum --server-num=1 /usr/local/bin/compute-comparison -i ./* -o ${selected_wf}_comparison.megan -n ${params.normalizeOtu}
 	"""
 }
 
 
 
 process ExtractOtuTable {
-	tag "$workflow_ch"
+	tag "$selected_wf"
 	label "small_cpus"
 	label "small_mem"
 
 	publishDir "$params.outdir/Megan_Comparison", mode: "copy"
 
 	input:
-	file("${workflow_ch}_comparison.megan")
-	val(workflow_ch)
+	tuple val(selected_wf), file("${selected_wf}_comparison.megan")
 
 	output:
-	path("${workflow_ch}_OTU_Table.tsv")
+	path("${selected_wf}_OTU_Table.tsv")
 
 	when:
 	params.stoptocheckparams == false
@@ -374,7 +391,7 @@ process ExtractOtuTable {
 	shell:
 	"""
 	#!/usr/bin/env Rscript
-	rl <- readLines("${workflow_ch}_comparison.megan")
+	rl <- readLines("${selected_wf}_comparison.megan")
 	snam <- strsplit(grep("^@Names", rl, value = TRUE), "\t")[[1]][-1]
 
 	taxs <- grep("^TAX", rl)
@@ -389,9 +406,11 @@ process ExtractOtuTable {
 	addz <- nsam - ln
 
 	mp <- t(mapply(function(x, add){c(x, rep(0, add))}, x=taxs, add=addz))
+	if (dim(mp)[1] == 1){
+		mp <- t(mp)
+	}
 	colnames(mp) <- snam
-
-	write.table(mp, file = "${workflow_ch}_OTU_Table.tsv", quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+	write.table(mp, file = "${selected_wf}_OTU_Table.tsv", quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
 	"""
 }
 
@@ -441,6 +460,7 @@ process Sam2Rma {
 
 	output:
 	path("${barcode_id}.rma")
+	//tuple val("minimap2"), path("${barcode_id}.rma")
 
 	when:
 	params.stoptocheckparams == false

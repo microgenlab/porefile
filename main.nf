@@ -6,6 +6,8 @@ params.fq = "$baseDir/data/*.fastq"
 params.outdir = "results"
 params.minimap2 = false
 params.last = false
+params.lasttrain = false
+params.isDemultiplexed = false
 params.keepmaf = false
 params.stoptocheckparams = false
 params.nanofilt_quality = 8
@@ -15,6 +17,7 @@ params.megan_lcaAlgorithm = "naive"
 params.megan_lcaCoveragePercent = 100
 params.minimap2_k = 15
 params.minimap2_x = "map-ont"
+params.normalizeOtu = false
 params.help = false
 
 
@@ -111,10 +114,12 @@ include {Filter} from './modules/processes'
 include {NanoPlotRaw} from './modules/processes'
 include {NanoPlotFilt} from './modules/processes'
 include {SummaryTable} from './modules/processes'
+include {ExtractOtuTable} from './modules/processes'
+include {ComputeComparison} from './modules/processes'
 
 // include sub-workflows
 include {SetSilva} from './workflows/Silva'
-include {LastWorkflow} from './workflows/Last'
+include {LastWorkflow} from './workflows/LastWorkflow'
 include {Minimap2Workflow} from './workflows/Minimap2'
 
 workflow {
@@ -123,12 +128,19 @@ workflow {
       .set{ silva_fasta_ch }
     SetSilva.out.acctax
       .set{ silva_acctax_ch }
-  Concatenate( fqs_ch.collect() )
-  Demultiplex( Concatenate.out )
-  Demultiplex.out
-    .flatten()
-    .map { file -> tuple(file.baseName, file) }
-    .set{ barcode_ch }
+  if (! params.isDemultiplexed ){
+    Concatenate( fqs_ch.collect() )
+    Demultiplex( Concatenate.out )
+    Demultiplex.out
+      .flatten()
+      .map { file -> tuple(file.baseName, file) }
+      .set{ barcode_ch }
+  } else {
+    fqs_ch
+      .flatten()
+      .map { file -> tuple(file.baseName, file) }
+      .set{ barcode_ch }
+  }
   Filter( barcode_ch )
   Filter.out
     .set{ filtered_ch }
@@ -138,10 +150,19 @@ workflow {
     .mix( NanoPlotFilt.out.counts )
     .set{ counts_ch }
   SummaryTable( counts_ch.collect() )
+  Channel.empty()
+    .set{ stage_to_comprare_ch }
   if ( params.minimap2 ) {
     Minimap2Workflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
+      stage_to_comprare_ch.mix( Minimap2Workflow.out )
+        .set{ stage_to_comprare_ch }
+      
   }
-  if ( params.last ) {
+  if ( params.last || params.lasttrain  ) {
     LastWorkflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
+      stage_to_comprare_ch.mix( LastWorkflow.out )
+        .set{ stage_to_comprare_ch }
   }
+  ComputeComparison( stage_to_comprare_ch )
+  ExtractOtuTable( ComputeComparison.out )
 }
