@@ -406,8 +406,10 @@ process ExtractOtuTable {
 	addz <- nsam - ln
 
 	mp <- t(mapply(function(x, add){c(x, rep(0, add))}, x=taxs, add=addz))
+	if (dim(mp)[1] == 1){
+		mp <- t(mp)
+	}
 	colnames(mp) <- snam
-
 	write.table(mp, file = "${selected_wf}_OTU_Table.tsv", quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
 	"""
 }

@@ -7,6 +7,7 @@ params.outdir = "results"
 params.minimap2 = false
 params.last = false
 params.lasttrain = false
+params.isDemultiplexed = false
 params.keepmaf = false
 params.stoptocheckparams = false
 params.nanofilt_quality = 8
@@ -125,12 +126,19 @@ workflow {
       .set{ silva_fasta_ch }
     SetSilva.out.acctax
       .set{ silva_acctax_ch }
-  Concatenate( fqs_ch.collect() )
-  Demultiplex( Concatenate.out )
-  Demultiplex.out
-    .flatten()
-    .map { file -> tuple(file.baseName, file) }
-    .set{ barcode_ch }
+  if (! params.isDemultiplexed ){
+    Concatenate( fqs_ch.collect() )
+    Demultiplex( Concatenate.out )
+    Demultiplex.out
+      .flatten()
+      .map { file -> tuple(file.baseName, file) }
+      .set{ barcode_ch }
+  } else {
+    fqs_ch
+      .flatten()
+      .map { file -> tuple(file.baseName, file) }
+      .set{ barcode_ch }
+  }
   Filter( barcode_ch )
   Filter.out
     .set{ filtered_ch }
