@@ -126,8 +126,8 @@ workflow {
   SetSilva()
     SetSilva.out.fasta
       .set{ silva_fasta_ch }
-    SetSilva.out.acctax
-      .set{ silva_acctax_ch }
+    SetSilva.out.synonyms
+      .set{ silva_synonyms_ch }
   if (! params.isDemultiplexed ){
     Concatenate( fqs_ch.collect() )
     Demultiplex( Concatenate.out )
@@ -153,13 +153,13 @@ workflow {
   Channel.empty()
     .set{ stage_to_comprare_ch }
   if ( params.minimap2 ) {
-    Minimap2Workflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
+    Minimap2Workflow( filtered_ch, silva_fasta_ch, silva_synonyms_ch )
       stage_to_comprare_ch.mix( Minimap2Workflow.out )
         .set{ stage_to_comprare_ch }
       
   }
   if ( params.last || params.lasttrain  ) {
-    LastWorkflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
+    LastWorkflow( filtered_ch, silva_fasta_ch, silva_synonyms_ch )
       stage_to_comprare_ch.mix( LastWorkflow.out )
         .set{ stage_to_comprare_ch }
   }

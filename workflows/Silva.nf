@@ -1,11 +1,11 @@
 nextflow.preview.dsl = 2
 
-params.silvaFasta = "$baseDir/silvadb/Exports/SILVA_132_SSURef_NR99_tax_silva.fasta.gz"
+params.silvaFasta = "$baseDir/silvadb/Exports/SILVA_138.1_SSURef_NR99_tax_silva.fasta.gz"
 //params.meganSynMap = "$baseDir/megan6/SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz"
 params.silvaTaxNcbiSp = "$baseDir/silvadb/Exports/taxonomy/ncbi/tax_ncbi-species_ssu_ref_nr99_138.1.txt.gz"
 params.silvaTaxmap = "$baseDir/silvadb/Exports/taxonomy/ncbi/taxmap_ncbi_ssu_ref_nr99_138.1.txt.gz"
 
-params.silvaFastaURL = "https://www.arb-silva.de/fileadmin/silva_databases/release_132/Exports/SILVA_132_SSURef_Nr99_tax_silva.fasta.gz"
+params.silvaFastaURL = "https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/SILVA_138.1_SSURef_NR99_tax_silva.fasta.gz"
 //params.meganSynMapURL = "https://software-ab.informatik.uni-tuebingen.de/download/megan6/SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz"
 params.silvaTaxNcbiSpURL = "https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/ncbi/tax_ncbi-species_ssu_ref_nr99_138.1.txt.gz"
 params.silvaTaxmapURL = "https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/ncbi/taxmap_ncbi_ssu_ref_nr99_138.1.txt.gz"
@@ -146,5 +146,5 @@ workflow SetSilva {
     emit: 
     fasta = silva_fasta_ch
     //acctax = silva_acctax_ch
-    acctax = silva_synonyms_ch
+    synonyms = silva_synonyms_ch
 }
