@@ -1,27 +1,31 @@
 nextflow.enable.dsl = 2
 
 // include modules
-include {LastAL} from '../modules/processes'
+include {LastTrain} from '../modules/processes'
+include {LastALPar} from '../modules/processes'
 include {DAAConverter} from '../modules/processes'
 include {DAAMeganizer} from '../modules/processes'
 
-workflow Last {
+workflow Train {
     take:
         fasta_ch
         lastdb_ch
         acctax
 
     main:
-        selected_wf = "last"
-        LastAL( fasta_ch , lastdb_ch )
+        selected_wf =  "lasttrain" 
+        LastTrain( fasta_ch, lastdb_ch )
+        fasta_ch.join( LastTrain.out )
+            .set{ to_align }
+        LastALPar( to_align , lastdb_ch )
         ali_ch = Channel.from(selected_wf)
-            .combine( LastAL.out )
+            .combine( LastALPar.out )
         DAAConverter( ali_ch )
         DAAMeganizer( DAAConverter.out , acctax )
         DAAMeganizer.out
             .groupTuple()
-            .set{ last_out_ch }
+            .set{ train_out_ch }
     
     emit:
-        last_out_ch
+        train_out_ch
 }
