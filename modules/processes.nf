@@ -161,7 +161,7 @@ process Filter {
 
 	shell:
 	"""
-	cat "${barcode_id}.fastq" | NanoFilt --quality ${params.nanofilt_quality} --maxlength ${params.nanofilt_maxlength} > Filt_${barcode_id}.fastq
+	cat "${barcode_id}.fastq" | NanoFilt --quality ${params.nanofilt_quality} --maxlength ${params.nanofilt_maxlength} --length ${params.nanofilt_length} > Filt_${barcode_id}.fastq
 	"""
 
 }
