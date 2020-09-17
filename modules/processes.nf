@@ -77,13 +77,13 @@ process generateSynonyms {
 	#!/usr/bin/env Rscript
 
 	ncbisp <- "tax_ncbi-species_ssu_ref_nr99_VERSION.txt"
-	ns <- read.csv(ncbisp, sep = "\t")
+	ns <- read.csv(ncbisp, sep = "\t", header = FALSE)
 
 	taxmap <- "taxmap_ncbi_ssu_ref_nr99_VERSION.txt"
 	tm <- read.csv(taxmap, sep = "\t")
 	slv <- paste(tm\$primaryAccession, tm\$start, tm\$stop, sep = ".")
 	
-	synonyms <- cbind(slv, ns\$X1[match(tm\$Unclassified., ns\$root.)])
+	synonyms <- cbind(slv, ns\$V2[match(tm\$Unclassified., ns\$V1)])
 
 	write.table(synonyms, 
             file = "SSURef_Nr99_tax_silva_to_NCBI_synonyms.map", 
