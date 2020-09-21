@@ -21,13 +21,22 @@ params.minimap2_x = "map-ont"
 params.normalizeOtu = false
 params.help = false
 
+def sayHi(){
+  log.info """
+ .____   __  ____  ____  ____  __  __    ____ 
+(  _ \\ /  \\(  _ \\(  __)(  __)(  )(  )  (  __)
+ ) __/(  O ))   / ) _)  ) _)  )( / (_/\\ ) _) 
+(__)   \\__/(__\\_)(____)(__)  (__)\\____/(____)
+---------------------------------------------
+... A full-length 16S profiling Pipeline ....
+---------------------------------------------
+  """
+}
 
+sayHi()
 
 def helpMessage() {
     log.info """
-    --------------------------------------------------------
-    ---> porefile: a full-length 16S profiling Pipeline <---
-    --------------------------------------------------------
     Usage:
     The typical command for running the pipeline is as follows:
     nextflow run microgenlab/long16S --fq 'data/*.fastq' --minimap2
