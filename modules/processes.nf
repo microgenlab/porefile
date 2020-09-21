@@ -471,3 +471,57 @@ process Sam2Rma {
 	"""
 }
 
+process MakeBlastDB {
+	label "big_cpus"
+
+	input:
+	path("silva_SSU_tax.fasta")
+
+	output:
+	file "silva_SSU_tax.*"
+
+	shell:
+	"""
+	makeblastdb -in silva_SSU_tax.fasta -out silva_SSU_tax -parse_seqids -dbtype nucl
+	"""
+}
+
+process MegaBlast {
+	tag "$barcode_id"
+	label "big_cpus"
+
+	input:
+	tuple val(barcode_id), path("${barcode_id}.fasta")
+	path("*")
+
+	output:
+	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.tab")
+
+	when:
+	!params.stoptocheckparams
+
+	shell:
+	"""
+	blastn -task "megablast" -db silva_SSU_tax -query ${barcode_id}.fasta -out ${barcode_id}.tab -outfmt 6
+	"""
+}
+
+process Blast2Rma {
+	tag "$barcode_id"
+	label "big_cpus"
+
+	input:
+	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.tab")
+	path("SSURef_Nr99_tax_silva_to_NCBI_synonyms.map")
+
+	output:
+	path("${barcode_id}.rma")
+
+	when:
+	params.stoptocheckparams == false
+
+	shell:
+	"""
+	blast2rma -i ${barcode_id}.tab -f BlastTab -bm BlastN -r ${barcode_id}.fasta -o ${barcode_id}.rma -lg -alg ${params.megan_lcaAlgorithm} -lcp ${params.megan_lcaCoveragePercent} -ram readCount -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
+	"""
+}
