@@ -7,6 +7,7 @@ params.outdir = "results"
 params.minimap2 = false
 params.last = false
 params.lasttrain = false
+params.megablast = false
 params.isDemultiplexed = false
 params.keepmaf = false
 params.stoptocheckparams = false
@@ -92,8 +93,8 @@ if (params.help) {
     exit 0
 }
 
-if ( ! (params.minimap2 || params.last) ){
-  println("You must specify either --minimap2 or --last, or both.")
+if ( ! (params.minimap2 || params.last || params.lasttrain || params.megablast) ){
+  println("You must specify one or more workflows to run. Implemented: --minimap2, --last, --lasttrain, and --megablast")
   System.exit(1)
 }
 
@@ -121,6 +122,7 @@ include {ComputeComparison} from './modules/processes'
 include {SetSilva} from './workflows/Silva'
 include {LastWorkflow} from './workflows/LastWorkflow'
 include {Minimap2Workflow} from './workflows/Minimap2'
+include {MegaBlastWorkflow} from './workflows/MegaBlastWorkflow'
 
 workflow {
   SetSilva()
@@ -144,12 +146,14 @@ workflow {
   Filter( barcode_ch )
   Filter.out
     .set{ filtered_ch }
+    /*
   NanoPlotRaw( barcode_ch )
   NanoPlotFilt( Filter.out )
   NanoPlotRaw.out.counts
     .mix( NanoPlotFilt.out.counts )
     .set{ counts_ch }
   SummaryTable( counts_ch.collect() )
+  */
   Channel.empty()
     .set{ stage_to_comprare_ch }
   if ( params.minimap2 ) {
@@ -161,6 +165,11 @@ workflow {
   if ( params.last || params.lasttrain  ) {
     LastWorkflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
       stage_to_comprare_ch.mix( LastWorkflow.out )
+        .set{ stage_to_comprare_ch }
+  }
+  if (params.megablast ){
+    MegaBlastWorkflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
+    stage_to_comprare_ch.mix( MegaBlastWorkflow.out )
         .set{ stage_to_comprare_ch }
   }
   ComputeComparison( stage_to_comprare_ch )
