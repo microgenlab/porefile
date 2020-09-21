@@ -502,7 +502,7 @@ process MegaBlast {
 
 	shell:
 	"""
-	blastn -task "megablast" -db silva_SSU_tax -query ${barcode_id}.fasta -out ${barcode_id}.tab -outfmt 6
+	blastn -task "megablast" -num_threads ${task.cpus} -db silva_SSU_tax -query ${barcode_id}.fasta -out ${barcode_id}.tab -outfmt 6
 	"""
 }
 
