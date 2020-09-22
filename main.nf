@@ -9,6 +9,7 @@ params.last = false
 params.lasttrain = false
 params.megablast = false
 params.isDemultiplexed = false
+params.noNanoplot = false
 params.keepmaf = false
 params.stoptocheckparams = false
 params.nanofilt_quality = 8
@@ -155,14 +156,14 @@ workflow {
   Filter( barcode_ch )
   Filter.out
     .set{ filtered_ch }
-    /*
-  NanoPlotRaw( barcode_ch )
-  NanoPlotFilt( Filter.out )
-  NanoPlotRaw.out.counts
-    .mix( NanoPlotFilt.out.counts )
-    .set{ counts_ch }
-  SummaryTable( counts_ch.collect() )
-  */
+  if (! params.noNanoplot ) {
+    NanoPlotRaw( barcode_ch )
+    NanoPlotFilt( Filter.out )
+    NanoPlotRaw.out.counts
+      .mix( NanoPlotFilt.out.counts )
+      .set{ counts_ch }
+    SummaryTable( counts_ch.collect() )
+  }
   Channel.empty()
     .set{ stage_to_comprare_ch }
   if ( params.minimap2 ) {
