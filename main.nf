@@ -19,6 +19,7 @@ params.megan_lcaAlgorithm = "naive"
 params.megan_lcaCoveragePercent = 100
 params.minimap2_k = 15
 params.minimap2_x = "map-ont"
+params.minimap2_KM = 200
 params.normalizeOtu = false
 params.help = false
 
