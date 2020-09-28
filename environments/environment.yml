@@ -11,3 +11,4 @@ dependencies:
   - last
   - minimap2
   - r-base
+  - blast
