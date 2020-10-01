@@ -305,6 +305,24 @@ process LastALPar {
 	"""
 }
 
+process Maf2Sam {
+	label "small_cpus"
+	label "small_mem"
+	tag "$barcode_id"
+
+	input:
+	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.maf")
+	path("silva_SSU_tax.fasta")
+
+	output:
+	tuple val(barcode_id), path("${barcode_id}.sam"), path("${barcode_id}.fasta")
+
+	shell:
+	"""
+	maf-convert sam ${barcode_id}.maf | samtools view --threads ${task.cpus} -bT silva_SSU_tax.fasta | samtools sort --threads ${task.cpus} -O sam -o ${barcode_id}.sam
+	"""
+}
+/*
 process DAAConverter{
 	label "big_cpus"
 	label "big_mem"
@@ -344,7 +362,7 @@ process DAAMeganizer{
 	daa-meganizer -i ${barcode_id}.daa -p ${task.cpus} -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map --lcaAlgorithm ${params.megan_lcaAlgorithm} --lcaCoveragePercent ${params.megan_lcaCoveragePercent}
 	"""
 }
-
+*/
 
 
 
@@ -441,9 +459,6 @@ process Minimap2 {
 	output:
 	tuple val(barcode_id), path("${barcode_id}.sam"), path("Filt_${barcode_id}.fastq")
 
-	when:
-	params.stoptocheckparams == false
-
 	shell:
 	"""
 	minimap2 -K ${params.minimap2_KM}M -t ${task.cpus} -ax ${params.minimap2_x} silva_k${params.minimap2_k}.mmi Filt_${barcode_id}.fastq > ${barcode_id}.sam
@@ -460,10 +475,6 @@ process Sam2Rma {
 
 	output:
 	path("${barcode_id}.rma")
-	//tuple val("minimap2"), path("${barcode_id}.rma")
-
-	when:
-	params.stoptocheckparams == false
 
 	shell:
 	"""
