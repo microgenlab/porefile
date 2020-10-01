@@ -469,16 +469,19 @@ process Sam2Rma {
 	tag "$barcode_id"
 	label "big_cpus"
 
+	publishDir "$params.outdir/Rma", mode: "copy"
+
 	input:
 	tuple val(barcode_id), path("${barcode_id}.sam"), path("${barcode_id}.fastq")
 	path("SSURef_Nr99_tax_silva_to_NCBI_synonyms.map")
+	val(selected_wf)
 
 	output:
-	path("${barcode_id}.rma")
+	tuple val(selected_wf), path("${selected_wf}_${barcode_id}.rma")
 
 	shell:
 	"""
-	sam2rma -i ${barcode_id}.sam -r ${barcode_id}.fastq -o ${barcode_id}.rma -lg -alg ${params.megan_lcaAlgorithm} -lcp ${params.megan_lcaCoveragePercent} -ram readCount -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
+	sam2rma -i ${barcode_id}.sam -r ${barcode_id}.fastq -o ${selected_wf}_${barcode_id}.rma -lg -alg ${params.megan_lcaAlgorithm} -lcp ${params.megan_lcaCoveragePercent} -ram readCount -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
 	"""
 }
 
@@ -521,18 +524,21 @@ process Blast2Rma {
 	tag "$barcode_id"
 	label "big_cpus"
 
+	publishDir "$params.outdir/Rma", mode: "copy"
+
 	input:
 	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.tab")
 	path("SSURef_Nr99_tax_silva_to_NCBI_synonyms.map")
+	val(selected_wf)
 
 	output:
-	path("${barcode_id}.rma")
+	path("${selected_wf}_${barcode_id}.rma")
 
 	when:
 	params.stoptocheckparams == false
 
 	shell:
 	"""
-	blast2rma -i ${barcode_id}.tab -f BlastTab -bm BlastN -r ${barcode_id}.fasta -o ${barcode_id}.rma -lg -alg ${params.megan_lcaAlgorithm} -lcp ${params.megan_lcaCoveragePercent} -ram readCount -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
+	blast2rma -i ${barcode_id}.tab -f BlastTab -bm BlastN -r ${barcode_id}.fasta -o ${selected_wf}_${barcode_id}.rma -lg -alg ${params.megan_lcaAlgorithm} -lcp ${params.megan_lcaCoveragePercent} -ram readCount -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
 	"""
 }
