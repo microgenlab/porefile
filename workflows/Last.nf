@@ -16,12 +16,11 @@ workflow Last {
         selected_wf = "last"
         LastAL( fasta_ch , lastdb_ch )
         Maf2Sam( LastAL.out, silva_fasta_ch )
-        Sam2Rma( Maf2Sam.out, acctax )
-        Channel.from(selected_wf)
-            .combine( Sam2Rma.out )
+        Sam2Rma( Maf2Sam.out, acctax, selected_wf )
+        Sam2Rma.out
             .groupTuple()
-            .set{ last_out_ch }
+            .set{ train_out_ch }
     
     emit:
-        last_out_ch
+        train_out_ch
 }

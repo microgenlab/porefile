@@ -20,9 +20,8 @@ workflow Train {
             .set{ to_align }
         LastALPar( to_align , lastdb_ch )
         Maf2Sam( LastALPar.out, silva_fasta_ch )
-        Sam2Rma( Maf2Sam.out, acctax )
-        Channel.from(selected_wf)
-            .combine( Sam2Rma.out )
+        Sam2Rma( Maf2Sam.out, acctax, selected_wf )
+        Sam2Rma.out
             .groupTuple()
             .set{ train_out_ch }
     

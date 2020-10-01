@@ -14,9 +14,8 @@ workflow MegaBlastWorkflow {
         selected_wf = "megablast"
         MakeBlastDB( silva_fasta_ch )
         MegaBlast( filtered_ch, MakeBlastDB.out )
-        Blast2Rma( MegaBlast.out, acctax )
-        Channel.from(selected_wf)
-            .combine( Blast2Rma.out )
+        Blast2Rma( MegaBlast.out, acctax, selected_wf )
+        Blast2Rma.out
             .groupTuple()
             .set{ to_compare_ch }
 
