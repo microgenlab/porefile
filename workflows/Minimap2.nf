@@ -15,6 +15,8 @@ workflow Minimap2Workflow {
         selected_wf = "minimap2"
         MakeMinimapDB( silva_fasta_ch )
         Minimap2( filtered_ch, MakeMinimapDB.out )
+        Minimap2.out.view()
+        silva_acctax_ch.view()
         Sam2Rma( Minimap2.out, silva_acctax_ch )
         Channel.of(selected_wf)
             .combine( Sam2Rma.out )
