@@ -9,14 +9,14 @@ workflow Minimap2Workflow {
     take:
         filtered_ch
         silva_fasta_ch
-        acctax
+        silva_acctax_ch
 
     main:
         selected_wf = "minimap2"
         MakeMinimapDB( silva_fasta_ch )
         Minimap2( filtered_ch, MakeMinimapDB.out )
-        Sam2Rma( Minimap2.out, acctax )
-        Channel.from(selected_wf)
+        Sam2Rma( Minimap2.out, silva_acctax_ch )
+        Channel.of(selected_wf)
             .combine( Sam2Rma.out )
             .groupTuple()
             .set{ to_compare_ch }
