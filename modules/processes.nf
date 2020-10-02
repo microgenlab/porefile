@@ -369,6 +369,24 @@ process LastALPar {
 	"""
 }
 
+process Maf2Sam {
+	label "small_cpus"
+	label "small_mem"
+	tag "$barcode_id"
+
+	input:
+	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.maf")
+	path("silva_SSU_tax.fasta")
+
+	output:
+	tuple val(barcode_id), path("${barcode_id}.sam"), path("${barcode_id}.fasta")
+
+	shell:
+	"""
+	maf-convert sam ${barcode_id}.maf | samtools view --threads ${task.cpus} -bT silva_SSU_tax.fasta | samtools sort --threads ${task.cpus} -O sam -o ${barcode_id}.sam
+	"""
+}
+/*
 process DAAConverter{
 	label "big_cpus"
 	label "big_mem"
@@ -408,7 +426,7 @@ process DAAMeganizer{
 	daa-meganizer -i ${barcode_id}.daa -p ${task.cpus} -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map --lcaAlgorithm ${params.megan_lcaAlgorithm} --lcaCoveragePercent ${params.megan_lcaCoveragePercent}
 	"""
 }
-
+*/
 
 
 
@@ -505,12 +523,9 @@ process Minimap2 {
 	output:
 	tuple val(barcode_id), path("${barcode_id}.sam"), path("Filt_${barcode_id}.fastq")
 
-	when:
-	params.stoptocheckparams == false
-
 	shell:
 	"""
-	minimap2 -t ${task.cpus} -ax ${params.minimap2_x} silva_k${params.minimap2_k}.mmi Filt_${barcode_id}.fastq > ${barcode_id}.sam
+	minimap2 -K ${params.minimap2_KM}M -t ${task.cpus} -ax ${params.minimap2_x} silva_k${params.minimap2_k}.mmi Filt_${barcode_id}.fastq > ${barcode_id}.sam
 	"""
 }
 
@@ -518,20 +533,76 @@ process Sam2Rma {
 	tag "$barcode_id"
 	label "big_cpus"
 
+	publishDir "$params.outdir/Rma", mode: "copy"
+
 	input:
 	tuple val(barcode_id), path("${barcode_id}.sam"), path("${barcode_id}.fastq")
 	path("SSURef_Nr99_tax_silva_to_NCBI_synonyms.map")
+	val(selected_wf)
 
 	output:
-	path("${barcode_id}.rma")
-	//tuple val("minimap2"), path("${barcode_id}.rma")
+	tuple val(selected_wf), path("${selected_wf}_${barcode_id}.rma")
+
+	shell:
+	"""
+	sam2rma -i ${barcode_id}.sam -r ${barcode_id}.fastq -o ${selected_wf}_${barcode_id}.rma -lg -alg ${params.megan_lcaAlgorithm} -lcp ${params.megan_lcaCoveragePercent} -ram readCount -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
+	"""
+}
+
+process MakeBlastDB {
+	label "big_cpus"
+
+	input:
+	path("silva_SSU_tax.fasta")
+
+	output:
+	file "silva_SSU_tax.*"
+
+	shell:
+	"""
+	makeblastdb -in silva_SSU_tax.fasta -out silva_SSU_tax -parse_seqids -dbtype nucl
+	"""
+}
+
+process MegaBlast {
+	tag "$barcode_id"
+	label "big_cpus"
+
+	input:
+	tuple val(barcode_id), path("${barcode_id}.fasta")
+	path("*")
+
+	output:
+	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.tab")
+
+	when:
+	!params.stoptocheckparams
+
+	shell:
+	"""
+	blastn -task "megablast" -num_threads ${task.cpus} -db silva_SSU_tax -query ${barcode_id}.fasta -out ${barcode_id}.tab -outfmt 6
+	"""
+}
+
+process Blast2Rma {
+	tag "$barcode_id"
+	label "big_cpus"
+
+	publishDir "$params.outdir/Rma", mode: "copy"
+
+	input:
+	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.tab")
+	path("SSURef_Nr99_tax_silva_to_NCBI_synonyms.map")
+	val(selected_wf)
+
+	output:
+	path("${selected_wf}_${barcode_id}.rma")
 
 	when:
 	params.stoptocheckparams == false
 
 	shell:
 	"""
-	sam2rma -i ${barcode_id}.sam -r ${barcode_id}.fastq -o ${barcode_id}.rma -lg -alg ${params.megan_lcaAlgorithm} -lcp ${params.megan_lcaCoveragePercent} -ram readCount -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
+	blast2rma -i ${barcode_id}.tab -f BlastTab -bm BlastN -r ${barcode_id}.fasta -o ${selected_wf}_${barcode_id}.rma -lg -alg ${params.megan_lcaAlgorithm} -lcp ${params.megan_lcaCoveragePercent} -ram readCount -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
 	"""
 }
-

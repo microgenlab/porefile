@@ -7,7 +7,9 @@ params.outdir = "results"
 params.minimap2 = false
 params.last = false
 params.lasttrain = false
+params.megablast = false
 params.isDemultiplexed = false
+params.noNanoplot = false
 params.keepmaf = false
 params.stoptocheckparams = false
 params.nanofilt_quality = 8
@@ -17,16 +19,26 @@ params.megan_lcaAlgorithm = "naive"
 params.megan_lcaCoveragePercent = 100
 params.minimap2_k = 15
 params.minimap2_x = "map-ont"
+params.minimap2_KM = 200
 params.normalizeOtu = false
 params.help = false
 
+def sayHi(){
+  log.info """
+ .____   __  ____  ____  ____  __  __    ____ 
+(  _ \\ /  \\(  _ \\(  __)(  __)(  )(  )  (  __)
+ ) __/(  O ))   / ) _)  ) _)  )( / (_/\\ ) _) 
+(__)   \\__/(__\\_)(____)(__)  (__)\\____/(____)
+---------------------------------------------
+... A full-length 16S profiling Pipeline ....
+---------------------------------------------
+  """
+}
 
+sayHi()
 
 def helpMessage() {
     log.info """
-    --------------------------------------------------------
-    ---> porefile: a full-length 16S profiling Pipeline <---
-    --------------------------------------------------------
     Usage:
     The typical command for running the pipeline is as follows:
     nextflow run microgenlab/long16S --fq 'data/*.fastq' --minimap2
@@ -92,8 +104,8 @@ if (params.help) {
     exit 0
 }
 
-if ( ! (params.minimap2 || params.last) ){
-  println("You must specify either --minimap2 or --last, or both.")
+if ( ! (params.minimap2 || params.last || params.lasttrain || params.megablast) ){
+  println("You must specify one or more workflows to run. Implemented: --minimap2, --last, --lasttrain, and --megablast")
   System.exit(1)
 }
 
@@ -121,6 +133,7 @@ include {ComputeComparison} from './modules/processes'
 include {SetSilva} from './workflows/Silva'
 include {LastWorkflow} from './workflows/LastWorkflow'
 include {Minimap2Workflow} from './workflows/Minimap2'
+include {MegaBlastWorkflow} from './workflows/MegaBlastWorkflow'
 
 workflow {
   SetSilva()
@@ -144,12 +157,14 @@ workflow {
   Filter( barcode_ch )
   Filter.out
     .set{ filtered_ch }
-  NanoPlotRaw( barcode_ch )
-  NanoPlotFilt( Filter.out )
-  NanoPlotRaw.out.counts
-    .mix( NanoPlotFilt.out.counts )
-    .set{ counts_ch }
-  SummaryTable( counts_ch.collect() )
+  if (! params.noNanoplot ) {
+    NanoPlotRaw( barcode_ch )
+    NanoPlotFilt( Filter.out )
+    NanoPlotRaw.out.counts
+      .mix( NanoPlotFilt.out.counts )
+      .set{ counts_ch }
+    SummaryTable( counts_ch.collect() )
+  }
   Channel.empty()
     .set{ stage_to_comprare_ch }
   if ( params.minimap2 ) {
@@ -161,6 +176,11 @@ workflow {
   if ( params.last || params.lasttrain  ) {
     LastWorkflow( filtered_ch, silva_fasta_ch, silva_synonyms_ch )
       stage_to_comprare_ch.mix( LastWorkflow.out )
+        .set{ stage_to_comprare_ch }
+  }
+  if (params.megablast ){
+    MegaBlastWorkflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
+    stage_to_comprare_ch.mix( MegaBlastWorkflow.out )
         .set{ stage_to_comprare_ch }
   }
   ComputeComparison( stage_to_comprare_ch )

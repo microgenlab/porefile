@@ -32,7 +32,7 @@ RUN wget -P /opt https://software-ab.informatik.uni-tuebingen.de/download/megan6
 	sed -i -e "s@\"\$0\"@\"$MEGAN/MEGAN\"@" "$MEGAN"/MEGAN  && \
 	rm /opt/MEGAN_Community_unix_6_18_0.sh
 
-RUN wget -P /opt https://github.com/BenjaminAlbrecht84/DAA_Converter/releases/download/v0.9.0/DAA_Converter_v0.9.0.jar
+# RUN wget -P /opt https://github.com/BenjaminAlbrecht84/DAA_Converter/releases/download/v0.9.0/DAA_Converter_v0.9.0.jar
 
 COPY environment.yml /
 RUN conda env create -f /environment.yml && conda clean -a

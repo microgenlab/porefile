@@ -23,12 +23,12 @@ workflow LastWorkflow {
         Channel.empty()
             .set{ to_compare_ch }
         if ( params.last ){
-            Last( fasta_ch, lastdb_ch, acctax )
+            Last( fasta_ch, lastdb_ch, acctax, silva_fasta_ch )
             to_compare_ch.mix( Last.out )
                 .set{ to_compare_ch }
         }
         if ( params.lasttrain ){
-            Train( fasta_ch, lastdb_ch, acctax )
+            Train( fasta_ch, lastdb_ch, acctax, silva_fasta_ch )
             to_compare_ch.mix( Train.out )
                 .set{ to_compare_ch }
         }

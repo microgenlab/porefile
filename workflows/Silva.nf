@@ -46,8 +46,8 @@ workflow SetSilva {
 
         } else if ( parfasta.getExtension() == "fasta" ){
 
-            Channel.from( parfasta )
-                .set{ silva_fasta_ch }
+            Channel.value( parfasta ) // use value to allow recycle
+                .set{ silva_fasta_ch } 
 
         }else{
             println("Unrecognized silvaFasta extension (not gz nor fasta).")
@@ -128,7 +128,7 @@ workflow SetSilva {
 
         } else if ( paracctax.getExtension() == "map" ){
             
-            Channel.from( paracctax )
+            Channel.value( paracctax ) // use value to allow recycle
                 .set{ to_trim }
 
         }else{
