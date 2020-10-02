@@ -72,7 +72,7 @@ workflow SetSilva {
 
         } else if ( partaxncbisp.getExtension() == "txt" ) {
 
-            Channel.from( parfasta )
+            Channel.value( partaxncbisp )
                 .set{ tax_ncbi_ch }
 
         } else{
@@ -98,7 +98,7 @@ workflow SetSilva {
 
         } else if ( partaxncbisp.getExtension() == "txt" ) {
 
-            Channel.from( parfasta )
+            Channel.value( partaxncbisp )
                 .set{ tax_map_ch }
 
         } else{
