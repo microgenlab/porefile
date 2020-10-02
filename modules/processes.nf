@@ -370,7 +370,7 @@ process LastALPar {
 }
 
 process Maf2Sam {
-	label "small_cpus"
+	label "big_cpus"
 	label "small_mem"
 	tag "$barcode_id"
 
