@@ -453,15 +453,15 @@ process Minimap2 {
 	label "big_cpus"
 
 	input:
-	tuple val(barcode_id), path("Filt_${barcode_id}.fastq")
+	tuple val(barcode_id), path("${barcode_id}.fasta")
 	path("silva_k${params.minimap2_k}.mmi")
 
 	output:
-	tuple val(barcode_id), path("${barcode_id}.sam"), path("Filt_${barcode_id}.fastq")
+	tuple val(barcode_id), path("${barcode_id}.sam"), path("${barcode_id}.fasta")
 
 	shell:
 	"""
-	minimap2 -K ${params.minimap2_KM}M -t ${task.cpus} -ax ${params.minimap2_x} silva_k${params.minimap2_k}.mmi Filt_${barcode_id}.fastq > ${barcode_id}.sam
+	minimap2 -K ${params.minimap2_KM}M -t ${task.cpus} -ax ${params.minimap2_x} silva_k${params.minimap2_k}.mmi ${barcode_id}.fasta > ${barcode_id}.sam
 	"""
 }
 

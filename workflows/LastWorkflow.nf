@@ -17,18 +17,18 @@ workflow LastWorkflow {
         MakeLastDB( silva_fasta_ch )
         MakeLastDB.out.collect()
             .set{ lastdb_ch }
-        Fastq2Fasta( filtered_ch )
+        /*Fastq2Fasta( filtered_ch )
         Fastq2Fasta.out 
-            .set{ fasta_ch }
+            .set{ fasta_ch }*/
         Channel.empty()
             .set{ to_compare_ch }
         if ( params.last ){
-            Last( fasta_ch, lastdb_ch, acctax, silva_fasta_ch )
+            Last( filtered_ch, lastdb_ch, acctax, silva_fasta_ch )
             to_compare_ch.mix( Last.out )
                 .set{ to_compare_ch }
         }
         if ( params.lasttrain ){
-            Train( fasta_ch, lastdb_ch, acctax, silva_fasta_ch )
+            Train( filtered_ch, lastdb_ch, acctax, silva_fasta_ch )
             to_compare_ch.mix( Train.out )
                 .set{ to_compare_ch }
         }
