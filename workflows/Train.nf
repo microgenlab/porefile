@@ -8,15 +8,15 @@ include {Sam2Rma} from '../modules/processes'
 
 workflow Train {
     take:
-        fasta_ch
+        filtered_ch
         lastdb_ch
         acctax
         silva_fasta_ch
 
     main:
         selected_wf =  "lasttrain" 
-        LastTrain( fasta_ch, lastdb_ch )
-        fasta_ch.join( LastTrain.out )
+        LastTrain( filtered_ch, lastdb_ch )
+        filtered_ch.join( LastTrain.out )
             .set{ to_align }
         LastALPar( to_align , lastdb_ch )
         Maf2Sam( LastALPar.out, silva_fasta_ch )

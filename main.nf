@@ -123,6 +123,7 @@ Channel
 include {Concatenate} from './modules/processes'
 include {Demultiplex} from './modules/processes'
 include {Filter} from './modules/processes'
+include {Fastq2Fasta} from './modules/processes'
 include {NanoPlotRaw} from './modules/processes'
 include {NanoPlotFilt} from './modules/processes'
 include {SummaryTable} from './modules/processes'
@@ -155,7 +156,8 @@ workflow {
       .set{ barcode_ch }
   }
   Filter( barcode_ch )
-  Filter.out
+  Fastq2Fasta( Filter.out )
+  Fastq2Fasta.out
     .set{ filtered_ch }
   if (! params.noNanoplot ) {
     NanoPlotRaw( barcode_ch )
