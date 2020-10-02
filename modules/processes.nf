@@ -319,7 +319,7 @@ process Maf2Sam {
 
 	shell:
 	"""
-	maf-convert sam ${barcode_id}.maf | samtools view --threads ${task.cpus} -bT silva_SSU_tax.fasta | samtools sort --threads ${task.cpus} -O sam -o ${barcode_id}.sam
+	maf-convert sam ${barcode_id}.maf | samtools view --threads ${task.cpus} -uT silva_SSU_tax.fasta | samtools sort -n --threads ${task.cpus} -O sam -o ${barcode_id}.sam
 	"""
 }
 /*
