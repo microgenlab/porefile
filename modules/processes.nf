@@ -316,8 +316,6 @@ process LastTrain {
 	output:
 	tuple val(barcode_id), path("${barcode_id}.par")
 		
-	when:
-	!params.stoptocheckparams
 
 	shell:
 	"""
@@ -338,8 +336,6 @@ process LastAL {
 	output:
 	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.maf")
 
-	when:
-	!params.stoptocheckparams
 
 	shell:
 	"""
@@ -360,8 +356,6 @@ process LastALPar {
 	output:
 	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.maf")
 
-	when:
-	!params.stoptocheckparams
 
 	shell:
 	"""
@@ -575,8 +569,6 @@ process MegaBlast {
 	output:
 	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.tab")
 
-	when:
-	!params.stoptocheckparams
 
 	shell:
 	"""
