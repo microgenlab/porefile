@@ -17,6 +17,7 @@ params.nanofilt_length = 1000
 params.nanofilt_maxlength = 1700
 params.megan_lcaAlgorithm = "naive"
 params.megan_lcaCoveragePercent = 100
+params.megan_topPercent = 10
 params.minimap2_k = 15
 params.minimap2_x = "map-ont"
 params.minimap2_KM = 200
