@@ -78,19 +78,48 @@ process generateSynonyms {
 
 	ncbisp <- "tax_ncbi-species_ssu_ref_nr99_VERSION.txt"
 	ns <- read.csv(ncbisp, sep = "\t", header = FALSE)
+	ns <- ns[-grep("[U|u]ncultured|[E|e]nvironmental|[U|u]nidentified|[M|m]etagenome", ns\$V1), ]
+
 
 	taxmap <- "taxmap_ncbi_ssu_ref_nr99_VERSION.txt"
 	tm <- read.csv(taxmap, sep = "\t")
+
+	ukey <- grep("[U|u]ncultured|[E|e]nvironmental|[U|u]nidentified|[M|m]etagenome", tm\$submitted_name)
+
+	srt <- sort(table(tm\$Unclassified.[ukey]), decreasing = TRUE)
+	for (i in seq_along(srt)){
+	nm <- names(srt[i])
+	wh <- which(tm\$Unclassified. == nm)
+	x <- strsplit(nm, ";")[[1]]
+	ln <- length(x)
+	m <- NA_integer_
+	while (is.na(m) & ln>0){
+		x <- x[-ln]
+		ln <- length(x)
+		nws <- paste0(paste0(x, collapse=";"), ";")
+		m <- match(nws, ns\$V1)
+	}
+	tm\$Unclassified.[wh] <- nws
+	}
+
+
+	tm\$ncbi <- NA_integer_
+	tm\$ncbi <- ns\$V2[match(tm\$Unclassified., ns\$V1)]
+
+
 	slv <- paste(tm\$primaryAccession, tm\$start, tm\$stop, sep = ".")
-	
-	synonyms <- cbind(slv, ns\$V2[match(tm\$Unclassified., ns\$V1)])
+	synonyms <- data.frame(Accs = slv, ncbi = tm\$ncbi)
+	nas <- is.na(synonyms\$ncbi)
+	if (any(nas)){
+	synonyms <- synonyms[-which(nas), ]
+	}
 
 	write.table(synonyms, 
-            file = "SSURef_Nr99_tax_silva_to_NCBI_synonyms.map", 
-            sep = "\t", 
-            quote = FALSE, 
-            row.names = FALSE, 
-            col.names = FALSE)
+				file = "SSURef_Nr99_tax_silva_to_NCBI_synonyms.map", 
+				sep = "\t", 
+				quote = FALSE, 
+				row.names = FALSE, 
+				col.names = FALSE)
 	"""
 }
 
