@@ -67,7 +67,7 @@ process generateSynonyms {
 
 	input:
 	file "tax_ncbi-species_ssu_ref_nr99_VERSION.txt"
-	file "taxmap_ncbi_ssu_ref_nr99_VERSION.txt"
+	file "taxmap_slv_ssu_ref_nr_VERSION.txt"
 
 	output:
 	file "SSURef_Nr99_tax_silva_to_NCBI_synonyms.map"
@@ -76,47 +76,63 @@ process generateSynonyms {
 	"""
 	#!/usr/bin/env Rscript
 
+	taxmap <- "taxmap_slv_ssu_ref_nr_VERSION.txt"
+	tms <- read.csv(taxmap, sep = "\\t")
+
 	ncbisp <- "tax_ncbi-species_ssu_ref_nr99_VERSION.txt"
-	ns <- read.csv(ncbisp, sep = "\t", header = FALSE)
-	ns <- ns[-grep("[U|u]ncultured|[E|e]nvironmental|[U|u]nidentified|[M|m]etagenome", ns\$V1), ]
+	ns <- read.csv(ncbisp, sep = "\\t", header = FALSE)
 
+	# Clean taxmap organism_name
+	cln <- grep("[U|u]ncultured|[E|e]nvironmental|[U|u]nidentified|[M|m]etagenome", tms\$organism_name)
+	tms\$organism_name[cln] <- NA_character_
 
-	taxmap <- "taxmap_ncbi_ssu_ref_nr99_VERSION.txt"
-	tm <- read.csv(taxmap, sep = "\t")
+	# Clean taxmap path
+	tms\$path <- gsub("uncultured;\$", "", tms\$path)
 
-	ukey <- grep("[U|u]ncultured|[E|e]nvironmental|[U|u]nidentified|[M|m]etagenome", tm\$submitted_name)
+	# Create full path
+	rps <- apply(tms, 1, function(x) grepl(x[["organism_name"]], x[["path"]], fixed = TRUE))
+	tms\$organism_name[rps] <- ""
+	tms\$organism_name[cln] <- ""
+	tms\$path <- paste(tms\$path, tms\$organism_name, sep = "")
 
-	srt <- sort(table(tm\$Unclassified.[ukey]), decreasing = TRUE)
-	for (i in seq_along(srt)){
-	nm <- names(srt[i])
-	wh <- which(tm\$Unclassified. == nm)
-	x <- strsplit(nm, ";")[[1]]
-	ln <- length(x)
-	m <- NA_integer_
-	while (is.na(m) & ln>0){
-		x <- x[-ln]
-		ln <- length(x)
-		nws <- paste0(paste0(x, collapse=";"), ";")
-		m <- match(nws, ns\$V1)
+	# Identify silva indexes for occurrences
+	idx <- split(seq_len(dim(tms)[1]), tms\$path)
+
+	# Clean ncbi taxonomy
+	ns\$V1 <- gsub(" <\\\\w+>", "", ns\$V1)
+
+	# Create hashmap for ncbi taxonomy
+	ns\$tip <- vapply(strsplit(ns\$V1, ";"), function(x) rev(x)[1], FUN.VALUE = NA_character_)
+	ee <- list2env(split(ns\$V2, ns\$tip), hash = TRUE)
+
+	# Find taxids 
+	pths <- strsplit(setNames(names(idx), names(idx)), ";")
+	pths <- lapply(pths, rev)
+	txid <- lapply(pths, function(x){
+	r <- NULL
+	y <- x
+	while(is.null(r)){
+		a <- y[1]
+		y <- y[-1]
+		r <- ee[[a]]
+		r <- r[1]
 	}
-	tm\$Unclassified.[wh] <- nws
-	}
+	r
+	})
 
+	# Repeat taxids as many times as it was assigned
+	rp <- mapply(rep, txid, lengths(idx))
 
-	tm\$ncbi <- NA_integer_
-	tm\$ncbi <- ns\$V2[match(tm\$Unclassified., ns\$V1)]
+	# Sort taxids by index
+	ultx <- unlist(rp, use.names = FALSE)
+	tms\$map <- ultx[order(unlist(idx, use.names = FALSE))]
 
+	df <- data.frame(Accs = paste(tms\$primaryAccession, tms\$start, tms\$stop, sep = "."),
+					Syno = tms\$map)
 
-	slv <- paste(tm\$primaryAccession, tm\$start, tm\$stop, sep = ".")
-	synonyms <- data.frame(Accs = slv, ncbi = tm\$ncbi)
-	nas <- is.na(synonyms\$ncbi)
-	if (any(nas)){
-	synonyms <- synonyms[-which(nas), ]
-	}
-
-	write.table(synonyms, 
+	write.table(df, 
 				file = "SSURef_Nr99_tax_silva_to_NCBI_synonyms.map", 
-				sep = "\t", 
+				sep = "\\t", 
 				quote = FALSE, 
 				row.names = FALSE, 
 				col.names = FALSE)
