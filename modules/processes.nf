@@ -70,7 +70,8 @@ process generateSynonyms {
 	file "taxmap_slv_ssu_ref_nr_VERSION.txt"
 
 	output:
-	file "SSURef_Nr99_tax_silva_to_NCBI_synonyms.map"
+	file "SSURef_Nr99_tax_silva_to_NCBI_synonyms.map", emit: synonyms
+	file "taxpaths.tsv", emit: taxpath
 
 	shell:
 	"""
@@ -130,8 +131,17 @@ process generateSynonyms {
 	df <- data.frame(Accs = paste(tms\$primaryAccession, tms\$start, tms\$stop, sep = "."),
 					Syno = tms\$map)
 
+	taxpaths <- data.frame(ncbi = tms\$map, taxpath = tms\$path)
+
 	write.table(df, 
 				file = "SSURef_Nr99_tax_silva_to_NCBI_synonyms.map", 
+				sep = "\\t", 
+				quote = FALSE, 
+				row.names = FALSE, 
+				col.names = FALSE)
+
+	write.table(taxpaths, 
+				file = "taxpaths.tsv", 
 				sep = "\\t", 
 				quote = FALSE, 
 				row.names = FALSE, 
@@ -502,6 +512,7 @@ process ExtractOtuTable {
 
 	input:
 	tuple val(selected_wf), file("${selected_wf}_comparison.megan")
+	path("taxpaths.tsv")
 
 	output:
 	path("${selected_wf}_OTU_Table.tsv")
@@ -513,10 +524,12 @@ process ExtractOtuTable {
 	"""
 	#!/usr/bin/env Rscript
 	rl <- readLines("${selected_wf}_comparison.megan")
-	snam <- strsplit(grep("^@Names", rl, value = TRUE), "\t")[[1]][-1]
-
+	tp <- read.csv("taxpaths.tsv", sep="\\t", header = FALSE)
+	
+	# Generate Otu table
+	snam <- strsplit(grep("^@Names", rl, value = TRUE), "\\t")[[1]][-1]
 	taxs <- grep("^TAX", rl)
-	taxs <- strsplit(rl[taxs], "\t")
+	taxs <- strsplit(rl[taxs], "\\t")
 	taxs <- lapply(taxs, "[", -1)
 	names(taxs) <- lapply(taxs, "[", 1)
 	taxs <- lapply(taxs, "[", -1)
@@ -531,7 +544,19 @@ process ExtractOtuTable {
 		mp <- t(mp)
 	}
 	colnames(mp) <- snam
-	write.table(mp, file = "${selected_wf}_OTU_Table.tsv", quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+
+
+	# Generate taxpath file
+	str <- tp\$V2[match(rownames(mp), tp\$V1)]
+	spl <- strsplit(str, ";")
+	lns <- lengths(spl)
+	tpm <- do.call(rbind, lapply(spl, "[", seq_len(6)) )
+	rownames(tpm) <- rownames(mp)
+	colnames(tpm) <- c("Domain", "Phylum", "Class", "Order", "Family", "Genus")
+
+
+	# Publish
+	write.table(mp, file = "${selected_wf}_OTU_Table.tsv", quote = FALSE, sep = "\\t", row.names = TRUE, col.names = TRUE)
 	"""
 }
 

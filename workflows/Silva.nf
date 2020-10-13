@@ -108,8 +108,10 @@ workflow SetSilva {
     }
 
     generateSynonyms( tax_ncbi_ch, tax_map_ch)
-    generateSynonyms.out
+    generateSynonyms.out.synonyms
         .set{ silva_synonyms_ch }
+    generateSynonyms.out.taxpath
+        .set{ silva_taxpath_ch }
 
 /*
     if ( ! paracctax.exists() ){
@@ -147,4 +149,5 @@ workflow SetSilva {
     fasta = silva_fasta_ch
     //acctax = silva_acctax_ch
     synonyms = silva_synonyms_ch
+    taxpaths = silva_taxpath_ch
 }

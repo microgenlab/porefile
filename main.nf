@@ -143,6 +143,8 @@ workflow {
       .set{ silva_fasta_ch }
     SetSilva.out.synonyms
       .set{ silva_synonyms_ch }
+    SetSilva.out.taxpaths
+      .set{ silva_taxpath_ch }
   if (! params.isDemultiplexed ){
     Concatenate( fqs_ch.collect() )
     Demultiplex( Concatenate.out )
@@ -187,5 +189,5 @@ workflow {
         .set{ stage_to_comprare_ch }
   }
   ComputeComparison( stage_to_comprare_ch )
-  ExtractOtuTable( ComputeComparison.out )
+  ExtractOtuTable( ComputeComparison.out, silva_taxpath_ch )
 }
