@@ -279,7 +279,7 @@ process LastAL {
 
 	shell:
 	"""
-	lastal -P${task.cpus} silva ${barcode_id}.fasta > ${barcode_id}.maf
+	lastal -f BlastTab -P${task.cpus} silva ${barcode_id}.fasta > ${barcode_id}.maf
 	"""
 }
 
@@ -301,10 +301,10 @@ process LastALPar {
 
 	shell:
 	"""
-	lastal -P${task.cpus} -p ${barcode_id}.par silva ${barcode_id}.fasta > ${barcode_id}.maf
+	lastal -f BlastTab -P${task.cpus} -p ${barcode_id}.par silva ${barcode_id}.fasta > ${barcode_id}.maf
 	"""
 }
-
+/*
 process Maf2Sam {
 	label "small_cpus"
 	label "small_mem"
@@ -322,7 +322,7 @@ process Maf2Sam {
 	maf-convert sam ${barcode_id}.maf | samtools view --threads ${task.cpus} -uT silva_SSU_tax.fasta | samtools sort -n --threads ${task.cpus} -O sam -o ${barcode_id}.sam
 	"""
 }
-/*
+
 process DAAConverter{
 	label "big_cpus"
 	label "big_mem"
@@ -532,10 +532,7 @@ process Blast2Rma {
 	val(selected_wf)
 
 	output:
-	path("${selected_wf}_${barcode_id}.rma")
-
-	when:
-	params.stoptocheckparams == false
+	tuple val(selected_wf), path("${selected_wf}_${barcode_id}.rma")
 
 	shell:
 	"""
