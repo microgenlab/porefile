@@ -2,8 +2,7 @@ nextflow.enable.dsl = 2
 
 // include modules
 include {LastAL} from '../modules/processes'
-include {Maf2Sam} from '../modules/processes'
-include {Sam2Rma} from '../modules/processes'
+include {Blast2Rma} from '../modules/processes'
 
 workflow Last {
     take:
@@ -15,9 +14,8 @@ workflow Last {
     main:
         selected_wf = "last"
         LastAL( filtered_ch , lastdb_ch )
-        Maf2Sam( LastAL.out, silva_fasta_ch )
-        Sam2Rma( Maf2Sam.out, acctax, selected_wf )
-        Sam2Rma.out
+        Blast2Rma( LastAL.out, acctax, selected_wf )
+        Blast2Rma.out
             .groupTuple()
             .set{ train_out_ch }
     

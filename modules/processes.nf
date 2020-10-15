@@ -389,12 +389,12 @@ process LastAL {
 	path "*"
 
 	output:
-	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.maf")
+	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.tab")
 
 
 	shell:
 	"""
-	lastal -P${task.cpus} silva ${barcode_id}.fasta > ${barcode_id}.maf
+	lastal -f BlastTab -P${task.cpus} silva ${barcode_id}.fasta > ${barcode_id}.tab
 	"""
 }
 
@@ -409,15 +409,15 @@ process LastALPar {
 	path "*"
 
 	output:
-	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.maf")
+	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.tab")
 
 
 	shell:
 	"""
-	lastal -P${task.cpus} -p ${barcode_id}.par silva ${barcode_id}.fasta > ${barcode_id}.maf
+	lastal -f BlastTab -P${task.cpus} -p ${barcode_id}.par silva ${barcode_id}.fasta > ${barcode_id}.tab
 	"""
 }
-
+/*
 process Maf2Sam {
 	label "big_cpus"
 	label "small_mem"
@@ -435,7 +435,7 @@ process Maf2Sam {
 	maf-convert sam ${barcode_id}.maf | samtools view --threads ${task.cpus} -uT silva_SSU_tax.fasta | samtools sort -n --threads ${task.cpus} -O sam -o ${barcode_id}.sam
 	"""
 }
-/*
+
 process DAAConverter{
 	label "big_cpus"
 	label "big_mem"
@@ -609,7 +609,17 @@ process Sam2Rma {
 
 	shell:
 	"""
-	sam2rma -i ${barcode_id}.sam -r ${barcode_id}.fastq -o ${selected_wf}_${barcode_id}.rma -lg -alg ${params.megan_lcaAlgorithm} -lcp ${params.megan_lcaCoveragePercent} --topPercent ${params.megan_topPercent} -ram readCount -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
+	sam2rma -i ${barcode_id}.sam \
+		-r ${barcode_id}.fastq \
+		-o ${selected_wf}_${barcode_id}.rma \
+		-lg \
+		-alg ${params.megan_lcaAlgorithm} \
+		-lcp ${params.megan_lcaCoveragePercent} \
+		--topPercent ${params.megan_topPercent} \
+		--minPercentReadCover ${params.megan_minPercentReadCover} \
+		--minPercentReferenceCover ${params.megan_minPercentReferenceCover} \
+		-ram readCount \
+		-s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
 	"""
 }
 
@@ -658,13 +668,22 @@ process Blast2Rma {
 	val(selected_wf)
 
 	output:
-	path("${selected_wf}_${barcode_id}.rma")
-
-	when:
-	params.stoptocheckparams == false
+	tuple val(selected_wf), path("${selected_wf}_${barcode_id}.rma")
 
 	shell:
 	"""
-	blast2rma -i ${barcode_id}.tab -f BlastTab -bm BlastN -r ${barcode_id}.fasta -o ${selected_wf}_${barcode_id}.rma -lg -alg ${params.megan_lcaAlgorithm} -lcp ${params.megan_lcaCoveragePercent} --topPercent ${params.megan_topPercent} -ram readCount -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
+	blast2rma -i ${barcode_id}.tab \
+		-f BlastTab \
+		-bm BlastN \
+		-r ${barcode_id}.fasta \
+		-o ${selected_wf}_${barcode_id}.rma \
+		-lg \
+		-alg ${params.megan_lcaAlgorithm} \
+		-lcp ${params.megan_lcaCoveragePercent} \
+		--topPercent ${params.megan_topPercent} \
+		--minPercentReadCover ${params.megan_minPercentReadCover} \
+		--minPercentReferenceCover ${params.megan_minPercentReferenceCover} \
+		-ram readCount \
+		-s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
 	"""
 }
