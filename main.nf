@@ -130,8 +130,7 @@ include {Fastq2Fasta} from './modules/processes'
 include {NanoPlotRaw} from './modules/processes'
 include {NanoPlotFilt} from './modules/processes'
 include {SummaryTable} from './modules/processes'
-include {ExtractOtuTable} from './modules/processes'
-include {ComputeComparison} from './modules/processes'
+include {MergeResults} from './modules/processes'
 
 // include sub-workflows
 include {SetSilva} from './workflows/Silva'
@@ -145,8 +144,6 @@ workflow {
       .set{ silva_fasta_ch }
     SetSilva.out.synonyms
       .set{ silva_synonyms_ch }
-    SetSilva.out.taxpaths
-      .set{ silva_taxpath_ch }
   if (! params.isDemultiplexed ){
     Concatenate( fqs_ch.collect() )
     Demultiplex( Concatenate.out )
@@ -190,6 +187,5 @@ workflow {
     stage_to_comprare_ch.mix( MegaBlastWorkflow.out )
         .set{ stage_to_comprare_ch }
   }
-  ComputeComparison( stage_to_comprare_ch )
-  ExtractOtuTable( ComputeComparison.out, silva_taxpath_ch )
+  MergeResults( stage_to_comprare_ch )
 }

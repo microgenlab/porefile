@@ -475,7 +475,7 @@ process DAAMeganizer{
 	daa-meganizer -i ${barcode_id}.daa -p ${task.cpus} -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map --lcaAlgorithm ${params.megan_lcaAlgorithm} --lcaCoveragePercent ${params.megan_lcaCoveragePercent}
 	"""
 }
-*/
+
 
 
 
@@ -559,7 +559,7 @@ process ExtractOtuTable {
 	write.table(mp, file = "${selected_wf}_OTU_Table.tsv", quote = FALSE, sep = "\\t", row.names = TRUE, col.names = TRUE)
 	"""
 }
-
+*/
 
 process MakeMinimapDB {
 	label "big_cpus"
@@ -605,7 +605,7 @@ process Sam2Rma {
 	val(selected_wf)
 
 	output:
-	tuple val(selected_wf), path("${selected_wf}_${barcode_id}.rma")
+	tuple val(selected_wf), val(barcode_id), path("${selected_wf}_${barcode_id}.rma")
 
 	shell:
 	"""
@@ -620,6 +620,26 @@ process Sam2Rma {
 		--minPercentReferenceCover ${params.megan_minPercentReferenceCover} \
 		-ram readCount \
 		-s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
+	"""
+}
+
+process Rma2Info {
+	tag "$barcode_id"
+	label "small_cpus"
+
+	publishDir "$params.outdir/Rma", mode: "copy"
+
+	input:
+	tuple val(selected_wf), val(barcode_id), path("${selected_wf}_${barcode_id}.rma")
+
+	output:
+	tuple val(selected_wf), path("${selected_wf}_${barcode_id}.info")
+
+	shell:
+	"""
+	rma2info -i ${selected_wf}_${barcode_id}.rma \
+		-c2c Taxonomy \
+		-p -mro > ${selected_wf}_${barcode_id}.info
 	"""
 }
 
@@ -668,7 +688,7 @@ process Blast2Rma {
 	val(selected_wf)
 
 	output:
-	tuple val(selected_wf), path("${selected_wf}_${barcode_id}.rma")
+	tuple val(selected_wf), val(barcode_id), path("${selected_wf}_${barcode_id}.rma")
 
 	shell:
 	"""
@@ -685,5 +705,85 @@ process Blast2Rma {
 		--minPercentReferenceCover ${params.megan_minPercentReferenceCover} \
 		-ram readCount \
 		-s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
+	"""
+}
+
+process MergeResults{
+	tag "$selected_wf"
+	label "small_cpus"
+	label "small_mem"
+	
+	publishDir "$params.outdir/Merged_Results", mode: "copy"
+
+	input:
+	tuple val(selected_wf), file("*")
+
+	output:
+	tuple file("${selected_wf}_OTU.tsv"), file("${selected_wf}_TAX.tsv")
+
+	shell:
+	"""
+	#!/usr/bin/env Rscript
+	
+	# Read *.info files
+	infos <- list.files(pattern = "[.]info\$")
+	lp <- lapply(setNames(infos, infos), function(x) {
+	a <- read.csv(x, sep = "\\t", header = FALSE)
+	setNames(a\$V2, a\$V1)
+	})
+
+	# Get present taxa
+	lvls <- unique(unlist(lapply(lp, names)))
+
+	# Create new names (OTU_*)
+	lnlv <- length(lvls)
+	wdth <- nchar(lnlv)
+	bc <- paste0("OTU_", formatC(seq_along(lvls),
+								width = wdth,
+								format = 'd',
+								flag = '0'))
+
+	# Parse tax paths for each OTU
+	rr <- data.frame(otu = bc, raw = lvls)
+	spl <- strsplit(setNames(rr\$raw, rr\$otu), ";")
+	rks <- c("[SK]", "[P]", "[C]", "[O]", "[F]", "[G]", "[S]")
+	tax <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
+	rks <- setNames(rks, tax)
+	tt <- lapply(spl, function(x) {
+	unlist(lapply(rks, function(y){
+		grep(y, x, fixed = TRUE, value = TRUE)
+	}))
+	})
+	tt <- lapply(tt, function(y) gsub("[ ]*\\\\[\\\\w{1,2}\\\\][ ]", "", y))
+
+	# Create TAX table
+	taxt <- matrix(NA_character_, 
+				nrow = length(tt), 
+				ncol = length(tax), 
+				dimnames = list(names(tt), tax))
+	for (i in seq_along(tt)){
+	taxt[names(tt)[i], names(tt[[i]])] <- tt[[i]]
+	}
+
+
+	re <- as.data.frame(cbind(rr, taxt))
+
+	# Rename OTU counts
+	lp <- lapply(lp, function(x){
+	setNames(x, re\$otu[match(names(x), re\$raw)])
+	})
+
+	# Create OTU Table
+	otut <- matrix(0L, nrow = length(re\$otu), ncol = length(lp),
+				dimnames = list(re\$otu, names(lp)))
+	for (i in seq_along(lp)){
+	otut[names(lp[[i]]), names(lp)[i]] <- lp[[i]]
+	}
+	colnames(otut) <- sub("[.]info\$", "", colnames(otut))
+
+
+	# Write TAX and OTU tables
+	write.table(taxt, "${selected_wf}_TAX.tsv", quote = FALSE, sep = "\\t")
+	write.table(otut, "${selected_wf}_OTU.tsv", quote = FALSE, sep = "\\t")
 	"""
 }

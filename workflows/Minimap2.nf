@@ -3,7 +3,7 @@ nextflow.enable.dsl = 2
 include {MakeMinimapDB} from '../modules/processes'
 include {Minimap2} from '../modules/processes'
 include {Sam2Rma} from '../modules/processes'
-include {ComputeComparison} from '../modules/processes'
+include {Rma2Info} from '../modules/processes'
 
 workflow Minimap2Workflow {
     take:
@@ -16,7 +16,8 @@ workflow Minimap2Workflow {
         MakeMinimapDB( silva_fasta_ch )
         Minimap2( filtered_ch, MakeMinimapDB.out )
         Sam2Rma( Minimap2.out, silva_acctax_ch, selected_wf )
-        Sam2Rma.out
+        Rma2Info( Sam2Rma.out )
+        Rma2Info.out
             .groupTuple()
             .set{ to_compare_ch }
 

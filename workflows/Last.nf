@@ -3,6 +3,7 @@ nextflow.enable.dsl = 2
 // include modules
 include {LastAL} from '../modules/processes'
 include {Blast2Rma} from '../modules/processes'
+include {Rma2Info} from '../modules/processes'
 
 workflow Last {
     take:
@@ -15,7 +16,8 @@ workflow Last {
         selected_wf = "last"
         LastAL( filtered_ch , lastdb_ch )
         Blast2Rma( LastAL.out, acctax, selected_wf )
-        Blast2Rma.out
+        Rma2Info( Blast2Rma.out )
+        Rma2Info.out
             .groupTuple()
             .set{ train_out_ch }
     
