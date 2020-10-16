@@ -125,15 +125,13 @@ Channel
 // include modules
 include {Concatenate} from './modules/processes'
 include {Demultiplex} from './modules/processes'
-include {Filter} from './modules/processes'
 include {Fastq2Fasta} from './modules/processes'
-include {NanoPlotRaw} from './modules/processes'
-include {NanoPlotFilt} from './modules/processes'
-include {SummaryTable} from './modules/processes'
 include {MergeResults} from './modules/processes'
 
 // include sub-workflows
 include {SetSilva} from './workflows/Silva'
+include {QFilt} from './workflows/QFiltWorkflow'
+include {QCheck} from './workflows/QCheckWorkflow'
 include {LastWorkflow} from './workflows/LastWorkflow'
 include {Minimap2Workflow} from './workflows/Minimap2'
 include {MegaBlastWorkflow} from './workflows/MegaBlastWorkflow'
@@ -157,33 +155,28 @@ workflow {
       .map { file -> tuple(file.baseName, file) }
       .set{ barcode_ch }
   }
-  Filter( barcode_ch )
-  Fastq2Fasta( Filter.out )
-  Fastq2Fasta.out
-    .set{ filtered_ch }
+  QFilt( barcode_ch )
+  QFilt.out.set{ filtered_scrubbed_ch }
   if (! params.noNanoplot ) {
-    NanoPlotRaw( barcode_ch )
-    NanoPlotFilt( Filter.out )
-    NanoPlotRaw.out.counts
-      .mix( NanoPlotFilt.out.counts )
-      .set{ counts_ch }
-    SummaryTable( counts_ch.collect() )
+    QCheck( barcode_ch, filtered_scrubbed_ch )
   }
+  Fastq2Fasta( filtered_scrubbed_ch )
+  Fastq2Fasta.out.set{ fasta_ch }
   Channel.empty()
     .set{ stage_to_comprare_ch }
   if ( params.minimap2 ) {
-    Minimap2Workflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
+    Minimap2Workflow( fasta_ch, silva_fasta_ch, silva_acctax_ch )
       stage_to_comprare_ch.mix( Minimap2Workflow.out )
         .set{ stage_to_comprare_ch }
       
   }
   if ( params.last || params.lasttrain  ) {
-    LastWorkflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
+    LastWorkflow( fasta_ch, silva_fasta_ch, silva_acctax_ch )
       stage_to_comprare_ch.mix( LastWorkflow.out )
         .set{ stage_to_comprare_ch }
   }
   if (params.megablast ){
-    MegaBlastWorkflow( filtered_ch, silva_fasta_ch, silva_acctax_ch )
+    MegaBlastWorkflow( fasta_ch, silva_fasta_ch, silva_acctax_ch )
     stage_to_comprare_ch.mix( MegaBlastWorkflow.out )
         .set{ stage_to_comprare_ch }
   }
