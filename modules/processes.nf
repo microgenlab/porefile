@@ -70,8 +70,7 @@ process generateSynonyms {
 	file "taxmap_slv_ssu_ref_nr_VERSION.txt"
 
 	output:
-	file "SSURef_Nr99_tax_silva_to_NCBI_synonyms.map", emit: synonyms
-	file "taxpaths.tsv", emit: taxpath
+	file "SSURef_Nr99_tax_silva_to_NCBI_synonyms.map"
 
 	shell:
 	"""
@@ -131,8 +130,6 @@ process generateSynonyms {
 	df <- data.frame(Accs = paste(tms\$primaryAccession, tms\$start, tms\$stop, sep = "."),
 					Syno = tms\$map)
 
-	taxpaths <- data.frame(ncbi = tms\$map, taxpath = tms\$path)
-
 	write.table(df, 
 				file = "SSURef_Nr99_tax_silva_to_NCBI_synonyms.map", 
 				sep = "\\t", 
@@ -140,12 +137,6 @@ process generateSynonyms {
 				row.names = FALSE, 
 				col.names = FALSE)
 
-	write.table(taxpaths, 
-				file = "taxpaths.tsv", 
-				sep = "\\t", 
-				quote = FALSE, 
-				row.names = FALSE, 
-				col.names = FALSE)
 	"""
 }
 
