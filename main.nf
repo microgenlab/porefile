@@ -123,13 +123,12 @@ Channel
   .set{ fqs_ch }
 
 // include modules
-include {Concatenate} from './modules/processes'
-include {Demultiplex} from './modules/processes'
 include {Fastq2Fasta} from './modules/processes'
 include {MergeResults} from './modules/processes'
 
 // include sub-workflows
 include {SetSilva} from './workflows/Silva'
+include {Demultiplex} from './workflows/Demultiplex'
 include {QFilt} from './workflows/QFiltWorkflow'
 include {QCheck} from './workflows/QCheckWorkflow'
 include {LastWorkflow} from './workflows/LastWorkflow'
@@ -143,8 +142,7 @@ workflow {
     SetSilva.out.acctax
       .set{ silva_acctax_ch }
   if (! params.isDemultiplexed ){
-    Concatenate( fqs_ch.collect() )
-    Demultiplex( Concatenate.out )
+    Demultiplex( fqs_ch )
     Demultiplex.out
       .flatten()
       .map { file -> tuple(file.baseName, file) }

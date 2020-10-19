@@ -83,7 +83,7 @@ process Concatenate {
 }
 
 
-process Demultiplex {
+process Porechop {
 	label "big_cpus"
 	label "big_mem"
 
