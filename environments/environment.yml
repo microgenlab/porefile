@@ -13,3 +13,4 @@ dependencies:
   - r-base
   - blast
   - samtools
+  - yacrd

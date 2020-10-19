@@ -193,7 +193,7 @@ process Concatenate {
 }
 
 
-process Demultiplex {
+process Porechop {
 	label "big_cpus"
 	label "big_mem"
 
@@ -210,7 +210,7 @@ process Demultiplex {
 	"""
 }
 
-process Filter {
+process NanoFilt {
 	tag "$barcode_id"
 	label "small_cpus"
 
@@ -225,6 +225,50 @@ process Filter {
 	cat "${barcode_id}.fastq" | NanoFilt --quality ${params.nanofilt_quality} --maxlength ${params.nanofilt_maxlength} --length ${params.nanofilt_length} > Filt_${barcode_id}.fastq
 	"""
 
+}
+
+
+process AutoMap {
+	tag "$barcode_id"
+	label "big_cpus"
+
+	input:
+	tuple val(barcode_id), file("Filt_${barcode_id}.fastq")
+
+	output:
+	tuple val(barcode_id), file("Filt_${barcode_id}.fastq"), file("overlap_${barcode_id}.paf")
+
+	shell:
+	"""
+	minimap2 \
+		-x ava-ont \
+		-t ${task.cpus} \
+		-g 500 \
+		Filt_${barcode_id}.fastq Filt_${barcode_id}.fastq > overlap_${barcode_id}.paf
+	"""
+}
+
+process Yacrd {
+	tag "$barcode_id"
+	label "big_cpus"
+
+	input:
+	tuple val(barcode_id), file("Filt_${barcode_id}.fastq"), file("overlap_${barcode_id}.paf")
+
+	output:
+	tuple val(barcode_id), file("Filt_Scrubb_${barcode_id}.fastq")
+
+	shell:
+	"""
+	yacrd \
+		-i overlap_${barcode_id}.paf \
+		-o report_${barcode_id}.yacrd \
+		-c 4 \
+		-n 0.4 \
+		scrubb \
+		-i Filt_${barcode_id}.fastq \
+		-o Filt_Scrubb_${barcode_id}.fastq
+	"""
 }
 
 
@@ -263,20 +307,20 @@ process NanoPlotFilt {
 	publishDir "$params.outdir/NanoPlots/${barcode_id}/Filtered", mode: "copy"
 
 	input:
-	tuple val(barcode_id), file("Filt_${barcode_id}.fastq")
+	tuple val(barcode_id), file("Filt_Scrubb_${barcode_id}.fastq")
 
 	output:
-	tuple val(barcode_id), path("${barcode_id}_Filtered_*"), emit: nanoplot, optional: true
-	tuple val(barcode_id), path("count_Filt_${barcode_id}.txt"), emit: counts
+	tuple val(barcode_id), path("${barcode_id}_Filtered_Scrubbed_*"), emit: nanoplot, optional: true
+	tuple val(barcode_id), path("count_Filt_Scrubb_${barcode_id}.txt"), emit: counts
 
 	script:
 	"""
-	COUNT=\$(echo \$(cat Filt_${barcode_id}.fastq | wc -l)/4 | bc)
+	COUNT=\$(echo \$(cat Filt_Scrubb_${barcode_id}.fastq | wc -l)/4 | bc)
 	TWO=2
-	echo \$COUNT > count_Filt_${barcode_id}.txt
+	echo \$COUNT > count_Filt_Scrubb_${barcode_id}.txt
 	if [ "\$COUNT" -gt "\$TWO" ]
 	then
-		NanoPlot -t ${task.cpus} --fastq Filt_${barcode_id}.fastq -p ${barcode_id}_Filtered_
+		NanoPlot -t ${task.cpus} --fastq Filt_Scrubb_${barcode_id}.fastq -p ${barcode_id}_Filtered_Scrubbed_
 	fi
 	"""
 }
@@ -297,9 +341,9 @@ process SummaryTable{
 	shell:
 	"""
 	#!/usr/bin/env Rscript
-	filt_files <- list.files(pattern = "_Filt_")
+	filt_files <- list.files(pattern = "_Filt_Scrubb_")
 	raw_files <- list.files(pattern = "_Raw_")
-	filt_files <- setNames(filt_files, gsub("^count_Filt_|[.]txt\$", "", filt_files))
+	filt_files <- setNames(filt_files, gsub("^count_Filt_Scrubb_|[.]txt\$", "", filt_files))
 	raw_files <- setNames(raw_files, gsub("^count_Raw_|[.]txt\$", "", raw_files))
 
 	lp <- lapply(list(RawReads = raw_files, Filtered = filt_files), function(x) {
@@ -617,8 +661,6 @@ process Sam2Rma {
 process Rma2Info {
 	tag "$barcode_id"
 	label "small_cpus"
-
-	publishDir "$params.outdir/Rma", mode: "copy"
 
 	input:
 	tuple val(selected_wf), val(barcode_id), path("${selected_wf}_${barcode_id}.rma")
