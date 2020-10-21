@@ -4,6 +4,7 @@ channels:
   - bioconda
   - defaults
 dependencies:
+  - openjdk
   - porechop
   - nanofilt
   - nanoplot
@@ -13,3 +14,4 @@ dependencies:
   - r-base
   - blast
   - samtools
+  - yacrd
