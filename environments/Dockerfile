@@ -6,13 +6,13 @@ LABEL authors="Cecilia Salazar <csalazar@pasteur.edu.uy> & Ignacio Ferres <iferr
 RUN apt update -y && apt upgrade -y && apt install -y wget procps && apt clean -y && apt autoremove -y
 
 # Update conda
-RUN conda update -n base -c defaults conda
+RUN conda update -y -n base -c defaults conda
 
 # Copy conda recipe 
 COPY environment.yml /
 
 # Install dependencies
-RUN conda env create -f /environment.yml && conda clean -a
+RUN conda env create -f /environment.yml && conda clean -a -y
 
 # Export temporary PATH to allow MEGAN installation (needs openjdk)
 ARG PATH=/usr/local/envs/porefile/bin:$PATH
