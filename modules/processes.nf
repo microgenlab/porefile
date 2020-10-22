@@ -429,7 +429,7 @@ process LastAL {
 
 	shell:
 	"""
-	lastal -f BlastTab -P${task.cpus} silva ${barcode_id}.fasta > ${barcode_id}.tab
+	lastal -f BlastTab -E ${params.last_E} -P${task.cpus} silva ${barcode_id}.fasta > ${barcode_id}.tab
 	"""
 }
 
@@ -449,7 +449,7 @@ process LastALPar {
 
 	shell:
 	"""
-	lastal -f BlastTab -P${task.cpus} -p ${barcode_id}.par silva ${barcode_id}.fasta > ${barcode_id}.tab
+	lastal -f BlastTab -E ${params.last_E} -P${task.cpus} -p ${barcode_id}.par silva ${barcode_id}.fasta > ${barcode_id}.tab
 	"""
 }
 /*
@@ -705,7 +705,7 @@ process MegaBlast {
 
 	shell:
 	"""
-	blastn -task "megablast" -num_threads ${task.cpus} -db silva_SSU_tax -query ${barcode_id}.fasta -out ${barcode_id}.tab -outfmt 6
+	blastn -task "megablast" -evalue ${params.megablast_evalue} -num_threads ${task.cpus} -db silva_SSU_tax -query ${barcode_id}.fasta -out ${barcode_id}.tab -outfmt 6
 	"""
 }
 

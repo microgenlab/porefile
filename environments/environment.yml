@@ -4,6 +4,7 @@ channels:
   - bioconda
   - defaults
 dependencies:
+  - openjdk
   - porechop
   - nanofilt
   - nanoplot

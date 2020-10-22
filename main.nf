@@ -23,6 +23,8 @@ params.megan_minPercentReferenceCover = 70
 params.minimap2_k = 15
 params.minimap2_x = "map-ont"
 params.minimap2_KM = 200
+params.megablast_evalue = 1e-50
+params.last_E = 1e-50
 params.normalizeOtu = false
 params.help = false
 
