@@ -19,7 +19,7 @@ From: conda/miniconda3
 	## Install megan6
 	MEGAN="MEGAN_Community_unix_6_20_5.sh"
 	wget -P /opt https://software-ab.informatik.uni-tuebingen.de/download/megan6/"$MEGAN"
-	bash /opt/"$MEGAN" -q && rm /opt/"$MEGAN"
+	bash /opt/"$MEGAN" -q && rm /opt/"$MEGAN" && echo "-Xmx8G" > /opt/megan/MEGAN.vmoptions
 
 %environment
 	export PATH="/usr/local/envs/porefile/bin:/opt/megan/tools:$PATH"
