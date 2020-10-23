@@ -534,7 +534,6 @@ process Sam2Rma {
 		-lcp ${params.megan_lcaCoveragePercent} \
 		--topPercent ${params.megan_topPercent} \
 		--minPercentReadCover ${params.megan_minPercentReadCover} \
-		--minPercentReferenceCover ${params.megan_minPercentReferenceCover} \
 		-ram readCount \
 		-s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
 	"""
@@ -622,7 +621,6 @@ process Blast2Rma {
 		-lcp ${params.megan_lcaCoveragePercent} \
 		--topPercent ${params.megan_topPercent} \
 		--minPercentReadCover ${params.megan_minPercentReadCover} \
-		--minPercentReferenceCover ${params.megan_minPercentReferenceCover} \
 		-ram readCount \
 		-s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
 	"""
