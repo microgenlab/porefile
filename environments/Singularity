@@ -5,7 +5,7 @@ From: conda/miniconda3
 	environment.yml /environment.yml
 
 %post
-	apt update -y && apt upgrade -y && apt install -y wget procps xvfb libxrender1 libxtst6 && apt clean -y && apt autoremove -y
+	apt update -y && apt upgrade -y && apt install -y wget procps && apt clean -y && apt autoremove -y
 	
 	## Update conda
 	conda update -n base -c defaults conda

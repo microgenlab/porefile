@@ -21,7 +21,6 @@ params.megan_lcaAlgorithm = "naive"
 params.megan_lcaCoveragePercent = 100
 params.megan_topPercent = 10
 params.megan_minPercentReadCover = 70
-params.megan_minPercentReferenceCover = 70
 params.minimap2_k = 15
 params.minimap2_x = "map-ont"
 params.minimap2_KM = 200
