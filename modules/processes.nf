@@ -153,8 +153,8 @@ process Yacrd {
 	yacrd \
 		-i overlap_${barcode_id}.paf \
 		-o report_${barcode_id}.yacrd \
-		-c 4 \
-		-n 0.4 \
+		-c ${params.yacrd_c} \
+		-n ${params.yacrd_n} \
 		scrubb \
 		-i Filt_${barcode_id}.fastq \
 		-o Filt_Scrubb_${barcode_id}.fastq
