@@ -27,7 +27,6 @@ params.minimap2_x = "map-ont"
 params.minimap2_KM = 200
 params.megablast_evalue = 1e-50
 params.last_E = 1e-50
-params.normalizeOtu = false
 params.help = false
 
 def sayHi(){
@@ -48,42 +47,31 @@ def helpMessage() {
     log.info """
     Usage:
     The typical command for running the pipeline is as follows:
-    nextflow run microgenlab/long16S --fq 'data/*.fastq' --minimap2
+    nextflow run microgenlab/porefile --fq 'data/*.fastq' --minimap2
 
     Mandatory arguments:
         --fq                          Path to input data (must be surrounded with quotes).
-        --minimap2 or --last          One or both flags to select workflow.
+
+        One or more than one of the following available workflows:
+        --minimap2                    Run Minimap2Workflow (Fast and accurate enough).
+        --last                        Run LastWorkflow:Last (Not so fast but accurate).
+        --lasttrain                   Run LastWorkflow:Train (Slow but more accurate).
+        --megablast                   Run MegablastWorkflow (Very slow and not so accurate).
 
     Other:
-        --silvaFasta                  Path to SILVA_*_SSURef_NR99_tax_silva.fasta.gz file. You can provide it 
+        --silvaFasta                  Path to SILVA_132_SSURef_NR99_tax_silva.fasta.gz file. You can provide it 
                                       either compressed (.gz) or not. If not provided, the workflow automatically
                                       adds a download step (you must have internet connection).
         --silvaFastaURL               URL to SILVA_*_SSURef_NR99_tax_silva.fasta.gz file. It will be used if you
                                       don't provide the --silvaFasta parameter (above). Default is:
-                                      'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/SILVA_138_SSURef_NR99_tax_silva.fasta.gz',
-                                      change it if you want to download another SILVA version.
-        --silvaAccTaxID               Path to tax_slv_ssu_*.acc_taxid.gz file. You can provide it either
-                                      compressed (.gz) or not. If not provided, the workflow automatically adds
-                                      a download step (you must have internet connection).
-        --silvaAccTaxIDURL            URL to tax_slv_ssu_*.acc_taxid.gz file. It will be used if you don't 
-                                      provide the --silvaAccTaxID parameter (above). Default is:
-                                      'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/tax_slv_ssu_138.acc_taxid.gz',
-                                      change it if you want to download another SILVA version.
+                                      'https://www.arb-silva.de/fileadmin/silva_databases/release_132/Exports/SILVA_132_SSURef_Nr99_tax_silva.fasta.gz'.
+        --meganSynMap                 Path to MEGAN's SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz file. You 
+                                      can provide it either compressed (.gz) or not. If not provided, the workflow 
+                                      automatically adds a download step (you must have internet connection).
+        --meganSynMaURL               URL to SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz file. It will be 
+                                      used if you don't provide the --meganSynMap parameter (above). Default is:
+                                      'https://software-ab.informatik.uni-tuebingen.de/download/megan6/SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz'.
         --outdir                      Name of the results directory. Default: "results".
-      
-    Boolean control:    
-        --stoptocheckparams           Set this option to stop the pipeline after Summary process to check parameters.
-                                      If set, then the pipeline stops to allow user to check parameters. If
-                                      everything is ok, then this parameter should be removed, and resumed
-                                      by using the -resume flag (only one '-'!). Previous steps will be cached. 
-                                      If some params are modified, then those processes affected by them and their
-                                      dependant processes will be re run. Specially useful for checking NanoFilt
-                                      parameters. Don't forget to allways use the -resume option!
-        --keepmaf                     Use this flag if you want to copy .maf files (last workflow) to the results
-                                      directory. Since generating the .maf files is time consuming and resource 
-                                      intensive, and that people generally discard the 'work' directory, we decide
-                                      to give this option to the users. Take into account that maf files are usually
-                                      HUGE, and the file copy operation can take some time. 
         
 
     Process specific parameters:
@@ -95,6 +83,11 @@ def helpMessage() {
         --minimap2_k                  The '-k' parameter of minimap2. Default: 15.
         --minimap2_x                  The '-x' parameter of minimap2. Default: 'map-ont'. Possible values: 'map-ont', 
                                       'asm5', 'asm10', 'asm20'.
+
+    Other control options:
+        --isDemultiplexed             Set this flag to avoid Demultiplex sub-workflow. If set, each fastq file is 
+                                      send to a different channel.
+        --noNanoplot                  Set this flag to avoid QCheck sub-workflow. 
 
     Authors: Cecilia Salazar (csalazar@pasteur.edu.uy) & Ignacio Ferres (iferres@pasteur.edu.uy)
     Maintainer: Ignacio Ferres (iferres@pasteur.edu.uy)
