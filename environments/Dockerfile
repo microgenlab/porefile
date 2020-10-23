@@ -3,7 +3,7 @@ FROM conda/miniconda3
 LABEL authors="Cecilia Salazar <csalazar@pasteur.edu.uy> & Ignacio Ferres <iferres@pasteur.edu.uy>"
 
 # Update base image
-RUN apt update -y && apt upgrade -y && apt install -y wget procps xvfb  libxrender1 libxtst6 && apt clean -y && apt autoremove -y
+RUN apt update -y && apt upgrade -y && apt install -y wget procps && apt clean -y && apt autoremove -y
 
 # Update conda
 RUN conda update -y -n base -c defaults conda

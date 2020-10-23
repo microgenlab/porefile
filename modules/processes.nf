@@ -525,7 +525,7 @@ process Sam2Rma {
 
 	shell:
 	"""
-	xvfb-run --auto-servernum --server-num=1 /opt/megan/tools/sam2rma \
+	sam2rma \
 		-i ${barcode_id}.sam \
 		-r ${barcode_id}.fastq \
 		-o ${selected_wf}_${barcode_id}.rma \
@@ -551,7 +551,7 @@ process Rma2Info {
 
 	shell:
 	"""
-	xvfb-run --auto-servernum --server-num=1 /opt/megan/tools/rma2info \
+	rma2info \
 		-i ${selected_wf}_${barcode_id}.rma \
 		-c2c Taxonomy \
 		-p -mro \
@@ -610,7 +610,7 @@ process Blast2Rma {
 
 	shell:
 	"""
-	xvfb-run --auto-servernum --server-num=1 /opt/megan/tools/blast2rma \
+	blast2rma \
 		-i ${barcode_id}.tab \
 		-f BlastTab \
 		-bm BlastN \
