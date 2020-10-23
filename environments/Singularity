@@ -5,10 +5,7 @@ From: conda/miniconda3
 	environment.yml /environment.yml
 
 %post
-	apt update -y && apt upgrade -y && apt install -y wget procps && apt clean -y && apt autoremove -y
-	
-	## Update conda
-	conda update -n base -c defaults conda
+	apt update -y && apt install -y --no-install-recommends wget procps && apt clean -y && apt autoremove -y
 
 	## Install dependencies with conda
 	conda env create -f /environment.yml && conda clean -a

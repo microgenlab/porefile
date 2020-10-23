@@ -3,14 +3,13 @@ FROM conda/miniconda3
 LABEL authors="Cecilia Salazar <csalazar@pasteur.edu.uy> & Ignacio Ferres <iferres@pasteur.edu.uy>"
 
 # Update base image
-RUN apt update -y && apt upgrade -y && apt install -y wget procps && apt clean -y && apt autoremove -y
+RUN apt update -y && apt install -y --no-install-recommends wget procps && apt clean -y && apt autoremove -y
 
 # Copy conda recipe 
 COPY environment.yml /
 
 # Update conda and install env
-RUN conda update -y -n base -c defaults conda && \
-    conda env create -f /environment.yml && \
+RUN conda env create -f /environment.yml && \
     conda clean -a -y
 
 # Export temporary PATH to allow MEGAN installation (needs openjdk)
