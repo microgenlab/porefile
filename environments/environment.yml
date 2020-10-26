@@ -4,6 +4,8 @@ channels:
   - bioconda
   - defaults
 dependencies:
+  - wget
+  - procps-ng
   - openjdk
   - porechop
   - nanofilt

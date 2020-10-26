@@ -2,15 +2,12 @@ FROM conda/miniconda3
 
 LABEL authors="Cecilia Salazar <csalazar@pasteur.edu.uy> & Ignacio Ferres <iferres@pasteur.edu.uy>"
 
-# Update base image
-RUN apt update -y && apt install -y --no-install-recommends wget procps && apt clean -y && apt autoremove -y
-
 # Copy conda recipe 
 COPY environment.yml /
 
 # Update conda and install env
 RUN conda env create -f /environment.yml && \
-    conda clean -a -y
+    conda clean -afy
 
 # Export temporary PATH to allow MEGAN installation (needs openjdk)
 ARG PATH=/usr/local/envs/porefile/bin:$PATH
