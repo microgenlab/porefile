@@ -85,7 +85,7 @@ def helpMessage() {
 
     Other control options:
         --isDemultiplexed             Set this flag to avoid Demultiplex sub-workflow. If set, each fastq file is 
-                                      send to a different channel.
+                                      processed as a different barcode.
         --noNanoplot                  Set this flag to avoid QCheck sub-workflow. 
 
     Authors: Cecilia Salazar (csalazar@pasteur.edu.uy) & Ignacio Ferres (iferres@pasteur.edu.uy)
