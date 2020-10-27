@@ -10,8 +10,6 @@ params.lasttrain = false
 params.megablast = false
 params.isDemultiplexed = false
 params.noNanoplot = false
-params.keepmaf = false
-params.stoptocheckparams = false
 params.nanofilt_quality = 8
 params.nanofilt_length = 1000
 params.nanofilt_maxlength = 1700
@@ -67,21 +65,37 @@ def helpMessage() {
         --meganSynMap                 Path to MEGAN's SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz file. You 
                                       can provide it either compressed (.gz) or not. If not provided, the workflow 
                                       automatically adds a download step (you must have internet connection).
-        --meganSynMaURL               URL to SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz file. It will be 
+        --meganSynMapURL              URL to SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz file. It will be 
                                       used if you don't provide the --meganSynMap parameter (above). Default is:
                                       'https://software-ab.informatik.uni-tuebingen.de/download/megan6/SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz'.
         --outdir                      Name of the results directory. Default: "results".
         
 
     Process specific parameters:
+        NanoFilt parameters:
         --nanofilt_quality            The '--quality' parameter of NanoFilt. Default: 8.
+        --nanofilt_length             The '--length' parameter of NanoFilt (minimum length). Default: 1000.
         --nanofilt_maxlength          The '--maxlength' parameter of NanoFilt. Default: 1500.
-        --megan_lcaAlgorithm          The '--lcaAlgorithm' parameter of daa-meganizer (MEGAN). Default: naive. Possible
-                                      values are: 'naive', 'weighed', or 'longReads'.
-        --megan_lcaCoveragePercent    The '--lcaCoveragePercent' parameter of daa-meganizer (MEGAN). Default: 100.
+        Yacrd parameters:
+        --yacrd_c                     The '-c' parameter of Yacrd (minimum coverage). Default: 4 .
+        --yacrd_n                     The '-n' parameter of Yacrd (minimum coverage of read). Default: 0.4 .
+        Minimap2 parameters:
         --minimap2_k                  The '-k' parameter of minimap2. Default: 15.
         --minimap2_x                  The '-x' parameter of minimap2. Default: 'map-ont'. Possible values: 'map-ont', 
                                       'asm5', 'asm10', 'asm20'.
+        Last parameters:
+        --last_E                      The '-E' parameter of lastal (e-value). Default: 1e-50.
+        Megablast parameters:
+        --megablast_evalue            The '-evalue' parameter of megablast. Default: 1e-50.
+        Megan6 parameters:
+        --megan_lcaAlgorithm          The '--lcaAlgorithm' parameter of sam2rma and blast2rma tools (Megan6). Default: 
+                                      naive. Possible values are: 'naive', 'weighed', or 'longReads'.
+        --megan_lcaTopPercent         The '--topPercent' parameter of sam2rma and blast2rma tools (Megan6). Default: 10.
+        --megan_minPercentReadCover   The '--minPercentReadCover' parameter of sam2rma and blast2rma tools (Megan6).
+                                      Default: 70.
+        --megan_lcaCoveragePercent    The '--lcaCoveragePercent' parameter of sam2rma and blast2rma tools (Megan6). 
+                                      Default: 100.
+
 
     Other control options:
         --isDemultiplexed             Set this flag to avoid Demultiplex sub-workflow. If set, each fastq file is 
