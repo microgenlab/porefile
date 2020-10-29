@@ -1,7 +1,7 @@
 nextflow.enable.dsl = 2
 
-params.silvaFasta = "$baseDir/silvadb/Exports/SILVA_132_SSURef_NR99_tax_silva.fasta.gz"
-params.meganSynMap = "$baseDir/megan6/SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz"
+params.silvaFasta = "./silvadb/Exports/SILVA_132_SSURef_Nr99_tax_silva.fasta.gz"
+params.meganSynMap = "./megan6/SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz"
 
 params.silvaFastaURL = "https://www.arb-silva.de/fileadmin/silva_databases/release_132/Exports/SILVA_132_SSURef_Nr99_tax_silva.fasta.gz"
 params.meganSynMapURL = "https://software-ab.informatik.uni-tuebingen.de/download/megan6/SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz"
