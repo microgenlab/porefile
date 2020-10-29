@@ -370,9 +370,6 @@ process Fastq2Fasta {
 	output:
 	tuple val(barcode_id), path("${barcode_id}.fasta")
 
-	when:
-	params.stoptocheckparams == false
-
 	shell:
 	"""
 	seqtk seq -A ${barcode_id}.fastq > ${barcode_id}.fasta
@@ -405,7 +402,6 @@ process LastTrain {
 	
 	output:
 	tuple val(barcode_id), path("${barcode_id}.par")
-		
 
 	shell:
 	"""
@@ -426,7 +422,6 @@ process LastAL {
 	output:
 	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.tab")
 
-
 	shell:
 	"""
 	lastal -f BlastTab -E ${params.last_E} -P${task.cpus} silva ${barcode_id}.fasta > ${barcode_id}.tab
@@ -445,7 +440,6 @@ process LastALPar {
 
 	output:
 	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.tab")
-
 
 	shell:
 	"""
@@ -703,7 +697,6 @@ process MegaBlast {
 
 	output:
 	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.tab")
-
 
 	shell:
 	"""

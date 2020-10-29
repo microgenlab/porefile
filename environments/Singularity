@@ -5,13 +5,8 @@ From: conda/miniconda3
 	environment.yml /environment.yml
 
 %post
-	apt update -y && apt upgrade -y && apt install -y wget procps && apt clean -y && apt autoremove -y
-	
-	## Update conda
-	conda update -n base -c defaults conda
-
 	## Install dependencies with conda
-	conda env create -f /environment.yml && conda clean -a
+	conda env create -f /environment.yml && conda clean -afy
 
 	## Export temporary PATH to allow MEGAN installation (needs openjdk)
 	export PATH="/usr/local/envs/porefile/bin:$PATH"
