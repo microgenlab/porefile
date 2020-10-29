@@ -8,7 +8,7 @@ Each sub-workflow uses different software to align ONT amplicon reads against th
 
 Reads are then classified by [MEGAN6 CE](https://software-ab.informatik.uni-tuebingen.de/download/megan6/welcome.html) tools, and using a SILVA-to-NCBI accession mapping file provided by MEGAN authors, which is also downloaded on the fly if not provided by the user.
 
-Porefile uses SILVA SSU NR99 version 132, which is not the latest available. For a discussion and an alternative, please read [here](#on-silvas-version).
+Porefile uses SILVA SSU NR99 version 132, which is not the latest available. For a discussion and an alternative, please read [On SILVA's version](#on-silvas-version).
 
 ![Porefile Scheme](./docs/images/scheme.png)
 
