@@ -58,11 +58,11 @@ Porefile comes with a minimal set of configuration profiles. Please, refer to [N
   * `-profile nagual`: Configuration to use at IPMont servers.
 
 ## On SILVA's version
-MEGAN6 read classification algorithm needs a SILVA-to-NCBI synonym mapping file, which is provided by MEGAN6's authors. The most up-to-date available mapping file (October 2020) is for SILVA 132. We created an algorithm that attemps to recreate this mapping file for SILVA version 138.1, which is the latest. This algorithm is based on details provided by MEGAN authors on [their 2011 publication](https://bmcgenomics.biomedcentral.com/articles/10.1186/1471-2164-12-S3-S17). We cannot ensure the rules we use are exactly the same of theirs, but we are confident enough it works fairly good and results are robust and reproducible. We keep this implementation as a separate branch in this repository, if you want to  give it a try, use `-r s138` to point to that branch, for instance:
+MEGAN6 read classification algorithm needs a SILVA-to-NCBI synonym mapping file, which is provided by MEGAN's authors. The most up-to-date available mapping file (October 2020) is for SILVA 132. We created an algorithm that attemps to recreate this mapping file for SILVA version 138.1, which is the latest. This algorithm is based on details provided by MEGAN authors on [their 2011 publication](https://bmcgenomics.biomedcentral.com/articles/10.1186/1471-2164-12-S3-S17). We cannot ensure the rules we use are exactly the same of theirs, but we are confident enough it works fairly good and results are robust and reproducible. We keep this implementation as a separate parallel branch on this repository due to its experimental status. If you want to give it a try, use `-r s138` to point to that branch, for instance:
 ```
 nextflow run microgenlab/porefile --minimap2 -profile -test -r s138
 ``` 
-The above command will run the minimap2 workflow on branch `s138` with test data. It automatically downloads from SILVA all necessary files to generate the synonyms mappings. Feedback on this feature is welcome.
+The above command will run the minimap2 workflow on branch `s138` with test data. It automatically downloads from SILVA all necessary files to generate the synonym mappings. Feedback on this feature is welcome.
 
 ## Citation
 A manuscript is under preparation.
