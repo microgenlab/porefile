@@ -13,7 +13,6 @@ include {gunzip as gunzipFasta} from '../modules/processes'
 include {gunzip as gunzipMeganSynMap} from '../modules/processes'
 include {downloadFasta} from '../modules/processes'
 include {downloadMeganSynMap} from '../modules/processes' 
-//include {trimAccTaxID} from '../modules/processes'
 
 
 workflow SetSilva {
@@ -73,13 +72,8 @@ workflow SetSilva {
         }
 
     }
-
-    //trimAccTaxID( to_trim )
-    //trimAccTaxID.out
-    //        .set{ silva_acctax_ch }
     
     emit: 
     fasta = silva_fasta_ch
-    //acctax = silva_acctax_ch
     acctax = to_trim
 }
