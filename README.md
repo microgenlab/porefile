@@ -2,7 +2,13 @@
 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/iferres/porefile)](https://hub.docker.com/repository/docker/iferres/porefile/general)
 
 # Porefile: a Nextflow full-length 16S profiling pipeline for ONT reads
-`Porefile` is a Nextflow pipeline that wraps a bunch of third-party software to process full length 16S (SSU) long reads generated using Oxford Nanopore sequencing. Users can select among a set of sub-workflows implemented (see below), or all at once.
+`Porefile` is a Nextflow pipeline that wraps a bunch of third-party software to process and classify full length 16S (SSU) long reads generated using Oxford Nanopore sequencing. Users can select among a set of sub-workflows implemented (see below), or all at once.
+
+Each sub-workflow uses different software to align ONT amplicon reads against the [SILVA](https://www.arb-silva.de/) SSU NR99 database, which is downloaded on the fly if not provided by the user.
+
+Reads are then classified by [MEGAN6 CE](https://software-ab.informatik.uni-tuebingen.de/download/megan6/welcome.html) tools, and using a SILVA-to-NCBI accession mapping file provided by MEGAN authors, which is also downloaded on the fly if not provided by the user.
+
+Porefile uses SILVA SSU NR99 version 132, which is not the latest available. For a discussion and an alternative, please read [here](#on-silvas-version).
 
 ![Porefile Scheme](./docs/images/scheme.png)
 
@@ -36,6 +42,8 @@ Dependencies used by the pipeline and included in the container are:
  * [r-base](https://www.r-project.org/) (Processing)
  * [MEGAN6](https://software-ab.informatik.uni-tuebingen.de/download/megan6/welcome.html) (Taxonomy assignment)
 
+Please, cite them accordingly.
+
 ## Profiles
 Porefile comes with a minimal set of configuration profiles. Please, refer to [Nextflow](https://www.nextflow.io/) documentation to create a configuration file for your HPC infrastructure.
 
@@ -48,6 +56,13 @@ Porefile comes with a minimal set of configuration profiles. Please, refer to [N
   * `-profile test`: Tests the pipeline on a local machine with low resources using a toy dataset (5K ONT reads) included in the repo. Mostly used to develop on my desktop machine. Assigns at most 16Gb of RAM and 4 cpus per process. To run the test using Singularity as container engine (takes about ~5min on a Intel Core i7-4790, 32Gb RAM):
   `nextflow run microgenlab/porefile --minimap2 -profile test,singularity`
   * `-profile nagual`: Configuration to use at IPMont servers.
+
+## On SILVA's version
+MEGAN6 read classification algorithm needs a SILVA-to-NCBI synonym mapping file, which is provided by MEGAN6's authors. The most up-to-date available mapping file (October 2020) is for SILVA 132. We created an algorithm that attemps to recreate this mapping file for SILVA version 138.1, which is the latest. This algorithm is based on details provided by MEGAN authors on [their 2011 publication](https://bmcgenomics.biomedcentral.com/articles/10.1186/1471-2164-12-S3-S17). We cannot ensure the rules we use are exactly the same of theirs, but we are confident enough it works fairly good and results are robust and reproducible. We keep this implementation as a separate branch in this repository, if you want to  give it a try, use `-r s138` to point to that branch, for instance:
+```
+nextflow run microgenlab/porefile --minimap2 -profile -test -r s138
+``` 
+The above command will run the minimap2 workflow on branch `s138` with test data. It automatically downloads from SILVA all necessary files to generate the synonyms mappings. Feedback on this feature is welcome.
 
 ## Citation
 A manuscript is under preparation.
