@@ -2,12 +2,12 @@
 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/iferres/porefile)](https://hub.docker.com/repository/docker/iferres/porefile/general)
 
 # Porefile: a Nextflow full-length 16S profiling pipeline for ONT reads
-`Porefile` is a Nextflow pipeline to process full length 16S (SSU) long reads generated using Oxford Nanopore sequencing. Users can select among a set of sub-workflows implemented (see below), of all at once.
+`Porefile` is a Nextflow pipeline that wraps a bunch of third-party software to process full length 16S (SSU) long reads generated using Oxford Nanopore sequencing. Users can select among a set of sub-workflows implemented (see below), or all at once.
 
 ![Porefile Scheme](./docs/images/scheme.png)
 
 ## Running Porefile
-The typical command for running the pipeline is as follows (Not run):
+A typical command for running the pipeline would be as follows (don't run):
 ```
 nextflow run microgenlab/porefile --fq 'path/to/*.fastq' --minimap2
 ```
@@ -24,7 +24,7 @@ Install [Nextflow](https://www.nextflow.io/) and at least one of the following c
 
 All workflow dependencies have been packaged into a [docker container](https://hub.docker.com/repository/docker/iferres/porefile), which is automatically downloaded when the pipeline is executed. That's it, you don't need to install any other software on your own.
 
-Dependencies included in the container are:
+Dependencies used by the pipeline and included in the container are:
  * [Porechop](https://github.com/rrwick/Porechop) (Demultiplex)
  * [NanoFilt](https://github.com/wdecoster/nanofilt/) (Quality filtering)
  * [Yacrd](https://github.com/natir/yacrd) (Chimera removal)

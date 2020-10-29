@@ -43,8 +43,9 @@ sayHi()
 def helpMessage() {
     log.info """
     Usage:
-    The typical command for running the pipeline is as follows:
-    nextflow run microgenlab/porefile --fq 'data/*.fastq' --minimap2
+    A typical command for running the pipeline would be as follows:
+    
+        nextflow run microgenlab/porefile --fq 'data/*.fastq' --minimap2
 
     Mandatory arguments:
         --fq                          Path to input data (must be surrounded with quotes).
@@ -76,17 +77,22 @@ def helpMessage() {
         --nanofilt_quality            The '--quality' parameter of NanoFilt. Default: 8.
         --nanofilt_length             The '--length' parameter of NanoFilt (minimum length). Default: 1000.
         --nanofilt_maxlength          The '--maxlength' parameter of NanoFilt. Default: 1500.
+
         Yacrd parameters:
         --yacrd_c                     The '-c' parameter of Yacrd (minimum coverage). Default: 4 .
         --yacrd_n                     The '-n' parameter of Yacrd (minimum coverage of read). Default: 0.4 .
+
         Minimap2 parameters:
         --minimap2_k                  The '-k' parameter of minimap2. Default: 15.
         --minimap2_x                  The '-x' parameter of minimap2. Default: 'map-ont'. Possible values: 'map-ont', 
                                       'asm5', 'asm10', 'asm20'.
+
         Last parameters:
         --last_E                      The '-E' parameter of lastal (e-value). Default: 1e-50.
+        
         Megablast parameters:
         --megablast_evalue            The '-evalue' parameter of megablast. Default: 1e-50.
+        
         Megan6 parameters:
         --megan_lcaAlgorithm          The '--lcaAlgorithm' parameter of sam2rma and blast2rma tools (Megan6). Default: 
                                       naive. Possible values are: 'naive', 'weighed', or 'longReads'.
@@ -101,6 +107,14 @@ def helpMessage() {
         --isDemultiplexed             Set this flag to avoid Demultiplex sub-workflow. If set, each fastq file is 
                                       processed as a different barcode.
         --noNanoplot                  Set this flag to avoid QCheck sub-workflow. 
+
+    Container options (note single dash usage!):
+        -profile docker               Use docker as container engine (default).
+        -profile singularity          Use singularity as container engine.
+        -profile podman               Use podman as container engine.
+
+    Help:
+        --help                        Print this help and exit.
 
     Authors: Cecilia Salazar (csalazar@pasteur.edu.uy) & Ignacio Ferres (iferres@pasteur.edu.uy)
     Maintainer: Ignacio Ferres (iferres@pasteur.edu.uy)
