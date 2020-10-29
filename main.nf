@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl = 2
 
-params.fq = "$baseDir/data/*.fastq"
+params.fq = "*.fastq"
 params.outdir = "results"
 params.minimap2 = false
 params.last = false
@@ -44,7 +44,7 @@ def helpMessage() {
     log.info """
     Usage:
     A typical command for running the pipeline would be as follows:
-    
+
         nextflow run microgenlab/porefile --fq 'data/*.fastq' --minimap2
 
     Mandatory arguments:
