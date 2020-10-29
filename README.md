@@ -8,10 +8,10 @@
 
 ## Running Porefile
 A typical command for running the pipeline would be as follows (don't run):
-```
+```sh
 nextflow run microgenlab/porefile --fq 'path/to/*.fastq' --minimap2
 ```
-The above command will run the `Minimap2Workflow` sub-workflow (recomended). Other available sub-workflows can be selected using these flags: `--last`, `--lasttrain`, and/or `--megablast`.
+The above command would run the `Minimap2Workflow` sub-workflow (recomended). Other available sub-workflows can be selected using these flags: `--last`, `--lasttrain`, and/or `--megablast`.
 
 ## Help
 Run the following for more details about parameter tuning:
@@ -44,8 +44,9 @@ Porefile comes with a minimal set of configuration profiles. Please, refer to [N
  * Use `-profile singularity` to run the pipeline using [Singularity](https://sylabs.io/). 
  * Use `-profile podman` to run the pipeline using [Podman](https://podman.io/). 
 
- #### Other configuration
-  * `-profile test`: To run the pipeline on a local machine with low resources. Mostly used to develop on a desktop with a small toy dataset. Uses singularity as container engine, and assigns at most 16Gb of RAM and 4 cpus per process.
+ #### Other configuration (for dev mostly)
+  * `-profile test`: Tests the pipeline on a local machine with low resources using a toy dataset (5K ONT reads) included in the repo. Mostly used to develop on my desktop machine. Assigns at most 16Gb of RAM and 4 cpus per process. To run the test using Singularity as container engine (takes about ~5min on a Intel Core i7-4790, 32Gb RAM):
+  `nextflow run microgenlab/porefile --minimap2 -profile test,singularity`
   * `-profile nagual`: Configuration to use at IPMont servers.
 
 ## Citation
