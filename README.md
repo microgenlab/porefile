@@ -30,6 +30,10 @@ Install [Nextflow](https://www.nextflow.io/) and at least one of the following c
 
 All workflow dependencies have been packaged into a [docker container](https://hub.docker.com/repository/docker/iferres/porefile), which is automatically downloaded when the pipeline is executed. That's it, you don't need to install any other software on your own.
 
+Porefile has been tested with each three mencioned container technologies.
+
+#### Dependencies included in the container
+
 Dependencies used by the pipeline and included in the container are:
  * [Porechop](https://github.com/rrwick/Porechop) (Demultiplex)
  * [NanoFilt](https://github.com/wdecoster/nanofilt/) (Quality filtering)
@@ -42,7 +46,7 @@ Dependencies used by the pipeline and included in the container are:
  * [r-base](https://www.r-project.org/) (Processing)
  * [MEGAN6](https://software-ab.informatik.uni-tuebingen.de/download/megan6/welcome.html) (Taxonomy assignment)
 
-Please, cite them accordingly.
+If you use Porefile, please cite them accordingly.
 
 ## Profiles
 Porefile comes with a minimal set of configuration profiles. Please, refer to [Nextflow](https://www.nextflow.io/) documentation to create a configuration file for your HPC infrastructure.
@@ -53,7 +57,7 @@ Porefile comes with a minimal set of configuration profiles. Please, refer to [N
  * Use `-profile podman` to run the pipeline using [Podman](https://podman.io/). 
 
  #### Other configuration (for dev mostly)
-  * `-profile test`: Tests the pipeline on a local machine with low resources using a toy dataset (5K ONT reads) included in the repo. Mostly used to develop on my desktop machine. Assigns at most 16Gb of RAM and 4 cpus per process. To run the test using Singularity as container engine (takes about ~5min on a Intel Core i7-4790, 32Gb RAM):
+  * `-profile test`: Tests the pipeline on a local machine with low resources using a toy dataset (5K ONT reads) included in the repo. Mostly used to develop on my desktop machine. Assigns at most 16Gb of RAM and 4 cpus per process. To run the test using (say) Singularity as container engine (takes about ~5min on a Intel Core i7-4790, 32Gb RAM):
   `nextflow run microgenlab/porefile --minimap2 -profile test,singularity`
   * `-profile nagual`: Configuration to use at IPMont servers.
 
