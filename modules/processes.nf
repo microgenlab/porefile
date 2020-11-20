@@ -283,7 +283,6 @@ process LastAL {
 	label "big_cpus"
 	label "big_mem"
 	tag "$barcode_id"
-	publishDir "$params.outdir/LastAL", enabled: params.keepmaf, pattern: "*.maf", mode: "copy"
 
 	input:
 	tuple val(barcode_id), path("${barcode_id}.fasta")
@@ -302,7 +301,6 @@ process LastALPar {
 	label "big_cpus"
 	label "big_mem"
 	tag "$barcode_id"
-	publishDir "$params.outdir/LastAL", enabled: params.keepmaf, pattern: "*.maf", mode: "copy"
 
 	input:
 	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.par")
