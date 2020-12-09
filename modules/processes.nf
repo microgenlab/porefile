@@ -499,7 +499,7 @@ process MergeResults{
 	# Parse tax paths for each OTU
 	rr <- data.frame(otu = bc, raw = lvls)
 	spl <- strsplit(setNames(rr\$raw, rr\$otu), ";")
-	rks <- c("[SK]", "[P]", "[C]", "[O]", "[F]", "[G]", "[S]")
+	rks <- c("[D]", "[P]", "[C]", "[O]", "[F]", "[G]", "[S]")
 	tax <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
 	rks <- setNames(rks, tax)
 	tt <- lapply(spl, function(x) {
