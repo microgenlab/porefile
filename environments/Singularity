@@ -5,6 +5,9 @@ From: conda/miniconda3
 	environment.yml /environment.yml
 
 %post
+	## Update conda
+	conda update -n base -c defaults conda
+
 	## Install dependencies with conda
 	conda env create -f /environment.yml && conda clean -afy
 
@@ -12,7 +15,7 @@ From: conda/miniconda3
 	export PATH="/usr/local/envs/porefile/bin:$PATH"
 
 	## Install megan6
-	MEGAN="MEGAN_Community_unix_6_20_5.sh"
+	MEGAN="MEGAN_Community_unix_6_21_9.sh"
 	wget -P /opt https://software-ab.informatik.uni-tuebingen.de/download/megan6/"$MEGAN"
 	bash /opt/"$MEGAN" -q && rm /opt/"$MEGAN" && echo "-Xmx8G" > /opt/megan/MEGAN.vmoptions
 
