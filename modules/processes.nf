@@ -472,7 +472,7 @@ process MergeResults{
 	tuple val(selected_wf), file("*")
 
 	output:
-	tuple file("${selected_wf}_OTU.tsv"), file("${selected_wf}_TAX.tsv")
+	tuple file("${selected_wf}_COUNTS.tsv"), file("${selected_wf}_TAXCLA.tsv")
 
 	shell:
 	"""
@@ -488,15 +488,15 @@ process MergeResults{
 	# Get present taxa
 	lvls <- unique(unlist(lapply(lp, names)))
 
-	# Create new names (OTU_*)
+	# Create new names (TAXA_*)
 	lnlv <- length(lvls)
 	wdth <- nchar(lnlv)
-	bc <- paste0("OTU_", formatC(seq_along(lvls),
+	bc <- paste0("TAXA_", formatC(seq_along(lvls),
 								width = wdth,
 								format = 'd',
 								flag = '0'))
 
-	# Parse tax paths for each OTU
+	# Parse tax paths for each TAXA
 	rr <- data.frame(otu = bc, raw = lvls)
 	spl <- strsplit(setNames(rr\$raw, rr\$otu), ";")
 	rks <- c("[D]", "[P]", "[C]", "[O]", "[F]", "[G]", "[S]")
@@ -526,7 +526,7 @@ process MergeResults{
 	setNames(x, re\$otu[match(names(x), re\$raw)])
 	})
 
-	# Create OTU Table
+	# Create "OTU" (TAXA) Table
 	otut <- matrix(0L, nrow = length(re\$otu), ncol = length(lp),
 				dimnames = list(re\$otu, names(lp)))
 	for (i in seq_along(lp)){
@@ -535,8 +535,8 @@ process MergeResults{
 	colnames(otut) <- sub("[.]info\$", "", colnames(otut))
 
 
-	# Write TAX and OTU tables
-	write.table(taxt, "${selected_wf}_TAX.tsv", quote = FALSE, sep = "\\t")
-	write.table(otut, "${selected_wf}_OTU.tsv", quote = FALSE, sep = "\\t")
+	# Write Taxa Classification Table and Counts Table
+	write.table(taxt, "${selected_wf}_TAXCLA.tsv", quote = FALSE, sep = "\\t")
+	write.table(otut, "${selected_wf}_COUNTS.tsv", quote = FALSE, sep = "\\t")
 	"""
 }
