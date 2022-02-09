@@ -481,8 +481,12 @@ process MergeResults{
 	# Read *.info files
 	infos <- list.files(pattern = "[.]info\$")
 	lp <- lapply(setNames(infos, infos), function(x) {
-	a <- read.csv(x, sep = "\\t", header = FALSE)
-	setNames(a\$V2, a\$V1)
+	a <- try(read.csv(x, sep = "\\t", header = FALSE))
+	if (class(a) != "try-error"){
+		setNames(a\$V2, a\$V1)
+	}else{
+		NULL
+	}
 	})
 
 	# Get present taxa
@@ -523,7 +527,9 @@ process MergeResults{
 
 	# Rename OTU counts
 	lp <- lapply(lp, function(x){
-	setNames(x, re\$otu[match(names(x), re\$raw)])
+		if (length(x)){
+			setNames(x, re\$otu[match(names(x), re\$raw)])
+		}
 	})
 
 	# Create "OTU" (TAXA) Table
