@@ -155,25 +155,6 @@ process downloadMeganSynMap {
 	gunzip *gz
 	"""
 }
-
-
-process trimAccTaxID {
-	label 'small_cpus'
-	label 'small_mem'
-
-	input:
-	file "tax_slv_ssu_138.acc_taxid"
-
-
-	output:
-	path("SSURef_Nr99_tax_silva_to_NCBI_synonyms.map")
-
-
-	script:
-	"""
-	cat tax_slv_ssu_138.acc_taxid | awk -F '[.\\t]' '{print \$1 "\\t" \$4}' > SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
-	"""
-}
 */
 
 process Concatenate {
@@ -413,7 +394,6 @@ process LastAL {
 	label "big_cpus"
 	label "big_mem"
 	tag "$barcode_id"
-	publishDir "$params.outdir/LastAL", enabled: params.keepmaf, pattern: "*.maf", mode: "copy"
 
 	input:
 	tuple val(barcode_id), path("${barcode_id}.fasta")
@@ -432,7 +412,6 @@ process LastALPar {
 	label "big_cpus"
 	label "big_mem"
 	tag "$barcode_id"
-	publishDir "$params.outdir/LastAL", enabled: params.keepmaf, pattern: "*.maf", mode: "copy"
 
 	input:
 	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.par")
@@ -446,149 +425,6 @@ process LastALPar {
 	lastal -f BlastTab -E ${params.last_E} -P${task.cpus} -p ${barcode_id}.par silva ${barcode_id}.fasta > ${barcode_id}.tab
 	"""
 }
-/*
-process Maf2Sam {
-	label "big_cpus"
-	label "small_mem"
-	tag "$barcode_id"
-
-	input:
-	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.maf")
-	path("silva_SSU_tax.fasta")
-
-	output:
-	tuple val(barcode_id), path("${barcode_id}.sam"), path("${barcode_id}.fasta")
-
-	shell:
-	"""
-	maf-convert sam ${barcode_id}.maf | samtools view --threads ${task.cpus} -uT silva_SSU_tax.fasta | samtools sort -n --threads ${task.cpus} -O sam -o ${barcode_id}.sam
-	"""
-}
-
-process DAAConverter{
-	label "big_cpus"
-	label "big_mem"
-	tag "$barcode_id"
-
-	input:
-	tuple val(selected_wf), val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.maf")
-
-	output:
-	tuple val(selected_wf), val(barcode_id), file("${barcode_id}.daa")
-
-	when:
-	!params.stoptocheckparams
-
-	shell:
-	"""
-	java -jar /opt/DAA_Converter_v0.9.0.jar -top 20 -p ${task.cpus} -i ${barcode_id}.maf -r ${barcode_id}.fasta -o ${barcode_id}.daa
-	"""
-}
-
-process DAAMeganizer{
-	tag "$barcode_id"
-	label "big_cpus"
-
-	input:
-	tuple val(selected_wf), val(barcode_id), file("${barcode_id}.daa")
-	path("SSURef_Nr99_tax_silva_to_NCBI_synonyms.map")
-
-	output:
-	tuple val(selected_wf), file("${barcode_id}.daa")
-
-	when:
-	params.stoptocheckparams == false
-
-	shell:
-	"""
-	daa-meganizer -i ${barcode_id}.daa -p ${task.cpus} -s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map --lcaAlgorithm ${params.megan_lcaAlgorithm} --lcaCoveragePercent ${params.megan_lcaCoveragePercent}
-	"""
-}
-
-
-
-
-process ComputeComparison{
-	tag "$selected_wf"
-	label "small_cpus"
-	label "small_mem"
-	
-	publishDir "$params.outdir/Megan_Comparison", mode: "copy"
-
-	input:
-	tuple val(selected_wf), file("*")
-
-	output:
-	tuple val(selected_wf), file("${selected_wf}_comparison.megan")
-
-	when:
-	params.stoptocheckparams == false
-
-	shell:
-	"""
-	xvfb-run --auto-servernum --server-num=1 /usr/local/bin/compute-comparison -i ./* -o ${selected_wf}_comparison.megan -n ${params.normalizeOtu}
-	"""
-}
-
-
-
-process ExtractOtuTable {
-	tag "$selected_wf"
-	label "small_cpus"
-	label "small_mem"
-
-	publishDir "$params.outdir/Megan_Comparison", mode: "copy"
-
-	input:
-	tuple val(selected_wf), file("${selected_wf}_comparison.megan")
-	path("taxpaths.tsv")
-
-	output:
-	path("${selected_wf}_OTU_Table.tsv")
-
-	when:
-	params.stoptocheckparams == false
-
-	shell:
-	"""
-	#!/usr/bin/env Rscript
-	rl <- readLines("${selected_wf}_comparison.megan")
-	tp <- read.csv("taxpaths.tsv", sep="\\t", header = FALSE)
-	
-	# Generate Otu table
-	snam <- strsplit(grep("^@Names", rl, value = TRUE), "\\t")[[1]][-1]
-	taxs <- grep("^TAX", rl)
-	taxs <- strsplit(rl[taxs], "\\t")
-	taxs <- lapply(taxs, "[", -1)
-	names(taxs) <- lapply(taxs, "[", 1)
-	taxs <- lapply(taxs, "[", -1)
-	taxs <- lapply(taxs, as.integer)
-
-	nsam <- length(snam)
-	ln <- sapply(taxs, length)
-	addz <- nsam - ln
-
-	mp <- t(mapply(function(x, add){c(x, rep(0, add))}, x=taxs, add=addz))
-	if (dim(mp)[1] == 1){
-		mp <- t(mp)
-	}
-	colnames(mp) <- snam
-
-
-	# Generate taxpath file
-	str <- tp\$V2[match(rownames(mp), tp\$V1)]
-	spl <- strsplit(str, ";")
-	lns <- lengths(spl)
-	tpm <- do.call(rbind, lapply(spl, "[", seq_len(6)) )
-	rownames(tpm) <- rownames(mp)
-	colnames(tpm) <- c("Domain", "Phylum", "Class", "Order", "Family", "Genus")
-
-
-	# Publish
-	write.table(mp, file = "${selected_wf}_OTU_Table.tsv", quote = FALSE, sep = "\\t", row.names = TRUE, col.names = TRUE)
-	"""
-}
-*/
 
 process MakeMinimapDB {
 	label "big_cpus"
@@ -747,7 +583,7 @@ process MergeResults{
 	tuple val(selected_wf), file("*")
 
 	output:
-	tuple file("${selected_wf}_OTU.tsv"), file("${selected_wf}_TAX.tsv")
+	tuple file("${selected_wf}_COUNTS.tsv"), file("${selected_wf}_TAXCLA.tsv")
 
 	shell:
 	"""
@@ -756,25 +592,29 @@ process MergeResults{
 	# Read *.info files
 	infos <- list.files(pattern = "[.]info\$")
 	lp <- lapply(setNames(infos, infos), function(x) {
-	a <- read.csv(x, sep = "\\t", header = FALSE)
-	setNames(a\$V2, a\$V1)
+	a <- try(read.csv(x, sep = "\\t", header = FALSE))
+	if (class(a) != "try-error"){
+		setNames(a\$V2, a\$V1)
+	}else{
+		NULL
+	}
 	})
 
 	# Get present taxa
 	lvls <- unique(unlist(lapply(lp, names)))
 
-	# Create new names (OTU_*)
+	# Create new names (TAXA_*)
 	lnlv <- length(lvls)
 	wdth <- nchar(lnlv)
-	bc <- paste0("OTU_", formatC(seq_along(lvls),
+	bc <- paste0("TAXA_", formatC(seq_along(lvls),
 								width = wdth,
 								format = 'd',
 								flag = '0'))
 
-	# Parse tax paths for each OTU
+	# Parse tax paths for each TAXA
 	rr <- data.frame(otu = bc, raw = lvls)
 	spl <- strsplit(setNames(rr\$raw, rr\$otu), ";")
-	rks <- c("[SK]", "[P]", "[C]", "[O]", "[F]", "[G]", "[S]")
+	rks <- c("[D]", "[P]", "[C]", "[O]", "[F]", "[G]", "[S]")
 	tax <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
 	rks <- setNames(rks, tax)
 	tt <- lapply(spl, function(x) {
@@ -798,10 +638,12 @@ process MergeResults{
 
 	# Rename OTU counts
 	lp <- lapply(lp, function(x){
-	setNames(x, re\$otu[match(names(x), re\$raw)])
+		if (length(x)){
+			setNames(x, re\$otu[match(names(x), re\$raw)])
+		}
 	})
 
-	# Create OTU Table
+	# Create "OTU" (TAXA) Table
 	otut <- matrix(0L, nrow = length(re\$otu), ncol = length(lp),
 				dimnames = list(re\$otu, names(lp)))
 	for (i in seq_along(lp)){
@@ -810,8 +652,8 @@ process MergeResults{
 	colnames(otut) <- sub("[.]info\$", "", colnames(otut))
 
 
-	# Write TAX and OTU tables
-	write.table(taxt, "${selected_wf}_TAX.tsv", quote = FALSE, sep = "\\t")
-	write.table(otut, "${selected_wf}_OTU.tsv", quote = FALSE, sep = "\\t")
+	# Write Taxa Classification Table and Counts Table
+	write.table(taxt, "${selected_wf}_TAXCLA.tsv", quote = FALSE, sep = "\\t")
+	write.table(otut, "${selected_wf}_COUNTS.tsv", quote = FALSE, sep = "\\t")
 	"""
 }
