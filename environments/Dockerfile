@@ -1,4 +1,4 @@
-FROM conda/miniconda3
+FROM docker.io/conda/miniconda3
 
 LABEL authors="Cecilia Salazar <csalazar@pasteur.edu.uy> & Ignacio Ferres <iferres@pasteur.edu.uy>"
 
