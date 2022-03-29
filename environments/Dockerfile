@@ -6,9 +6,11 @@ LABEL org.opencontainers.image.source https://github.com/microgenlab/porefile
 # Copy conda recipe 
 COPY environment.yml /
 
-# Update conda and install env
-RUN conda update -n base -c defaults conda && \
-    conda env create -f /environment.yml && \
+# Update conda 
+RUN conda update -n base -c defaults conda 
+
+# Create env and clean
+RUN conda env create -f /environment.yml && \
     conda clean -afy
 
 # Export  PATH to allow MEGAN installation (needs openjdk and wget)
