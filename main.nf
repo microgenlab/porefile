@@ -20,6 +20,7 @@ params.megan_lcaCoveragePercent = 100
 params.megan_topPercent = 10
 params.megan_minPercentReadCover = 70
 params.minimap2_k = 15
+params.minimap2_f = 1000
 params.minimap2_x = "map-ont"
 params.minimap2_KM = 200
 params.megablast_evalue = 1e-50
@@ -86,6 +87,8 @@ def helpMessage() {
         --minimap2_k                  The '-k' parameter of minimap2. Default: 15.
         --minimap2_x                  The '-x' parameter of minimap2. Default: 'map-ont'. Possible values: 'map-ont', 
                                       'asm5', 'asm10', 'asm20'.
+        --minimap2_f                  The '-f' parameter of minimap2. Default: 1000. Only applied in the Automap module.
+        --minimap2_KM                 The '-K' parameter of minimap2, in Megabases. Default: 200.
 
         Last parameters:
         --last_E                      The '-E' parameter of lastal (e-value). Default: 1e-50.
