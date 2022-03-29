@@ -88,11 +88,18 @@ process NanoFilt {
 	tuple val(barcode_id), file("${barcode_id}.fastq")
 
 	output:
-	tuple val(barcode_id), file("Filt_${barcode_id}.fastq")
+	tuple val(barcode_id), file("Filt_${barcode_id}.fastq"), optional: true
 
 	shell:
 	"""
-	cat "${barcode_id}.fastq" | NanoFilt --quality ${params.nanofilt_quality} --maxlength ${params.nanofilt_maxlength} --length ${params.nanofilt_length} > Filt_${barcode_id}.fastq
+	cat "${barcode_id}.fastq" | \
+		NanoFilt \
+		--quality ${params.nanofilt_quality} \
+		--maxlength ${params.nanofilt_maxlength} \
+		--length ${params.nanofilt_length} > \
+		Filt_${barcode_id}.fastq
+
+	[ -s Filt_${barcode_id}.fastq ] || rm Filt_${barcode_id}.fastq
 	"""
 
 }
@@ -114,6 +121,7 @@ process AutoMap {
 		-x ava-ont \
 		-t ${task.cpus} \
 		-g 500 \
+		-f${params.minimap2_f} \
 		Filt_${barcode_id}.fastq Filt_${barcode_id}.fastq > overlap_${barcode_id}.paf
 	"""
 }
@@ -326,7 +334,11 @@ process MakeMinimapDB {
 
 	shell:
 	"""
-	minimap2 -t ${task.cpus} -k ${params.minimap2_k} -d silva_k${params.minimap2_k}.mmi silva_SSU_tax.fasta
+	minimap2 \
+		-t ${task.cpus} \
+		-k ${params.minimap2_k} \
+		-d silva_k${params.minimap2_k}.mmi \
+		silva_SSU_tax.fasta
 	"""
 }
 
@@ -343,7 +355,13 @@ process Minimap2 {
 
 	shell:
 	"""
-	minimap2 -K ${params.minimap2_KM}M -t ${task.cpus} -ax ${params.minimap2_x} silva_k${params.minimap2_k}.mmi ${barcode_id}.fasta > ${barcode_id}.sam
+	minimap2 \
+		-K ${params.minimap2_KM}M \
+		-t ${task.cpus} \
+		--secondary=no\
+		-ax ${params.minimap2_x} \
+		silva_k${params.minimap2_k}.mmi \
+		${barcode_id}.fasta > ${barcode_id}.sam
 	"""
 }
 
