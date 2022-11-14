@@ -148,6 +148,11 @@ if (! params.fq ){
   System.exit(1)
 }
 
+if (!["naive", "weighted", "longReads"].contains(params.megan_lcaAlgorithm)){
+  println("lcaAlgorithm not valid, must be one of 'naive', 'weighted', or 'longReads'")
+  System.exit(1)
+}
+
 Channel
   .fromPath(params.fq, checkIfExists: true)
   .ifEmpty { exit 1, "Non fastq files found: ${params.fq}" }
