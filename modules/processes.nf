@@ -186,7 +186,11 @@ process Porechop {
 
 	shell:
 	"""
-	porechop -t ${task.cpus} -i ${fq} -b porechop_results
+	porechop \
+		-t ${task.cpus} \
+		--extra_end_trim ${params.porechop_extra_end_trim} \
+		-i ${fq} \
+		-b porechop_results
 	rm -f porechop_results/none.fastq
 	"""
 }
