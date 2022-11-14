@@ -224,7 +224,7 @@ process AutoMap {
 	tuple val(barcode_id), file("Filt_${barcode_id}.fastq")
 
 	output:
-	tuple val(barcode_id), file("Filt_${barcode_id}.fastq"), file("overlap_${barcode_id}.paf")
+	tuple val(barcode_id), file("Filt_${barcode_id}.fastq"), file("overlap_${barcode_id}.paf"), optional: true
 
 	shell:
 	"""
@@ -234,6 +234,7 @@ process AutoMap {
 		-g 500 \
 		-f${params.minimap2_f} \
 		Filt_${barcode_id}.fastq Filt_${barcode_id}.fastq > overlap_${barcode_id}.paf
+		[ -s overlap_${barcode_id}.paf ] || rm overlap_${barcode_id}.paf
 	"""
 }
 
