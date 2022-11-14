@@ -9,6 +9,7 @@ params.last = false
 params.lasttrain = false
 params.megablast = false
 params.isDemultiplexed = false
+params.porechop_extra_end_trim = 0
 params.noNanoplot = false
 params.nanofilt_quality = 8
 params.nanofilt_length = 1000
@@ -74,10 +75,13 @@ def helpMessage() {
         
 
     Process specific parameters:
+        Porechop parameters:
+        --porechop_extra_end_trim      The '--extra_end_trim' parameter of Porechop. Default: 0.
+
         NanoFilt parameters:
         --nanofilt_quality            The '--quality' parameter of NanoFilt. Default: 8.
         --nanofilt_length             The '--length' parameter of NanoFilt (minimum length). Default: 1000.
-        --nanofilt_maxlength          The '--maxlength' parameter of NanoFilt. Default: 1500.
+        --nanofilt_maxlength          The '--maxlength' parameter of NanoFilt. Default: 1700.
 
         Yacrd parameters:
         --yacrd_c                     The '-c' parameter of Yacrd (minimum coverage). Default: 4 .
@@ -98,7 +102,7 @@ def helpMessage() {
         
         Megan6 parameters:
         --megan_lcaAlgorithm          The '--lcaAlgorithm' parameter of sam2rma and blast2rma tools (Megan6). Default: 
-                                      naive. Possible values are: 'naive', 'weighed', or 'longReads'.
+                                      naive. Possible values are: 'naive', 'weighted', or 'longReads'.
         --megan_lcaTopPercent         The '--topPercent' parameter of sam2rma and blast2rma tools (Megan6). Default: 10.
         --megan_minPercentReadCover   The '--minPercentReadCover' parameter of sam2rma and blast2rma tools (Megan6).
                                       Default: 70.
