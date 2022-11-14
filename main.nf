@@ -166,8 +166,8 @@ workflow {
   SetSilva()
     SetSilva.out.fasta
       .set{ silva_fasta_ch }
-    SetSilva.out.acctax
-      .set{ silva_acctax_ch }
+    SetSilva.out.synonyms
+      .set{ silva_synonyms_ch }
   if (! params.isDemultiplexed ){
     Demultiplex( fqs_ch )
     Demultiplex.out
@@ -190,18 +190,18 @@ workflow {
   Channel.empty()
     .set{ stage_to_comprare_ch }
   if ( params.minimap2 ) {
-    Minimap2Workflow( fasta_ch, silva_fasta_ch, silva_acctax_ch )
+    Minimap2Workflow( fasta_ch, silva_fasta_ch, silva_synonyms_ch )
       stage_to_comprare_ch.mix( Minimap2Workflow.out )
         .set{ stage_to_comprare_ch }
       
   }
   if ( params.last || params.lasttrain  ) {
-    LastWorkflow( fasta_ch, silva_fasta_ch, silva_acctax_ch )
+    LastWorkflow( fasta_ch, silva_fasta_ch, silva_synonyms_ch )
       stage_to_comprare_ch.mix( LastWorkflow.out )
         .set{ stage_to_comprare_ch }
   }
   if (params.megablast ){
-    MegaBlastWorkflow( fasta_ch, silva_fasta_ch, silva_acctax_ch )
+    MegaBlastWorkflow( fasta_ch, silva_fasta_ch, silva_synonyms_ch )
     stage_to_comprare_ch.mix( MegaBlastWorkflow.out )
         .set{ stage_to_comprare_ch }
   }

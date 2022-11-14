@@ -16,7 +16,7 @@ process gunzip {
 }
 
 
-process downloadFasta {
+process downloadSilvaFasta {
 	label 'internet'
 	label 'small_cpus'
 	label 'small_mem'
@@ -31,6 +31,116 @@ process downloadFasta {
 	"""
 }
 
+process downloadSilvaTaxNcbiSp {
+	label 'internet'
+	label 'small_cpus'
+	label 'small_mem'
+
+	output:
+	path("*.txt")
+
+	script:
+	"""
+	wget ${params.silvaTaxNcbiSpURL}
+	gunzip *gz
+	"""
+}
+
+process downloadSilvaTaxmap {
+	label 'internet'
+	label 'small_cpus'
+	label 'small_mem'
+
+	output:
+	path("*.txt")
+
+	script:
+	"""
+	wget ${params.silvaTaxmapURL}
+	gunzip *gz
+	"""
+}
+
+process generateSynonyms {
+	label 'small_cpus'
+	label 'small_mem'
+
+	input:
+	file "tax_ncbi-species_ssu_ref_nr99_VERSION.txt"
+	file "taxmap_slv_ssu_ref_nr_VERSION.txt"
+
+	output:
+	file "SSURef_Nr99_tax_silva_to_NCBI_synonyms.map"
+
+	shell:
+	"""
+	#!/usr/bin/env Rscript
+
+	taxmap <- "taxmap_slv_ssu_ref_nr_VERSION.txt"
+	tms <- read.csv(taxmap, sep = "\\t")
+
+	ncbisp <- "tax_ncbi-species_ssu_ref_nr99_VERSION.txt"
+	ns <- read.csv(ncbisp, sep = "\\t", header = FALSE)
+
+	# Clean taxmap organism_name
+	cln <- grep("[U|u]ncultured|[E|e]nvironmental|[U|u]nidentified|[M|m]etagenome", tms\$organism_name)
+	tms\$organism_name[cln] <- NA_character_
+
+	# Clean taxmap path
+	tms\$path <- gsub("uncultured;\$", "", tms\$path)
+
+	# Create full path
+	rps <- apply(tms, 1, function(x) grepl(x[["organism_name"]], x[["path"]], fixed = TRUE))
+	tms\$organism_name[rps] <- ""
+	tms\$organism_name[cln] <- ""
+	tms\$path <- paste(tms\$path, tms\$organism_name, sep = "")
+
+	# Identify silva indexes for occurrences
+	idx <- split(seq_len(dim(tms)[1]), tms\$path)
+
+	# Clean ncbi taxonomy
+	ns\$V1 <- gsub(" <\\\\w+>", "", ns\$V1)
+
+	# Create hashmap for ncbi taxonomy
+	ns\$tip <- vapply(strsplit(ns\$V1, ";"), function(x) rev(x)[1], FUN.VALUE = NA_character_)
+	ee <- list2env(split(ns\$V2, ns\$tip), hash = TRUE)
+
+	# Find taxids 
+	pths <- strsplit(setNames(names(idx), names(idx)), ";")
+	pths <- lapply(pths, rev)
+	txid <- lapply(pths, function(x){
+	r <- NULL
+	y <- x
+	while(is.null(r)){
+		a <- y[1]
+		y <- y[-1]
+		r <- ee[[a]]
+		r <- r[1]
+	}
+	r
+	})
+
+	# Repeat taxids as many times as it was assigned
+	rp <- mapply(rep, txid, lengths(idx))
+
+	# Sort taxids by index
+	ultx <- unlist(rp, use.names = FALSE)
+	tms\$map <- ultx[order(unlist(idx, use.names = FALSE))]
+
+	df <- data.frame(Accs = paste(tms\$primaryAccession, tms\$start, tms\$stop, sep = "."),
+					Syno = tms\$map)
+
+	write.table(df, 
+				file = "SSURef_Nr99_tax_silva_to_NCBI_synonyms.map", 
+				sep = "\\t", 
+				quote = FALSE, 
+				row.names = FALSE, 
+				col.names = FALSE)
+
+	"""
+}
+
+/*
 process downloadMeganSynMap {
 	label 'internet'
 	label 'small_cpus'
@@ -45,6 +155,7 @@ process downloadMeganSynMap {
 	gunzip *gz
 	"""
 }
+*/
 
 process Concatenate {
 	label "small_cpus"
