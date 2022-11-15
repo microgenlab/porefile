@@ -30,7 +30,7 @@ params.help = false
 
 def sayHi(){
   log.info """
- .____   __  ____  ____  ____  __  __    ____ 
+ ____   __  ____  ____  ____  __  __    ____ 
 (  _ \\ /  \\(  _ \\(  __)(  __)(  )(  )  (  __)
  ) __/(  O ))   / ) _)  ) _)  )( / (_/\\ ) _) 
 (__)   \\__/(__\\_)(____)(__)  (__)\\____/(____)
@@ -59,18 +59,27 @@ def helpMessage() {
         --megablast                   Run MegablastWorkflow (Very slow and not so accurate).
 
     Other:
-        --silvaFasta                  Path to SILVA_132_SSURef_NR99_tax_silva.fasta.gz file. You can provide it 
+        --silvaFasta                  Path to SILVA_*_SSURef_NR99_tax_silva.fasta.gz file. You can provide it 
                                       either compressed (.gz) or not. If not provided, the workflow automatically
                                       adds a download step (you must have internet connection).
         --silvaFastaURL               URL to SILVA_*_SSURef_NR99_tax_silva.fasta.gz file. It will be used if you
                                       don't provide the --silvaFasta parameter (above). Default is:
-                                      'https://www.arb-silva.de/fileadmin/silva_databases/release_132/Exports/SILVA_132_SSURef_Nr99_tax_silva.fasta.gz'.
-        --meganSynMap                 Path to MEGAN's SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz file. You 
-                                      can provide it either compressed (.gz) or not. If not provided, the workflow 
-                                      automatically adds a download step (you must have internet connection).
-        --meganSynMapURL              URL to SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz file. It will be 
-                                      used if you don't provide the --meganSynMap parameter (above). Default is:
-                                      'https://software-ab.informatik.uni-tuebingen.de/download/megan6/SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz'.
+                                      'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/SILVA_138.1_SSURef_NR99_tax_silva.fasta.gz'.
+
+        --silvaTaxNcbiSp              Path to tax_ncbi-species_ssu_ref_nr99_*.txt.gz file. You can provide it
+                                      either compressed (.gz) or not. If not provided, the workflow automatically
+                                      adds a download step.
+        ---silvaTaxNcbiSpURL          URL to tax_ncbi-species_ssu_ref_nr99_*.txt.gz file. It will be used if you
+                                      don't provide the --silvaFasta parameter (above). Default is:
+                                      'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/ncbi/tax_ncbi-species_ssu_ref_nr99_138.1.txt.gz'.
+
+        --silvaTaxmap                 Path to taxmap_slv_ssu_ref_nr_*.txt.gz file. You can provide it
+                                      either compressed (.gz) or not. If not provided, the workflow automatically
+                                      adds a download step.
+        --silvaTaxmapURL              URL to taxmap_slv_ssu_ref_nr_*.txt.gz file. It will be used if you
+                                      don't provide the --silvaFasta parameter (above). Default is:
+                                      'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/taxmap_slv_ssu_ref_nr_138.1.txt.gz'.
+
         --outdir                      Name of the results directory. Default: "results".
         
 
@@ -123,8 +132,8 @@ def helpMessage() {
     Help:
         --help                        Print this help and exit.
 
-    Authors: Cecilia Salazar (csalazar@pasteur.edu.uy) & Ignacio Ferres (iferres@pasteur.edu.uy)
-    Maintainer: Ignacio Ferres (iferres@pasteur.edu.uy)
+    Authors: Cecilia Salazar (csalazar@pasteur.edu.uy) & Ignacio Ferrés (iferres@pasteur.edu.uy)
+    Maintainer: Ignacio Ferrés (iferres@pasteur.edu.uy)
 
     Microbial Genomics Laboratory
     Institut Pasteur de Montevideo (Uruguay)
