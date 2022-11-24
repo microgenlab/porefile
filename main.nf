@@ -147,6 +147,47 @@ if (params.help) {
     exit 0
 }
 
+// Validation of parameters
+def parameters_expected = [
+  'help',
+  'fq', 
+  'outdir',
+  'minimap2',
+  'last',
+  'lasttrain',
+  'megablast',
+  'isDemultiplexed', 'is-demultiplexed', // This is because  https://github.com/nextflow-io/nextflow/issues/2061
+  'porechop_extra_end_trim',
+  'noNanoplot', 'no-nanoplot',
+  'nanofilt_quality',
+  'nanofilt_length',
+  'nanofilt_maxlength',
+  'yacrd_c',
+  'yacrd_n',
+  'megan_lcaAlgorithm', 'megan_lca-algorithm',
+  'megan_lcaCoveragePercent', 'megan_lca-coverage-percent',
+  'megan_topPercent', 'megan_top-percent',
+  'megan_minPercentReadCover', 'megan_min-percent-read-cover',
+  'minimap2_k',
+  'minimap2_f',
+  'minimap2_x',
+  'minimap2_KM',
+  'megablast_evalue',
+  'last_E',
+  'silvaFasta',
+  'silvaTaxNcbiSp',
+  'silvaTaxmap',
+  'silvaFastaURL',
+  'silvaTaxNcbiSpURL',
+  'silvaTaxmapURL'
+  ] as Set
+
+def parameter_diff = params.keySet() - parameters_expected
+if (parameter_diff.size() != 0){
+   exit 1, "[Pipeline error] Parameter(s) $parameter_diff is/are not valid in the pipeline!\n"
+}
+
+
 if ( ! (params.minimap2 || params.last || params.lasttrain || params.megablast) ){
   println("You must specify one or more workflows to run. Implemented: --minimap2, --last, --lasttrain, and --megablast")
   System.exit(1)
