@@ -28,6 +28,15 @@ params.megablast_evalue = 1e-50
 params.last_E = 1e-50
 params.help = false
 
+params.silvaFasta = "./silvadb/Exports/SILVA_138.1_SSURef_NR99_tax_silva.fasta.gz"
+params.silvaTaxNcbiSp = "./silvadb/Exports/taxonomy/ncbi/tax_ncbi-species_ssu_ref_nr99_138.1.txt.gz"
+params.silvaTaxmap = "./silvadb/Exports/taxonomy/ncbi/taxmap_slv_ssu_ref_nr_138.1.txt.gz"
+
+params.silvaFastaURL = "https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/SILVA_138.1_SSURef_NR99_tax_silva.fasta.gz"
+params.silvaTaxNcbiSpURL = "https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/ncbi/tax_ncbi-species_ssu_ref_nr99_138.1.txt.gz"
+params.silvaTaxmapURL = "https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/taxmap_slv_ssu_ref_nr_138.1.txt.gz"
+
+
 def sayHi(){
   log.info """
  ____   __  ____  ____  ____  __  __    ____ 
@@ -174,12 +183,12 @@ def parameters_expected = [
   'minimap2_KM',
   'megablast_evalue',
   'last_E',
-  'silvaFasta',
-  'silvaTaxNcbiSp',
-  'silvaTaxmap',
-  'silvaFastaURL',
-  'silvaTaxNcbiSpURL',
-  'silvaTaxmapURL'
+  'silvaFasta', 'silva-fasta',
+  'silvaTaxNcbiSp', 'silva-tax-ncbi-sp',
+  'silvaTaxmap', 'silva-taxmap',
+  'silvaFastaURL', 'silva-fasta-URL',
+  'silvaTaxNcbiSpURL', 'silva-tax-ncbi-sp-URL',
+  'silvaTaxmapURL', 'silva-taxmap-URL'
   ] as Set
 
 def parameter_diff = params.keySet() - parameters_expected
