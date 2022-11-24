@@ -1,3 +1,7 @@
+# porefile 0.2.1
+* Fixed wrong parameter documentation. "--megan_topPercent" was documented as "--megan_lcaTopPercent", so this parameter was completely ignored and the default was always used instead. 
+* Added parameters sanity checking. This is to avoid ignoring misspelled parameters.
+
 # porefile 0.2.0
 * Merge s138: Now Porefiles only uses SILVA files, not needed MEGAN mapping files any more. Uses latest SILVA version (138.1).
 * Fix #12: If AutoMap returns empty, this barcode is discarded.
