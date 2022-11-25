@@ -132,7 +132,7 @@ Usage:
         Megan6 parameters:
         --megan_lcaAlgorithm          The '--lcaAlgorithm' parameter of sam2rma and blast2rma tools (Megan6). Default: 
                                       naive. Possible values are: 'naive', 'weighted', or 'longReads'.
-        --megan_lcaTopPercent         The '--topPercent' parameter of sam2rma and blast2rma tools (Megan6). Default: 10.
+        --megan_topPercent         The '--topPercent' parameter of sam2rma and blast2rma tools (Megan6). Default: 10.
         --megan_minPercentReadCover   The '--minPercentReadCover' parameter of sam2rma and blast2rma tools (Megan6).
                                       Default: 70.
         --megan_lcaCoveragePercent    The '--lcaCoveragePercent' parameter of sam2rma and blast2rma tools (Megan6). 
