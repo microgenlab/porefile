@@ -1,3 +1,6 @@
+# porefile 0.2.2
+* Minor fix in "nagual" config, which was using a "dev" tagged docker container. Now it uses the "latest".
+
 # porefile 0.2.1
 * Fixed wrong parameter documentation. "--megan_topPercent" was documented as "--megan_lcaTopPercent", so this parameter was completely ignored and the default was always used instead. 
 * Added parameters sanity checking. This is to avoid ignoring misspelled parameters.
