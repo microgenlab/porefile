@@ -82,9 +82,9 @@ workflow SetSilva {
             gunzipTaxmap.out
                 .set{ tax_map_ch }
 
-        } else if ( partaxncbisp.getExtension() == "txt" ) {
+        } else if ( partaxmap.getExtension() == "txt" ) {
 
-            Channel.value( partaxncbisp )
+            Channel.value( partaxmap )
                 .set{ tax_map_ch }
 
         } else{
