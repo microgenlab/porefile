@@ -657,6 +657,28 @@ process MergeResults{
 
 	shell:
 	"""
+	mergeResults.R \
+		--suffix info \
+		--workflow ${selected_wf}
+	"""
+}
+
+/*
+process MergeResults{
+	tag "$selected_wf"
+	label "small_cpus"
+	label "small_mem"
+	
+	publishDir "$params.outdir/Merged_Results", mode: "copy"
+
+	input:
+	tuple val(selected_wf), file("*")
+
+	output:
+	tuple file("${selected_wf}_COUNTS.tsv"), file("${selected_wf}_TAXCLA.tsv")
+
+	shell:
+	"""
 	#!/usr/bin/env Rscript
 	
 	# Read *.info files
@@ -727,3 +749,4 @@ process MergeResults{
 	write.table(otut, "${selected_wf}_COUNTS.tsv", quote = FALSE, sep = "\\t")
 	"""
 }
+*/
