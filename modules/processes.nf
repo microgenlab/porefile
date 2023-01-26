@@ -342,6 +342,7 @@ process NanoPlotFilt {
 	"""
 }
 
+/*
 process SummaryTable{
 	label "small_cpus"
 	label "small_mem"
@@ -373,6 +374,29 @@ process SummaryTable{
 	x <- x[, c("BarCode", "RawReads", "Filtered")]
 
 	write.table(x, file = "summary.tsv", sep="\t", quote=F, row.names=FALSE, col.names=TRUE)
+	"""
+}
+*/
+
+process SummaryTable{
+	label "small_cpus"
+	label "small_mem"
+
+	publishDir "$params.outdir/NanoPlots", mode: "copy"
+
+	input:
+	file "*"
+	//file "*"
+
+	output:
+	file "summary.tsv"
+
+	shell:
+	"""
+	summarizeQC.R \
+		--prefix_filt_scrubb count_Filt_Scrubb_ \
+		--prefix_raw count_Raw_ \
+		--out summary.tsv
 	"""
 }
 
