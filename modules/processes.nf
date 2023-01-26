@@ -60,7 +60,7 @@ process downloadSilvaTaxmap {
 	gunzip *gz
 	"""
 }
-
+/*
 process generateSynonyms {
 	label 'small_cpus'
 	label 'small_mem'
@@ -137,6 +137,29 @@ process generateSynonyms {
 				row.names = FALSE, 
 				col.names = FALSE)
 
+	"""
+}
+*/
+
+process generateSynonyms {
+	label 'small_cpus'
+	label 'small_mem'
+
+	publishDir "."
+
+	input:
+	file "tax_ncbi-species_ssu_ref_nr99_VERSION.txt"
+	file "taxmap_slv_ssu_ref_nr_VERSION.txt"
+
+	output:
+	file "SSURef_Nr99_tax_silva_to_NCBI_synonyms.map"
+
+	script:
+	"""
+	generateSynonyms.R \
+		--ncbisp tax_ncbi-species_ssu_ref_nr99_VERSION.txt \
+		--taxmap taxmap_slv_ssu_ref_nr_VERSION.txt \
+		--out SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
 	"""
 }
 
