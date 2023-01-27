@@ -301,7 +301,7 @@ process Fastq2Fasta {
 
 	shell:
 	"""
-	seqtk seq -A ${barcode_id}.fastq > ${barcode_id}.fasta
+	seqkit fq2fa --threads 1 ${barcode_id}.fastq -o ${barcode_id}.fasta
 	"""
 }
 
