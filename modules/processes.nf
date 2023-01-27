@@ -31,6 +31,27 @@ process downloadSilvaFasta {
 	"""
 }
 
+
+process reduceSilva {
+	label 'small_cpus'
+	label 'smal_mem'
+
+	input:
+	path("full_silva.fasta")
+
+	output:
+	path("reduced_silva.fasta")
+
+	script:
+	"""
+	seqkit --threads 1 grep -r -i -n \
+		-p Eukaryota \
+		-p Phage \
+		-v \
+		full_silva.fasta > reduced_silva.fasta  
+	"""
+}
+
 process downloadSilvaTaxNcbiSp {
 	label 'internet'
 	label 'small_cpus'

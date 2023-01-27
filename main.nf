@@ -36,6 +36,7 @@ params.silvaFastaURL = "https://www.arb-silva.de/fileadmin/silva_databases/curre
 params.silvaTaxNcbiSpURL = "https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/ncbi/tax_ncbi-species_ssu_ref_nr99_138.1.txt.gz"
 params.silvaTaxmapURL = "https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/taxmap_slv_ssu_ref_nr_138.1.txt.gz"
 
+params.fullSilva = false
 
 def sayHi(){
   log.info """
@@ -88,6 +89,9 @@ def helpMessage() {
         --silvaTaxmapURL              URL to taxmap_slv_ssu_ref_nr_*.txt.gz file. It will be used if you
                                       don't provide the --silvaFasta parameter (above). Default is:
                                       'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/taxmap_slv_ssu_ref_nr_138.1.txt.gz'.
+
+        --fullSilva                   By default, porefile reduces SILVA to prokatyote SSU (16S). Use this flag
+                                      to deactivate the reducing step and use the full SILVA database.
 
         --outdir                      Name of the results directory. Default: "results".
         
@@ -188,7 +192,8 @@ def parameters_expected = [
   'silvaTaxmap', 'silva-taxmap',
   'silvaFastaURL', 'silva-fasta-URL',
   'silvaTaxNcbiSpURL', 'silva-tax-ncbi-sp-URL',
-  'silvaTaxmapURL', 'silva-taxmap-URL'
+  'silvaTaxmapURL', 'silva-taxmap-URL',
+  'fullSilva', 'full-silva'
   ] as Set
 
 def parameter_diff = params.keySet() - parameters_expected

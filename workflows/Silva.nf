@@ -2,6 +2,7 @@ nextflow.enable.dsl = 2
 
 include {downloadSilvaFasta} from '../modules/processes'
 include {gunzip as gunzipFasta} from '../modules/processes'
+include {reduceSilva} from '../modules/processes'
 include {downloadSilvaTaxNcbiSp} from '../modules/processes'
 include {gunzip as gunzipTaxNcbiSp} from '../modules/processes'
 include {downloadSilvaTaxmap} from '../modules/processes'
@@ -20,7 +21,7 @@ workflow SetSilva {
 
         downloadSilvaFasta()
         downloadSilvaFasta.out
-            .set{ silva_fasta_ch }
+            .set{ full_silva_fasta_ch }
 
     } else{
         
@@ -28,18 +29,27 @@ workflow SetSilva {
 
             gunzipFasta( parfasta )
             gunzipFasta.out
-                .set{ silva_fasta_ch }
+                .set{ full_silva_fasta_ch }
 
         } else if ( parfasta.getExtension() == "fasta" ){
 
             Channel.value( parfasta ) // use value to allow recycle
-                .set{ silva_fasta_ch } 
+                .set{ full_silva_fasta_ch } 
 
         }else{
             println("Unrecognized silvaFasta extension (not gz nor fasta).")
             System.exit(1)
         }
 
+    }
+
+    // Now reduce SILVAdb to remove Eukaryotes and Phage sequences
+    if (! params.fullSilva ){
+        reduceSilva( full_silva_fasta_ch )
+        reduceSilva.out
+            .set{ silva_fasta_ch }
+    } else {
+        silva_fasta_ch = full_silva_fasta_ch
     }
 
     if ( ! partaxncbisp.exists() ){
