@@ -14,6 +14,8 @@ params.noNanoplot = false
 params.nanofilt_quality = 8
 params.nanofilt_length = 1000
 params.nanofilt_maxlength = 1700
+params.nanofilt_headcrop = 0
+params.nanofilt_tailcrop = 0
 params.yacrd_c = 4
 params.yacrd_n = 0.4
 params.megan_lcaAlgorithm = "naive"
@@ -104,6 +106,8 @@ def helpMessage() {
         --nanofilt_quality            The '--quality' parameter of NanoFilt. Default: 8.
         --nanofilt_length             The '--length' parameter of NanoFilt (minimum length). Default: 1000.
         --nanofilt_maxlength          The '--maxlength' parameter of NanoFilt. Default: 1700.
+        --nanofilt_headcrop           The '--headcrop' parameter of NanoFilt. Default: 0.
+        --nanofilt_tailcrop           The '--tailcrop' parameter of NanoFilt. Default: 0.
 
         Yacrd parameters:
         --yacrd_c                     The '-c' parameter of Yacrd (minimum coverage). Default: 4 .
@@ -175,6 +179,8 @@ def parameters_expected = [
   'nanofilt_quality',
   'nanofilt_length',
   'nanofilt_maxlength',
+  'nanofilt_headcrop',
+  'nanofilt_tailcrop',
   'yacrd_c',
   'yacrd_n',
   'megan_lcaAlgorithm', 'megan_lca-algorithm',

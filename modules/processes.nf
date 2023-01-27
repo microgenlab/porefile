@@ -156,6 +156,8 @@ process NanoFilt {
 	"""
 	cat "${barcode_id}.fastq" | \
 		NanoFilt \
+		--headcrop ${params.nanofilt_headcrop} \
+		--tailcrop ${params.nanofilt_tailcrop} \
 		--quality ${params.nanofilt_quality} \
 		--maxlength ${params.nanofilt_maxlength} \
 		--length ${params.nanofilt_length} > \
