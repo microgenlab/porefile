@@ -48,8 +48,7 @@ def sayHi(){
 (__)   \\__/(__\\_)(____)(__)  (__)\\____/(____)
 ---------------------------------------------
 ... A full-length 16S profiling Pipeline ....
----------------------------------------------
-  """
+---------------------------------------------"""
 }
 
 sayHi()
@@ -207,6 +206,7 @@ if (parameter_diff.size() != 0){
    exit 1, "[Pipeline error] Parameter(s) $parameter_diff is/are not valid in the pipeline!\n"
 }
 
+helloParameters()
 
 if ( ! (params.minimap2 || params.last || params.lasttrain || params.megablast) ){
   println("You must specify one or more workflows to run. Implemented: --minimap2, --last, --lasttrain, and --megablast")
@@ -285,4 +285,85 @@ workflow {
         .set{ stage_to_comprare_ch }
   }
   MergeResults( stage_to_comprare_ch )
+}
+
+
+
+def helloParameters(){
+
+  log.info """  Nextflow-version:             $nextflow.version
+  Porefile-version:             $workflow.revision
+  Profile:                      $workflow.profile
+  Work directory:               $workflow.workDir
+  Container:                    $workflow.container
+  Input directory:              $params.fq
+  Output directory:             $params.outdir
+  _____________________________________________""".stripIndent()
+  if ( params.minimap2 ) {
+    log.info """  Minimap2 aligner selected. Related parameters:
+  --minimap2_k:                 $params.minimap2_k
+  --minimap2_f:                 $params.minimap2_f
+  --minimap2_x:                 $params.minimap2_x
+  --minimap2_KM:                $params.minimap2_KM
+  _____________________________________________""".stripIndent()
+  }
+  if ( params.last || params.lasttrain ) {
+    log.info """  LAST aligner selected. Related parameters:
+  --last:                       $params.last
+  --lasttrain:                  $params.lasttrain
+  --last_E:                     $params.last_E
+  _____________________________________________""".stripIndent()
+  }
+  if (params.megablast){
+    log.info """ Megablast aligner selected. Related parameters:
+  --megablast_evalue:           $params.megablast_evalue
+  _____________________________________________"""stripIndent()
+  }
+  log.info """ SILVAdb related parameters: """
+  if (file(params.silvaFasta).exists()){
+    log.info """ --silvaFasta:                 $params.silvaFasta""".stripIndent()
+  }else{
+    log.info """SILVAdb fasta file not provided. Download URL:
+    --silvaFastaURL           $params.silvaFastaURL""".stripIndent()
+  }
+
+  if (file(params.silvaTaxNcbiSp).exists()){
+    log.info """ --silvaTaxNcbiSp:             $params.silvaTaxNcbiSp""".stripIndent()
+  }else{
+    log.info """SILVAdb tax_ncbi-species file not provided. Download URL:
+    --silvaTaxNcbiSpURL           $params.silvaTaxNcbiSpURL""".stripIndent()
+  }
+
+  if (file(params.silvaTaxmap).exists()){
+    log.info """ --silvaTaxmap:                $params.silvaTaxmap""".stripIndent()
+  }else{
+    log.info """SILVAdb taxmap file not provided. Download URL:
+    --silvaTaxmapURL            $params.silvaTaxmapURL""".stripIndent()
+  }
+
+  if (params.fullSilva){
+    log.info """ Full SILVAdb selected:""".stripIndent()
+  }else{
+    log.info """ Reduce SILVAdb selected:""".stripIndent()
+  }
+  log.info """--fullSilva:                  $params.fullSilva
+_____________________________________________""".stripIndent()
+
+  log.info """Other process parameters:
+Data is already demultiplexed?
+--isDemultiplexed:            $params.isDemultiplexed
+Porechop
+--porechop_extra_end_trim:     $params.porechop_extra_end_trim
+NanoFilt
+--nanofilt_quality:           $params.nanofilt_quality
+--nanofilt_length:            $params.nanofilt_length
+--nanofilt_maxlength:         $params.nanofilt_maxlength
+--nanofilt_headcrop:          $params.nanofilt_headcrop
+--nanofilt_tailcrop:          $params.nanofilt_tailcrop
+Yacrd
+--yacrd_c:                    $params.yacrd_c
+--yacrd_n:                    $params.yacrd_n
+NanoPlot
+--noNanoplot:                 $params.noNanoplot
+_____________________________________________""".stripIndent()
 }
