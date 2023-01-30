@@ -174,8 +174,7 @@ workflow {
 
 
 def sayHi(){
-  log.info """
- ____   __  ____  ____  ____  __  __    ____ 
+  log.info """ ____   __  ____  ____  ____  __  __    ____ 
 (  _ \\ /  \\(  _ \\(  __)(  __)(  )(  )  (  __)
  ) __/(  O ))   / ) _)  ) _)  )( / (_/\\ ) _) 
 (__)   \\__/(__\\_)(____)(__)  (__)\\____/(____)
@@ -299,47 +298,47 @@ def helloParameters(){
   Container:                    $workflow.container
   Input directory:              $params.fq
   Output directory:             $params.outdir
-  _____________________________________________""".stripIndent()
+  ⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻""".stripIndent()
   if ( params.minimap2 ) {
-    log.info """  Minimap2 aligner selected. Related parameters:
+    log.info """ Minimap2 aligner selected. Related parameters:
   --minimap2_k:                 $params.minimap2_k
   --minimap2_f:                 $params.minimap2_f
   --minimap2_x:                 $params.minimap2_x
   --minimap2_KM:                $params.minimap2_KM
-  _____________________________________________""".stripIndent()
+⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻""".stripIndent()
   }
   if ( params.last || params.lasttrain ) {
-    log.info """  LAST aligner selected. Related parameters:
+    log.info """ LAST aligner selected. Related parameters:
   --last:                       $params.last
   --lasttrain:                  $params.lasttrain
   --last_E:                     $params.last_E
-  _____________________________________________""".stripIndent()
+⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻""".stripIndent()
   }
   if (params.megablast){
     log.info """ Megablast aligner selected. Related parameters:
   --megablast_evalue:          $params.megablast_evalue
-  _____________________________________________""".stripIndent()
+⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻""".stripIndent()
   }
   log.info """ SILVAdb related parameters: """
   if (file(params.silvaFasta).exists()){
-    log.info """ --silvaFasta:                 $params.silvaFasta""".stripIndent()
+    log.info """  --silvaFasta:                 $params.silvaFasta"""
   }else{
-    log.info """SILVAdb fasta file not provided. Download URL:
-    --silvaFastaURL           $params.silvaFastaURL""".stripIndent()
+    log.info """ SILVAdb fasta file not provided. Download URL:
+   --silvaFastaURL           $params.silvaFastaURL""".stripIndent()
   }
 
   if (file(params.silvaTaxNcbiSp).exists()){
-    log.info """ --silvaTaxNcbiSp:             $params.silvaTaxNcbiSp""".stripIndent()
+    log.info """  --silvaTaxNcbiSp:             $params.silvaTaxNcbiSp"""
   }else{
     log.info """SILVAdb tax_ncbi-species file not provided. Download URL:
-    --silvaTaxNcbiSpURL       $params.silvaTaxNcbiSpURL""".stripIndent()
+  --silvaTaxNcbiSpURL       $params.silvaTaxNcbiSpURL""".stripIndent()
   }
 
   if (file(params.silvaTaxmap).exists()){
-    log.info """ --silvaTaxmap:                $params.silvaTaxmap""".stripIndent()
+    log.info """  --silvaTaxmap:                $params.silvaTaxmap"""
   }else{
     log.info """SILVAdb taxmap file not provided. Download URL:
-    --silvaTaxmapURL          $params.silvaTaxmapURL""".stripIndent()
+  --silvaTaxmapURL          $params.silvaTaxmapURL""".stripIndent()
   }
 
   if (params.fullSilva){
@@ -347,24 +346,24 @@ def helloParameters(){
   }else{
     log.info """ Reduce SILVAdb selected:""".stripIndent()
   }
-  log.info """--fullSilva:                  $params.fullSilva
-_____________________________________________""".stripIndent()
+  log.info """  --fullSilva:                  $params.fullSilva
+⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻""".stripIndent()
 
-  log.info """Other process parameters:
+  log.info """ Other process parameters:
 Data is already demultiplexed?
---isDemultiplexed:            $params.isDemultiplexed
+  --isDemultiplexed:            $params.isDemultiplexed
 Porechop
---porechop_extra_end_trim:    $params.porechop_extra_end_trim
+  --porechop_extra_end_trim:    $params.porechop_extra_end_trim
 NanoFilt
---nanofilt_quality:           $params.nanofilt_quality
---nanofilt_length:            $params.nanofilt_length
---nanofilt_maxlength:         $params.nanofilt_maxlength
---nanofilt_headcrop:          $params.nanofilt_headcrop
---nanofilt_tailcrop:          $params.nanofilt_tailcrop
+  --nanofilt_quality:           $params.nanofilt_quality
+  --nanofilt_length:            $params.nanofilt_length
+  --nanofilt_maxlength:         $params.nanofilt_maxlength
+  --nanofilt_headcrop:          $params.nanofilt_headcrop
+  --nanofilt_tailcrop:          $params.nanofilt_tailcrop
 Yacrd
---yacrd_c:                    $params.yacrd_c
---yacrd_n:                    $params.yacrd_n
+  --yacrd_c:                    $params.yacrd_c
+  --yacrd_n:                    $params.yacrd_n
 NanoPlot
---noNanoplot:                 $params.noNanoplot
-_____________________________________________""".stripIndent()
+  --noNanoplot:                 $params.noNanoplot
+⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻""".stripIndent()
 }
