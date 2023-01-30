@@ -316,8 +316,8 @@ def helloParameters(){
   }
   if (params.megablast){
     log.info """ Megablast aligner selected. Related parameters:
-  --megablast_evalue:           $params.megablast_evalue
-  _____________________________________________"""stripIndent()
+  --megablast_evalue:          $params.megablast_evalue
+  _____________________________________________""".stripIndent()
   }
   log.info """ SILVAdb related parameters: """
   if (file(params.silvaFasta).exists()){
@@ -331,14 +331,14 @@ def helloParameters(){
     log.info """ --silvaTaxNcbiSp:             $params.silvaTaxNcbiSp""".stripIndent()
   }else{
     log.info """SILVAdb tax_ncbi-species file not provided. Download URL:
-    --silvaTaxNcbiSpURL           $params.silvaTaxNcbiSpURL""".stripIndent()
+    --silvaTaxNcbiSpURL       $params.silvaTaxNcbiSpURL""".stripIndent()
   }
 
   if (file(params.silvaTaxmap).exists()){
     log.info """ --silvaTaxmap:                $params.silvaTaxmap""".stripIndent()
   }else{
     log.info """SILVAdb taxmap file not provided. Download URL:
-    --silvaTaxmapURL            $params.silvaTaxmapURL""".stripIndent()
+    --silvaTaxmapURL          $params.silvaTaxmapURL""".stripIndent()
   }
 
   if (params.fullSilva){
@@ -353,7 +353,7 @@ _____________________________________________""".stripIndent()
 Data is already demultiplexed?
 --isDemultiplexed:            $params.isDemultiplexed
 Porechop
---porechop_extra_end_trim:     $params.porechop_extra_end_trim
+--porechop_extra_end_trim:    $params.porechop_extra_end_trim
 NanoFilt
 --nanofilt_quality:           $params.nanofilt_quality
 --nanofilt_length:            $params.nanofilt_length
