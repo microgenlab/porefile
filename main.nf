@@ -40,122 +40,7 @@ params.silvaTaxmapURL = "https://www.arb-silva.de/fileadmin/silva_databases/curr
 
 params.fullSilva = false
 
-def sayHi(){
-  log.info """
- ____   __  ____  ____  ____  __  __    ____ 
-(  _ \\ /  \\(  _ \\(  __)(  __)(  )(  )  (  __)
- ) __/(  O ))   / ) _)  ) _)  )( / (_/\\ ) _) 
-(__)   \\__/(__\\_)(____)(__)  (__)\\____/(____)
----------------------------------------------
-... A full-length 16S profiling Pipeline ....
----------------------------------------------"""
-}
-
 sayHi()
-
-def helpMessage() {
-    log.info """
-    Usage:
-    A typical command for running the pipeline would be as follows:
-
-        nextflow run microgenlab/porefile --fq 'data/*.fastq' --minimap2
-
-    Mandatory arguments:
-        --fq                          Path to input data (must be surrounded with quotes).
-
-        One or more than one of the following available workflows:
-        --minimap2                    Run Minimap2Workflow (Fast and accurate enough).
-        --last                        Run LastWorkflow:Last (Not so fast but accurate).
-        --lasttrain                   Run LastWorkflow:Train (Slow but more accurate).
-        --megablast                   Run MegablastWorkflow (Very slow and not so accurate).
-
-    Other:
-        --silvaFasta                  Path to SILVA_*_SSURef_NR99_tax_silva.fasta.gz file. You can provide it 
-                                      either compressed (.gz) or not. If not provided, the workflow automatically
-                                      adds a download step (you must have internet connection).
-        --silvaFastaURL               URL to SILVA_*_SSURef_NR99_tax_silva.fasta.gz file. It will be used if you
-                                      don't provide the --silvaFasta parameter (above). Default is:
-                                      'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/SILVA_138.1_SSURef_NR99_tax_silva.fasta.gz'.
-
-        --silvaTaxNcbiSp              Path to tax_ncbi-species_ssu_ref_nr99_*.txt.gz file. You can provide it
-                                      either compressed (.gz) or not. If not provided, the workflow automatically
-                                      adds a download step.
-        ---silvaTaxNcbiSpURL          URL to tax_ncbi-species_ssu_ref_nr99_*.txt.gz file. It will be used if you
-                                      don't provide the --silvaFasta parameter (above). Default is:
-                                      'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/ncbi/tax_ncbi-species_ssu_ref_nr99_138.1.txt.gz'.
-
-        --silvaTaxmap                 Path to taxmap_slv_ssu_ref_nr_*.txt.gz file. You can provide it
-                                      either compressed (.gz) or not. If not provided, the workflow automatically
-                                      adds a download step.
-        --silvaTaxmapURL              URL to taxmap_slv_ssu_ref_nr_*.txt.gz file. It will be used if you
-                                      don't provide the --silvaFasta parameter (above). Default is:
-                                      'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/taxmap_slv_ssu_ref_nr_138.1.txt.gz'.
-
-        --fullSilva                   By default, porefile reduces SILVA to prokatyote SSU (16S). Use this flag
-                                      to deactivate the reducing step and use the full SILVA database.
-
-        --outdir                      Name of the results directory. Default: "results".
-        
-
-    Process specific parameters:
-        Porechop parameters:
-        --porechop_extra_end_trim      The '--extra_end_trim' parameter of Porechop. Default: 0.
-
-        NanoFilt parameters:
-        --nanofilt_quality            The '--quality' parameter of NanoFilt. Default: 8.
-        --nanofilt_length             The '--length' parameter of NanoFilt (minimum length). Default: 1000.
-        --nanofilt_maxlength          The '--maxlength' parameter of NanoFilt. Default: 1700.
-        --nanofilt_headcrop           The '--headcrop' parameter of NanoFilt. Default: 0.
-        --nanofilt_tailcrop           The '--tailcrop' parameter of NanoFilt. Default: 0.
-
-        Yacrd parameters:
-        --yacrd_c                     The '-c' parameter of Yacrd (minimum coverage). Default: 4 .
-        --yacrd_n                     The '-n' parameter of Yacrd (minimum coverage of read). Default: 0.4 .
-
-        Minimap2 parameters:
-        --minimap2_k                  The '-k' parameter of minimap2. Default: 15.
-        --minimap2_x                  The '-x' parameter of minimap2. Default: 'map-ont'. Possible values: 'map-ont', 
-                                      'asm5', 'asm10', 'asm20'.
-        --minimap2_f                  The '-f' parameter of minimap2. Default: 1000. Only applied in the Automap module.
-        --minimap2_KM                 The '-K' parameter of minimap2, in Megabases. Default: 200.
-
-        Last parameters:
-        --last_E                      The '-E' parameter of lastal (e-value). Default: 1e-50.
-        
-        Megablast parameters:
-        --megablast_evalue            The '-evalue' parameter of megablast. Default: 1e-50.
-        
-        Megan6 parameters:
-        --megan_lcaAlgorithm          The '--lcaAlgorithm' parameter of sam2rma and blast2rma tools (Megan6). Default: 
-                                      naive. Possible values are: 'naive', 'weighted', or 'longReads'.
-        --megan_topPercent            The '--topPercent' parameter of sam2rma and blast2rma tools (Megan6). Default: 10.
-        --megan_minPercentReadCover   The '--minPercentReadCover' parameter of sam2rma and blast2rma tools (Megan6).
-                                      Default: 70.
-        --megan_lcaCoveragePercent    The '--lcaCoveragePercent' parameter of sam2rma and blast2rma tools (Megan6). 
-                                      Default: 100.
-
-
-    Other control options:
-        --isDemultiplexed             Set this flag to avoid Demultiplex sub-workflow. If set, each fastq file is 
-                                      processed as a different barcode.
-        --noNanoplot                  Set this flag to avoid QCheck sub-workflow. 
-
-    Container options (note single dash usage!):
-        -profile docker               Use docker as container engine (default).
-        -profile singularity          Use singularity as container engine.
-        -profile podman               Use podman as container engine.
-
-    Help:
-        --help                        Print this help and exit.
-
-    Authors: Cecilia Salazar (csalazar@pasteur.edu.uy) & Ignacio Ferrés (iferres@pasteur.edu.uy)
-    Maintainer: Ignacio Ferrés (iferres@pasteur.edu.uy)
-
-    Microbial Genomics Laboratory
-    Institut Pasteur de Montevideo (Uruguay)
-
-    """.stripIndent()
-}
 
 // Show help message
 if (params.help) {
@@ -287,6 +172,122 @@ workflow {
   MergeResults( stage_to_comprare_ch )
 }
 
+
+def sayHi(){
+  log.info """
+ ____   __  ____  ____  ____  __  __    ____ 
+(  _ \\ /  \\(  _ \\(  __)(  __)(  )(  )  (  __)
+ ) __/(  O ))   / ) _)  ) _)  )( / (_/\\ ) _) 
+(__)   \\__/(__\\_)(____)(__)  (__)\\____/(____)
+---------------------------------------------
+... A full-length 16S profiling Pipeline ....
+---------------------------------------------"""
+}
+
+
+def helpMessage() {
+    log.info """
+    Usage:
+    A typical command for running the pipeline would be as follows:
+
+        nextflow run microgenlab/porefile --fq 'data/*.fastq' --minimap2
+
+    Mandatory arguments:
+        --fq                          Path to input data (must be surrounded with quotes).
+
+        One or more than one of the following available workflows:
+        --minimap2                    Run Minimap2Workflow (Fast and accurate enough).
+        --last                        Run LastWorkflow:Last (Not so fast but accurate).
+        --lasttrain                   Run LastWorkflow:Train (Slow but more accurate).
+        --megablast                   Run MegablastWorkflow (Very slow and not so accurate).
+
+    Other:
+        --silvaFasta                  Path to SILVA_*_SSURef_NR99_tax_silva.fasta.gz file. You can provide it 
+                                      either compressed (.gz) or not. If not provided, the workflow automatically
+                                      adds a download step (you must have internet connection).
+        --silvaFastaURL               URL to SILVA_*_SSURef_NR99_tax_silva.fasta.gz file. It will be used if you
+                                      don't provide the --silvaFasta parameter (above). Default is:
+                                      'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/SILVA_138.1_SSURef_NR99_tax_silva.fasta.gz'.
+
+        --silvaTaxNcbiSp              Path to tax_ncbi-species_ssu_ref_nr99_*.txt.gz file. You can provide it
+                                      either compressed (.gz) or not. If not provided, the workflow automatically
+                                      adds a download step.
+        ---silvaTaxNcbiSpURL          URL to tax_ncbi-species_ssu_ref_nr99_*.txt.gz file. It will be used if you
+                                      don't provide the --silvaFasta parameter (above). Default is:
+                                      'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/ncbi/tax_ncbi-species_ssu_ref_nr99_138.1.txt.gz'.
+
+        --silvaTaxmap                 Path to taxmap_slv_ssu_ref_nr_*.txt.gz file. You can provide it
+                                      either compressed (.gz) or not. If not provided, the workflow automatically
+                                      adds a download step.
+        --silvaTaxmapURL              URL to taxmap_slv_ssu_ref_nr_*.txt.gz file. It will be used if you
+                                      don't provide the --silvaFasta parameter (above). Default is:
+                                      'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/taxmap_slv_ssu_ref_nr_138.1.txt.gz'.
+
+        --fullSilva                   By default, porefile reduces SILVA to prokatyote SSU (16S). Use this flag
+                                      to deactivate the reducing step and use the full SILVA database.
+
+        --outdir                      Name of the results directory. Default: "results".
+        
+
+    Process specific parameters:
+        Porechop parameters:
+        --porechop_extra_end_trim      The '--extra_end_trim' parameter of Porechop. Default: 0.
+
+        NanoFilt parameters:
+        --nanofilt_quality            The '--quality' parameter of NanoFilt. Default: 8.
+        --nanofilt_length             The '--length' parameter of NanoFilt (minimum length). Default: 1000.
+        --nanofilt_maxlength          The '--maxlength' parameter of NanoFilt. Default: 1700.
+        --nanofilt_headcrop           The '--headcrop' parameter of NanoFilt. Default: 0.
+        --nanofilt_tailcrop           The '--tailcrop' parameter of NanoFilt. Default: 0.
+
+        Yacrd parameters:
+        --yacrd_c                     The '-c' parameter of Yacrd (minimum coverage). Default: 4 .
+        --yacrd_n                     The '-n' parameter of Yacrd (minimum coverage of read). Default: 0.4 .
+
+        Minimap2 parameters:
+        --minimap2_k                  The '-k' parameter of minimap2. Default: 15.
+        --minimap2_x                  The '-x' parameter of minimap2. Default: 'map-ont'. Possible values: 'map-ont', 
+                                      'asm5', 'asm10', 'asm20'.
+        --minimap2_f                  The '-f' parameter of minimap2. Default: 1000. Only applied in the Automap module.
+        --minimap2_KM                 The '-K' parameter of minimap2, in Megabases. Default: 200.
+
+        Last parameters:
+        --last_E                      The '-E' parameter of lastal (e-value). Default: 1e-50.
+        
+        Megablast parameters:
+        --megablast_evalue            The '-evalue' parameter of megablast. Default: 1e-50.
+        
+        Megan6 parameters:
+        --megan_lcaAlgorithm          The '--lcaAlgorithm' parameter of sam2rma and blast2rma tools (Megan6). Default: 
+                                      naive. Possible values are: 'naive', 'weighted', or 'longReads'.
+        --megan_topPercent            The '--topPercent' parameter of sam2rma and blast2rma tools (Megan6). Default: 10.
+        --megan_minPercentReadCover   The '--minPercentReadCover' parameter of sam2rma and blast2rma tools (Megan6).
+                                      Default: 70.
+        --megan_lcaCoveragePercent    The '--lcaCoveragePercent' parameter of sam2rma and blast2rma tools (Megan6). 
+                                      Default: 100.
+
+
+    Other control options:
+        --isDemultiplexed             Set this flag to avoid Demultiplex sub-workflow. If set, each fastq file is 
+                                      processed as a different barcode.
+        --noNanoplot                  Set this flag to avoid QCheck sub-workflow. 
+
+    Container options (note single dash usage!):
+        -profile docker               Use docker as container engine (default).
+        -profile singularity          Use singularity as container engine.
+        -profile podman               Use podman as container engine.
+
+    Help:
+        --help                        Print this help and exit.
+
+    Authors: Cecilia Salazar (csalazar@pasteur.edu.uy) & Ignacio Ferrés (iferres@pasteur.edu.uy)
+    Maintainer: Ignacio Ferrés (iferres@pasteur.edu.uy)
+
+    Microbial Genomics Laboratory
+    Institut Pasteur de Montevideo (Uruguay)
+
+    """.stripIndent()
+}
 
 
 def helloParameters(){
