@@ -93,11 +93,12 @@ if (parameter_diff.size() != 0){
 
 helloParameters()
 
+/*
 if ( ! (params.minimap2 || params.last || params.lasttrain || params.megablast) ){
   println("You must specify one or more workflows to run. Implemented: --minimap2, --last, --lasttrain, and --megablast")
   System.exit(1)
 }
-
+*/
 if (! params.fq ){
   println("You must provide at least 1 fastq file using --fq flag.")
   System.exit(1)
@@ -153,7 +154,7 @@ workflow {
   Fastq2Fasta.out.set{ fasta_ch }
   Channel.empty()
     .set{ stage_to_comprare_ch }
-  if ( params.minimap2 ) {
+  if ( params.minimap2 || !(params.minimap2 || params.last || params.lasttrain || params.megablast)) {
     Minimap2Workflow( fasta_ch, silva_fasta_ch, silva_synonyms_ch )
       stage_to_comprare_ch.mix( Minimap2Workflow.out )
         .set{ stage_to_comprare_ch }
@@ -194,11 +195,12 @@ def helpMessage() {
     Mandatory arguments:
         --fq                          Path to input data (must be surrounded with quotes).
 
-        One or more than one of the following available workflows:
-        --minimap2                    Run Minimap2Workflow (Fast and accurate enough).
-        --last                        Run LastWorkflow:Last (Not so fast but accurate).
-        --lasttrain                   Run LastWorkflow:Train (Slow but more accurate).
-        --megablast                   Run MegablastWorkflow (Very slow and not so accurate).
+    Available workflows:
+      --minimap2                      Run Minimap2Workflow (Fast and accurate). This is the DEFAULT, get set if 
+                                      any other provided.
+      --last                          Run LastWorkflow:Last (Not so fast but accurate).
+      --lasttrain                     Run LastWorkflow:Train (Slow but more accurate).
+      --megablast                     Run MegablastWorkflow (Very slow and not so accurate).
 
     Other:
         --silvaFasta                  Path to SILVA_*_SSURef_NR99_tax_silva.fasta.gz file. You can provide it 
@@ -307,6 +309,14 @@ def helloParameters(){
   --minimap2_KM:                $params.minimap2_KM
 ⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻""".stripIndent()
   }
+  if ( !(params.minimap2 || params.last || params.lasttrain || params.megablast ) ) {
+   log.info """ No aligner selected, minimap2 set (DEFAULT). Related parameters:
+  --minimap2_k:                 $params.minimap2_k
+  --minimap2_f:                 $params.minimap2_f
+  --minimap2_x:                 $params.minimap2_x
+  --minimap2_KM:                $params.minimap2_KM
+⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻""".stripIndent()
+}
   if ( params.last || params.lasttrain ) {
     log.info """ LAST aligner selected. Related parameters:
   --last:                       $params.last
