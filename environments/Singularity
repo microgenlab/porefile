@@ -5,6 +5,8 @@ From: conda/miniconda3
 	environment.yml /environment.yml
 
 %post
+	apt-get update -y && apt-get install default-jdk -y
+
 	## Update conda
 	conda update -n base -c defaults conda
 

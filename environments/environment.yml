@@ -7,14 +7,17 @@ dependencies:
   - bc=1.07.1
   - wget=1.20.3
   - procps-ng
-  - openjdk=11.0.9.1
+  # - openjdk=11.0.9.1
   - porechop=0.2.4
   - nanofilt=2.8.0
   - nanoplot=1.39.0
   - seqkit=2.3.1
-  - last=1260
+  # - last=1260
   - minimap2=2.24
   - r-base=4.1.0
   - r-optparse
-  - blast=2.12.0
+  - r-magrittr
+  - r-dplyr
+  # - blast=2.12.0
   - yacrd=0.6.2
+  - samtools
