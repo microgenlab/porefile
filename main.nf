@@ -4,10 +4,6 @@ nextflow.enable.dsl = 2
 
 params.fq = "*.fastq"
 params.outdir = "results"
-params.minimap2 = false
-params.last = false
-params.lasttrain = false
-params.megablast = false
 params.noSpeciesPolishing = false
 params.lowAbundanceThreshold = 0.02
 params.isDemultiplexed = false
@@ -29,8 +25,6 @@ params.minimap2_k = 15
 params.minimap2_f = 1000
 params.minimap2_x = "map-ont"
 params.minimap2_KM = 200
-params.megablast_evalue = 1e-50
-params.last_E = 1e-50
 params.help = false
 
 params.silvaFasta = "./silvadb/Exports/SILVA_138.1_SSURef_NR99_tax_silva.fasta.gz"
@@ -56,10 +50,6 @@ def parameters_expected = [
   'help',
   'fq', 
   'outdir',
-  'minimap2',
-  'last',
-  'lasttrain',
-  'megablast',
   'noSpeciesPolishing','no-species-polishing',
   'lowAbundanceThreshold','low-abundance-threshold',
   'isDemultiplexed', 'is-demultiplexed', // This is because  https://github.com/nextflow-io/nextflow/issues/2061
@@ -81,8 +71,6 @@ def parameters_expected = [
   'minimap2_f',
   'minimap2_x',
   'minimap2_KM',
-  'megablast_evalue',
-  'last_E',
   'silvaFasta', 'silva-fasta',
   'silvaTaxNcbiSp', 'silva-tax-ncbi-sp',
   'silvaTaxmap', 'silva-taxmap',
@@ -99,12 +87,6 @@ if (parameter_diff.size() != 0){
 
 helloParameters()
 
-/*
-if ( ! (params.minimap2 || params.last || params.lasttrain || params.megablast) ){
-  println("You must specify one or more workflows to run. Implemented: --minimap2, --last, --lasttrain, and --megablast")
-  System.exit(1)
-}
-*/
 if (! params.fq ){
   println("You must provide at least 1 fastq file using --fq flag.")
   System.exit(1)
@@ -129,9 +111,7 @@ include {SetSilva} from './workflows/Silva'
 include {Demultiplex} from './workflows/Demultiplex'
 include {QFilt} from './workflows/QFiltWorkflow'
 include {QCheck} from './workflows/QCheckWorkflow'
-include {LastWorkflow} from './workflows/LastWorkflow'
 include {Minimap2Workflow} from './workflows/Minimap2'
-include {MegaBlastWorkflow} from './workflows/MegaBlastWorkflow'
 
 workflow {
   SetSilva()
@@ -158,35 +138,7 @@ workflow {
   }
   Fastq2Fasta( filtered_scrubbed_ch )
   Fastq2Fasta.out.set{ fasta_ch }
-  /*Channel.empty()
-    .set{ stage_to_comprare_ch }*/
-  if ( params.minimap2 || !(params.minimap2 || params.last || params.lasttrain || params.megablast)) {
-    Minimap2Workflow( fasta_ch, silva_fasta_ch, silva_synonyms_ch )
-      /*stage_to_comprare_ch.mix( Minimap2Workflow.out )
-        .set{ stage_to_comprare_ch }*/
-      
-  }
-  if ( params.last || params.lasttrain  ) {
-    LastWorkflow( fasta_ch, silva_fasta_ch, silva_synonyms_ch )
-      /*stage_to_comprare_ch.mix( LastWorkflow.out )
-        .set{ stage_to_comprare_ch }*/
-  }
-  if (params.megablast ){
-    MegaBlastWorkflow( fasta_ch, silva_fasta_ch, silva_synonyms_ch )
-    /*stage_to_comprare_ch.mix( MegaBlastWorkflow.out )
-        .set{ stage_to_comprare_ch }*/
-  }
-  /*
-  MergeResults( stage_to_comprare_ch )
-  if ( !params.noSpeciesPolishing ) {
-    PolishSpeciesClassification(
-      Merged_Results.out,
-      fasta_ch, 
-      silva_fasta_ch, 
-      silva_synonyms_ch  
-    )
-  }
-  */
+  Minimap2Workflow( fasta_ch, silva_fasta_ch, silva_synonyms_ch )
 }
 
 
@@ -318,34 +270,12 @@ def helloParameters(){
   Input directory:              $params.fq
   Output directory:             $params.outdir
   ⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻""".stripIndent()
-  if ( params.minimap2 ) {
-    log.info """ Minimap2 aligner selected. Related parameters:
+  log.info """ Minimap2 related parameters:
   --minimap2_k:                 $params.minimap2_k
   --minimap2_f:                 $params.minimap2_f
   --minimap2_x:                 $params.minimap2_x
   --minimap2_KM:                $params.minimap2_KM
 ⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻""".stripIndent()
-  }
-  if ( !(params.minimap2 || params.last || params.lasttrain || params.megablast ) ) {
-   log.info """ No aligner selected, minimap2 set (DEFAULT). Related parameters:
-  --minimap2_k:                 $params.minimap2_k
-  --minimap2_f:                 $params.minimap2_f
-  --minimap2_x:                 $params.minimap2_x
-  --minimap2_KM:                $params.minimap2_KM
-⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻""".stripIndent()
-}
-  if ( params.last || params.lasttrain ) {
-    log.info """ LAST aligner selected. Related parameters:
-  --last:                       $params.last
-  --lasttrain:                  $params.lasttrain
-  --last_E:                     $params.last_E
-⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻""".stripIndent()
-  }
-  if (params.megablast){
-    log.info """ Megablast aligner selected. Related parameters:
-  --megablast_evalue:          $params.megablast_evalue
-⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻""".stripIndent()
-  }
   log.info """ SILVAdb related parameters: """
   if (file(params.silvaFasta).exists()){
     log.info """  --silvaFasta:                 $params.silvaFasta"""

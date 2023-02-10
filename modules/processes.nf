@@ -307,75 +307,6 @@ process Fastq2Fasta {
 	"""
 }
 
-process MakeLastDB {
-	label "big_cpus"
-
-	input:
-	path("silva_SSU_tax.fasta")
-
-	output:
-	file "silva.*"
-
-	shell:
-	"""
-	lastdb -cR01 -P${task.cpus} silva silva_SSU_tax.fasta
-	"""
-}
-
-process LastTrain {
-	tag "$barcode_id"
-	label "big_cpus"
-
-	input:
-	tuple val(barcode_id), path("${barcode_id}.fasta")
-	file "*"
-	
-	
-	output:
-	tuple val(barcode_id), path("${barcode_id}.par")
-
-	shell:
-	"""
-	last-train -P${task.cpus} -Q0 silva ${barcode_id}.fasta > ${barcode_id}.par 
-	"""
-}
-
-process LastAL {
-	label "big_cpus"
-	label "big_mem"
-	tag "$barcode_id"
-
-	input:
-	tuple val(barcode_id), path("${barcode_id}.fasta")
-	path "*"
-
-	output:
-	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.tab")
-
-	shell:
-	"""
-	lastal -f BlastTab -E ${params.last_E} -P${task.cpus} silva ${barcode_id}.fasta > ${barcode_id}.tab
-	"""
-}
-
-process LastALPar {
-	label "big_cpus"
-	label "big_mem"
-	tag "$barcode_id"
-
-	input:
-	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.par")
-	path "*"
-
-	output:
-	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.tab")
-
-	shell:
-	"""
-	lastal -f BlastTab -E ${params.last_E} -P${task.cpus} -p ${barcode_id}.par silva ${barcode_id}.fasta > ${barcode_id}.tab
-	"""
-}
-
 process MakeMinimapDB {
 	label "big_cpus"
 
@@ -452,26 +383,6 @@ process Sam2Rma {
 	"""
 }
 
-process Rma2InfoC2C {
-	tag "$barcode_id"
-	label "small_cpus"
-
-	input:
-	tuple val(selected_wf), val(barcode_id), path("${selected_wf}_${barcode_id}.rma")
-
-	output:
-	tuple val(selected_wf), path("${selected_wf}_${barcode_id}.info")
-
-	shell:
-	"""
-	rma2info \
-		-i ${selected_wf}_${barcode_id}.rma \
-		-c2c Taxonomy \
-		-p -mro \
-		-o ${selected_wf}_${barcode_id}.info
-	"""
-}
-
 
 process Rma2InfoR2C {
 	tag "$barcode_id"
@@ -501,70 +412,6 @@ process Rma2InfoR2C {
 		<(sort ${selected_wf}_${barcode_id}.ncbi) \
 		<(sort ${selected_wf}_${barcode_id}.path) \
 		> ${selected_wf}_${barcode_id}.read_info
-	"""
-}
-
-process MakeBlastDB {
-	label "big_cpus"
-
-	input:
-	path("silva_SSU_tax.fasta")
-
-	output:
-	file "silva_SSU_tax.*"
-
-	shell:
-	"""
-	makeblastdb -in silva_SSU_tax.fasta -out silva_SSU_tax -parse_seqids -dbtype nucl
-	"""
-}
-
-process MegaBlast {
-	tag "$barcode_id"
-	label "big_cpus"
-
-	input:
-	tuple val(barcode_id), path("${barcode_id}.fasta")
-	path("*")
-
-	output:
-	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.tab")
-
-	shell:
-	"""
-	blastn -task "megablast" -evalue ${params.megablast_evalue} -num_threads ${task.cpus} -db silva_SSU_tax -query ${barcode_id}.fasta -out ${barcode_id}.tab -outfmt 6
-	"""
-}
-
-process Blast2Rma {
-	tag "$barcode_id"
-	label "big_cpus"
-
-	publishDir "$params.outdir/Rma", mode: "copy"
-
-	input:
-	tuple val(barcode_id), path("${barcode_id}.fasta"), path("${barcode_id}.tab")
-	path("SSURef_Nr99_tax_silva_to_NCBI_synonyms.map")
-	val(selected_wf)
-
-	output:
-	tuple val(selected_wf), val(barcode_id), path("${selected_wf}_${barcode_id}.rma")
-
-	shell:
-	"""
-	blast2rma \
-		-i ${barcode_id}.tab \
-		-f BlastTab \
-		-bm BlastN \
-		-r ${barcode_id}.fasta \
-		-o ${selected_wf}_${barcode_id}.rma \
-		-lg \
-		-alg ${params.megan_lcaAlgorithm} \
-		-lcp ${params.megan_lcaCoveragePercent} \
-		--topPercent ${params.megan_topPercent} \
-		--minPercentReadCover ${params.megan_minPercentReadCover} \
-		-ram readCount \
-		-s2t SSURef_Nr99_tax_silva_to_NCBI_synonyms.map
 	"""
 }
 
