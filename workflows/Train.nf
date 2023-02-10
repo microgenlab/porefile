@@ -4,7 +4,7 @@ nextflow.enable.dsl = 2
 include {LastTrain} from '../modules/processes'
 include {LastALPar} from '../modules/processes'
 include {Blast2Rma} from '../modules/processes'
-include {Rma2Info} from '../modules/processes'
+include {Rma2InfoC2C as Rma2Info} from '../modules/processes'
 
 workflow Train {
     take:
