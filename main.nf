@@ -23,6 +23,7 @@ params.yacrd_n = 0.4
 params.megan_lcaAlgorithm = "naive"
 params.megan_lcaCoveragePercent = 100
 params.megan_topPercent = 10
+params.megan_topPercentPolish = 5
 params.megan_minPercentReadCover = 70
 params.minimap2_k = 15
 params.minimap2_f = 1000
@@ -74,6 +75,7 @@ def parameters_expected = [
   'megan_lcaAlgorithm', 'megan_lca-algorithm',
   'megan_lcaCoveragePercent', 'megan_lca-coverage-percent',
   'megan_topPercent', 'megan_top-percent',
+  'megan_topPercentPolish', 'megan_top-percent-polish',
   'megan_minPercentReadCover', 'megan_min-percent-read-cover',
   'minimap2_k',
   'minimap2_f',

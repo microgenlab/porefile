@@ -6,7 +6,7 @@ include {SubsetSilva} from '../modules/processes'
 include {SubsetReads} from '../modules/processes'
 include {MakeMinimapDB as MakeDB} from '../modules/processes'
 include {Minimap2 as Search} from '../modules/processes'
-include {Sam2Rma as Lca} from '../modules/processes'
+include {Sam2Rma as Lca} from '../modules/processes' addParams(megan_topPercent: params.megan_topPercentPolish)
 include {CorrectAssignment} from '../modules/processes'/*
 include {MergeResults} from '../modules/processes'*/
 
