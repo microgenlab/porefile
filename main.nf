@@ -111,7 +111,12 @@ include {SetSilva} from './workflows/Silva'
 include {Demultiplex} from './workflows/Demultiplex'
 include {QFilt} from './workflows/QFiltWorkflow'
 include {QCheck} from './workflows/QCheckWorkflow'
-include {Minimap2Workflow} from './workflows/Minimap2'
+include {MakeMinimapDB} from './modules/processes'
+include {Minimap2} from './modules/processes'
+include {Sam2Rma} from './modules/processes'
+include {Rma2InfoR2C} from './modules/processes'
+include {MergeResults} from './modules/processes'
+include {PolishMinimap} from './workflows/PolishMinimap'
 
 workflow {
   SetSilva()
@@ -138,7 +143,28 @@ workflow {
   }
   Fastq2Fasta( filtered_scrubbed_ch )
   Fastq2Fasta.out.set{ fasta_ch }
-  Minimap2Workflow( fasta_ch, silva_fasta_ch, silva_synonyms_ch )
+
+  selected_wf = "minimap2"
+  MakeMinimapDB( silva_fasta_ch )
+  Minimap2( fasta_ch, MakeMinimapDB.out )
+  Sam2Rma( Minimap2.out, silva_synonyms_ch, selected_wf )
+  Rma2InfoR2C( Sam2Rma.out )
+  Rma2InfoR2C.out
+      .set{ base_read_assingments_ch }
+  // Publish read taxonomy assignments
+  base_read_assingments_ch
+      .collectFile(storeDir: "$params.outdir/Read_Assignments") {
+          val, file -> 
+          [ "${val}.read_info" , file ]
+      }
+  
+  if (!params.noSpeciesPolishing){
+      PolishMinimap( base_read_assingments_ch, fasta_ch, silva_fasta_ch, silva_synonyms_ch )
+      PolishMinimap.out
+          .set{ result }
+  } else {
+      base_read_assingments_ch.set{ result }
+  }
 }
 
 
