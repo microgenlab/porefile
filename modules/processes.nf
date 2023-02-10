@@ -404,7 +404,7 @@ process Minimap2 {
 	path("silva_k${params.minimap2_k}.mmi")
 
 	output:
-	tuple val(barcode_id), path("${barcode_id}.sam"), path("${barcode_id}.fasta")
+	tuple val(barcode_id), path("${barcode_id}.sam"), path("${barcode_id}.fasta"), optional: true
 
 	shell:
 	"""
@@ -415,6 +415,10 @@ process Minimap2 {
 		-ax ${params.minimap2_x} \
 		silva_k${params.minimap2_k}.mmi \
 		${barcode_id}.fasta > ${barcode_id}.sam
+
+	if [ "\$(samtools view -c -F 0x04 ${barcode_id}.sam)" -eq "0" ]; then 
+		rm ${barcode_id}.sam; 
+	fi
 	"""
 }
 
@@ -448,7 +452,7 @@ process Sam2Rma {
 	"""
 }
 
-process Rma2Info {
+process Rma2InfoC2C {
 	tag "$barcode_id"
 	label "small_cpus"
 
@@ -465,6 +469,38 @@ process Rma2Info {
 		-c2c Taxonomy \
 		-p -mro \
 		-o ${selected_wf}_${barcode_id}.info
+	"""
+}
+
+
+process Rma2InfoR2C {
+	tag "$barcode_id"
+	label "small_cpus"
+
+	input:
+	tuple val(selected_wf), val(barcode_id), path("${selected_wf}_${barcode_id}.rma")
+
+	output:
+	tuple val(barcode_id), path("${selected_wf}_${barcode_id}.read_info")
+
+	shell:
+	"""
+	rma2info \
+		-i ${selected_wf}_${barcode_id}.rma \
+		-r2c Taxonomy \
+		-n False -r -mro \
+		-o ${selected_wf}_${barcode_id}.ncbi
+
+	rma2info \
+		-i ${selected_wf}_${barcode_id}.rma \
+		-r2c Taxonomy \
+		-p -mro \
+		-o ${selected_wf}_${barcode_id}.path
+
+	join -t \$'\\t' \
+		<(sort ${selected_wf}_${barcode_id}.ncbi) \
+		<(sort ${selected_wf}_${barcode_id}.path) \
+		> ${selected_wf}_${barcode_id}.read_info
 	"""
 }
 
@@ -532,6 +568,29 @@ process Blast2Rma {
 	"""
 }
 
+process ComputeAbundances {
+	label "small_cpus"
+	label "small_mem"
+
+	input:
+	path("*")
+	path("synonyms.txt")
+
+	output:
+	path("high_abundance_silva_ids.txt"), emit: silva_ids
+	path("*.read_txt"),  emit: read_ids
+
+	script:
+	"""
+	computeAbundances.R \
+		--lowAbundanceThreshold ${params.lowAbundanceThreshold} \
+		--in_suffix read_info \
+		--synonyms synonyms.txt \
+		--out_silva high_abundance_silva_ids.txt \
+		--out_suffix read_txt
+	"""
+}
+
 process MergeResults{
 	tag "$selected_wf"
 	label "small_cpus"
@@ -545,10 +604,68 @@ process MergeResults{
 	output:
 	tuple file("${selected_wf}_COUNTS.tsv"), file("${selected_wf}_TAXCLA.tsv")
 
-	shell:
+	script:
 	"""
 	mergeResults.R \
 		--suffix info \
 		--workflow ${selected_wf}
+	"""
+}
+
+process SubsetSilva{
+	label "small_cpus"
+	label "small_mem"
+
+	input:
+	path("reduced_silva.fasta")
+	path("high_abundance_silva_ids.txt")
+
+	output:
+	path("subset_silva.fasta")
+
+	script:
+	"""
+	seqkit grep -f \
+		high_abundance_silva_ids.txt reduced_silva.fasta > \
+		subset_silva.fasta
+	"""
+}
+
+process SubsetReads{
+	tag "${barcode_id}"
+	label "small_cpus"
+	label "small_mem"
+
+	input:
+	tuple val(barcode_id), path("${barcode_id}.read_txt"), path("filetered_${barcode_id}.fasta")
+
+	output:
+	tuple val(barcode_id), path("lowAbundance_${barcode_id}.fasta")
+
+	script:
+	"""
+	seqkit grep -f \
+		${barcode_id}.read_txt filetered_${barcode_id}.fasta > \
+		lowAbundance_${barcode_id}.fasta
+	"""
+}
+
+process CorrectAssignment{
+	tag "${barcode_id}"
+	label "small_cpus"
+	label "small_mem"
+
+	input:
+	tuple val(barcode_id), path("${barcode_id}_old.read_info"), path("${barcode_id}_new.read_info")
+
+	output:
+	tuple val(barcode_id), path("${barcode_id}_corrected.read_info")
+
+	script:
+	"""
+	correctAssignments.R \
+		--old ${barcode_id}_old.read_info \
+		--new ${barcode_id}_new.read_info \
+		--corrected ${barcode_id}_corrected.read_info
 	"""
 }

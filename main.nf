@@ -8,6 +8,8 @@ params.minimap2 = false
 params.last = false
 params.lasttrain = false
 params.megablast = false
+params.noSpeciesPolishing = false
+params.lowAbundanceThreshold = 0.02
 params.isDemultiplexed = false
 params.porechop_extra_end_trim = 0
 params.noNanoplot = false
@@ -57,6 +59,8 @@ def parameters_expected = [
   'last',
   'lasttrain',
   'megablast',
+  'noSpeciesPolishing','no-species-polishing',
+  'lowAbundanceThreshold','low-abundance-threshold',
   'isDemultiplexed', 'is-demultiplexed', // This is because  https://github.com/nextflow-io/nextflow/issues/2061
   'porechop_extra_end_trim',
   'noNanoplot', 'no-nanoplot',
@@ -116,7 +120,7 @@ Channel
 
 // include modules
 include {Fastq2Fasta} from './modules/processes'
-include {MergeResults} from './modules/processes'
+//include {MergeResults} from './modules/processes'
 
 // include sub-workflows
 include {SetSilva} from './workflows/Silva'
@@ -152,25 +156,35 @@ workflow {
   }
   Fastq2Fasta( filtered_scrubbed_ch )
   Fastq2Fasta.out.set{ fasta_ch }
-  Channel.empty()
-    .set{ stage_to_comprare_ch }
+  /*Channel.empty()
+    .set{ stage_to_comprare_ch }*/
   if ( params.minimap2 || !(params.minimap2 || params.last || params.lasttrain || params.megablast)) {
     Minimap2Workflow( fasta_ch, silva_fasta_ch, silva_synonyms_ch )
-      stage_to_comprare_ch.mix( Minimap2Workflow.out )
-        .set{ stage_to_comprare_ch }
+      /*stage_to_comprare_ch.mix( Minimap2Workflow.out )
+        .set{ stage_to_comprare_ch }*/
       
   }
   if ( params.last || params.lasttrain  ) {
     LastWorkflow( fasta_ch, silva_fasta_ch, silva_synonyms_ch )
-      stage_to_comprare_ch.mix( LastWorkflow.out )
-        .set{ stage_to_comprare_ch }
+      /*stage_to_comprare_ch.mix( LastWorkflow.out )
+        .set{ stage_to_comprare_ch }*/
   }
   if (params.megablast ){
     MegaBlastWorkflow( fasta_ch, silva_fasta_ch, silva_synonyms_ch )
-    stage_to_comprare_ch.mix( MegaBlastWorkflow.out )
-        .set{ stage_to_comprare_ch }
+    /*stage_to_comprare_ch.mix( MegaBlastWorkflow.out )
+        .set{ stage_to_comprare_ch }*/
   }
+  /*
   MergeResults( stage_to_comprare_ch )
+  if ( !params.noSpeciesPolishing ) {
+    PolishSpeciesClassification(
+      Merged_Results.out,
+      fasta_ch, 
+      silva_fasta_ch, 
+      silva_synonyms_ch  
+    )
+  }
+  */
 }
 
 
@@ -272,6 +286,7 @@ def helpMessage() {
         --isDemultiplexed             Set this flag to avoid Demultiplex sub-workflow. If set, each fastq file is 
                                       processed as a different barcode.
         --noNanoplot                  Set this flag to avoid QCheck sub-workflow. 
+        --noSpeciesPolishing          Avoid the polishing sub-workflow.
 
     Container options (note single dash usage!):
         -profile docker               Use docker as container engine (default).
