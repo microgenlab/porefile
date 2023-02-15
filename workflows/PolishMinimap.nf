@@ -1,16 +1,15 @@
 nextflow.enable.dsl = 2
 
-include {Rma2InfoR2C; Rma2InfoR2C as GetReadInfo} from '../modules/processes'
+include {GetReadInfo} from '../modules/processes'
 include {ComputeAbundances} from '../modules/processes'
 include {SubsetSilva} from '../modules/processes'
 include {SubsetReads} from '../modules/processes'
-include {MakeMinimapDB as MakeDB} from '../modules/processes'
-include {Minimap2 as Search} from '../modules/processes'
-include {Sam2Rma as Lca} from '../modules/processes' addParams(megan_topPercent: params.megan_topPercentPolish)
-include {CorrectAssignment} from '../modules/processes'/*
-include {MergeResults} from '../modules/processes'*/
+include {MakeDB} from '../modules/processes'
+include {Minimap2} from '../modules/processes'
+include {MeganLca} from '../modules/processes' addParams(megan_topPercent: params.megan_topPercentPolish)
+include {CorrectAssignment} from '../modules/processes'
 
-workflow PolishMinimap {
+workflow Polish {
     take:
         filtered_ch
         silva_fasta_ch
@@ -30,9 +29,9 @@ workflow PolishMinimap {
             .join ( filtered_ch )
             .set{ low_abundance_ch }
         SubsetReads( low_abundance_ch )
-        Search(SubsetReads.out, MakeDB.out)
-        Lca( Search.out , silva_acctax_ch )
-        GetReadInfo( Lca.out )
+        Minimap2(SubsetReads.out, MakeDB.out)
+        MeganLca( Minimap2.out , silva_acctax_ch )
+        GetReadInfo( MeganLca.out )
         base_read_assingments_ch
             .join( GetReadInfo.out )
             .set{ to_correct_ch }

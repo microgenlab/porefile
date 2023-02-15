@@ -104,7 +104,12 @@ Channel
 
 // include modules
 include {Fastq2Fasta} from './modules/processes'
-//include {MergeResults} from './modules/processes'
+include {MakeDB} from './modules/processes'
+include {Minimap2} from './modules/processes'
+include {MeganLca} from './modules/processes'
+include {GetReadInfo} from './modules/processes'
+include {ComputeAbundances} from './modules/processes'
+include {Polish} from './workflows/PolishMinimap'
 
 // include sub-workflows
 include {SetSilva} from './workflows/Silva'
@@ -112,14 +117,6 @@ include {Demultiplex} from './workflows/Demultiplex'
 include {QFilt} from './workflows/QFiltWorkflow'
 include {QCheck} from './workflows/QCheckWorkflow'
 
-// include modules
-include {MakeMinimapDB} from './modules/processes'
-include {Minimap2} from './modules/processes'
-include {Sam2Rma} from './modules/processes'
-include {Rma2InfoR2C} from './modules/processes'
-include {ComputeAbundances} from './modules/processes'
-//include {MergeResults} from './modules/processes'
-include {PolishMinimap} from './workflows/PolishMinimap'
 
 workflow {
 
@@ -158,16 +155,13 @@ workflow {
 
   Fastq2Fasta( filtered_scrubbed_ch )
   Fastq2Fasta.out.set{ fasta_ch }
-
-  MakeMinimapDB( silva_fasta_ch )
-  Minimap2( fasta_ch, MakeMinimapDB.out )
-  Sam2Rma( Minimap2.out, silva_synonyms_ch )
-
-  Sam2Rma.out
+  MakeDB( silva_fasta_ch )
+  Minimap2( fasta_ch, MakeDB.out )
+  MeganLca( Minimap2.out, silva_synonyms_ch )
+  MeganLca.out
     .collectFile(storeDir: "$params.outdir/Rma")
-
-  Rma2InfoR2C( Sam2Rma.out )
-  Rma2InfoR2C.out
+  GetReadInfo( MeganLca.out )
+  GetReadInfo.out
       .set{ base_read_assingments_ch }
 
   // Publish read taxonomy assignments
@@ -198,7 +192,7 @@ workflow {
   // Polish sub-Workflow
   if (!params.noSpeciesPolishing){
 
-      PolishMinimap( 
+      Polish( 
         fasta_ch, 
         silva_fasta_ch, 
         silva_synonyms_ch, 
@@ -208,11 +202,11 @@ workflow {
       )
 
       // Publish polished taxa counts and classification
-      PolishMinimap.out.counts
+      Polish.out.counts
         .collectFile(storeDir: "$params.outdir/"){
           file -> [ "COUNTS_polished.tsv" , file ]
         }
-      PolishMinimap.out.taxcla
+      Polish.out.taxcla
         .collectFile(storeDir: "$params.outdir/"){
           file -> [ "TAXCLA_polished.tsv" , file ]
         }

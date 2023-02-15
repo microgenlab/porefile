@@ -307,7 +307,7 @@ process Fastq2Fasta {
 	"""
 }
 
-process MakeMinimapDB {
+process MakeDB {
 	label "big_cpus"
 
 	input:
@@ -353,7 +353,7 @@ process Minimap2 {
 	"""
 }
 
-process Sam2Rma {
+process MeganLca {
 	tag "$barcode_id"
 	label "big_cpus"
 
@@ -381,7 +381,7 @@ process Sam2Rma {
 }
 
 
-process Rma2InfoR2C {
+process GetReadInfo {
 	tag "$barcode_id"
 	label "small_cpus"
 
