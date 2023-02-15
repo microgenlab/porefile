@@ -94,7 +94,7 @@ keys <- unique(info[c("ncbi_id", "path")])
 keys <- keys[order(keys$ncbi_id), ]
 lntx <- dim(keys)[1]
 wdtx <- nchar(lntx)
-keys$taxa <- paste0("Taxa_", formatC(seq_len(lntx), width=wdtx, format = "d", flag = "0"))
+keys$taxa <- paste0("TAXA_", formatC(seq_len(lntx), width=wdtx, format = "d", flag = "0"))
 # write.table(keys, out_keys, sep="\t", quote=F)
 
 # Write counts
