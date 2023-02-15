@@ -86,7 +86,7 @@ process generateSynonyms {
 	label 'small_cpus'
 	label 'small_mem'
 
-	publishDir "$params.outdir/Merged_Results", mode: "copy"
+	publishDir "$params.outdir/", mode: "copy"
 
 	input:
 	file "tax_ncbi-species_ssu_ref_nr99_VERSION.txt"
@@ -357,22 +357,19 @@ process Sam2Rma {
 	tag "$barcode_id"
 	label "big_cpus"
 
-	publishDir "$params.outdir/Rma", mode: "copy"
-
 	input:
 	tuple val(barcode_id), path("${barcode_id}.sam"), path("${barcode_id}.fastq")
 	path("SSURef_Nr99_tax_silva_to_NCBI_synonyms.map")
-	val(selected_wf)
 
 	output:
-	tuple val(selected_wf), val(barcode_id), path("${selected_wf}_${barcode_id}.rma")
+	tuple val(barcode_id), path("${barcode_id}.rma")
 
 	shell:
 	"""
 	sam2rma \
 		-i ${barcode_id}.sam \
 		-r ${barcode_id}.fastq \
-		-o ${selected_wf}_${barcode_id}.rma \
+		-o ${barcode_id}.rma \
 		-lg \
 		-alg ${params.megan_lcaAlgorithm} \
 		-lcp ${params.megan_lcaCoveragePercent} \
@@ -389,29 +386,29 @@ process Rma2InfoR2C {
 	label "small_cpus"
 
 	input:
-	tuple val(selected_wf), val(barcode_id), path("${selected_wf}_${barcode_id}.rma")
+	tuple val(barcode_id), path("${barcode_id}.rma")
 
 	output:
-	tuple val(barcode_id), path("${selected_wf}_${barcode_id}.read_info")
+	tuple val(barcode_id), path("${barcode_id}.read_info")
 
 	shell:
 	"""
 	rma2info \
-		-i ${selected_wf}_${barcode_id}.rma \
+		-i ${barcode_id}.rma \
 		-r2c Taxonomy \
 		-n False -r -mro \
-		-o ${selected_wf}_${barcode_id}.ncbi
+		-o ${barcode_id}.ncbi
 
 	rma2info \
-		-i ${selected_wf}_${barcode_id}.rma \
+		-i ${barcode_id}.rma \
 		-r2c Taxonomy \
 		-p -mro \
-		-o ${selected_wf}_${barcode_id}.path
+		-o ${barcode_id}.path
 
 	join -t \$'\\t' \
-		<(sort ${selected_wf}_${barcode_id}.ncbi) \
-		<(sort ${selected_wf}_${barcode_id}.path) \
-		> ${selected_wf}_${barcode_id}.read_info
+		<(sort ${barcode_id}.ncbi) \
+		<(sort ${barcode_id}.path) \
+		> ${barcode_id}.read_info
 	"""
 }
 
@@ -422,10 +419,13 @@ process ComputeAbundances {
 	input:
 	path("*")
 	path("synonyms.txt")
+	val(polish)
 
 	output:
-	path("high_abundance_silva_ids.txt"), emit: silva_ids
-	path("*.read_txt"),  emit: read_ids
+	path("COUNTS.tsv"), emit: counts
+	path("TAXCLA.tsv"), emit: taxcla
+	path("high_abundance_silva_ids.txt"), emit: silva_ids, optional: true
+	path("*.read_txt"),  emit: read_ids, optional: true
 
 	script:
 	"""
@@ -433,29 +433,11 @@ process ComputeAbundances {
 		--lowAbundanceThreshold ${params.lowAbundanceThreshold} \
 		--in_suffix read_info \
 		--synonyms synonyms.txt \
+		--out_counts COUNTS.tsv \
+		--out_taxcla TAXCLA.tsv \
+		--polish ${polish} \
 		--out_silva high_abundance_silva_ids.txt \
 		--out_suffix read_txt
-	"""
-}
-
-process MergeResults{
-	tag "$selected_wf"
-	label "small_cpus"
-	label "small_mem"
-	
-	publishDir "$params.outdir/Merged_Results", mode: "copy"
-
-	input:
-	tuple val(selected_wf), file("*")
-
-	output:
-	tuple file("${selected_wf}_COUNTS.tsv"), file("${selected_wf}_TAXCLA.tsv")
-
-	script:
-	"""
-	mergeResults.R \
-		--suffix info \
-		--workflow ${selected_wf}
 	"""
 }
 

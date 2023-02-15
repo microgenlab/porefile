@@ -12,20 +12,17 @@ include {MergeResults} from '../modules/processes'*/
 
 workflow PolishMinimap {
     take:
-        base_read_assingments_ch
         filtered_ch
         silva_fasta_ch
         silva_acctax_ch
+        base_read_assingments_ch
+        silva_ids
+        read_ids
 
     main:
-        base_read_assingments_ch
-            .map { val, file -> file }
-            .collect()
-            .set{ readinfo_ch }
-        ComputeAbundances( readinfo_ch , silva_acctax_ch)
-        SubsetSilva(silva_fasta_ch, ComputeAbundances.out.silva_ids)
+        SubsetSilva(silva_fasta_ch, silva_ids)
         MakeDB ( SubsetSilva.out )
-        ComputeAbundances.out.read_ids
+        read_ids                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
             .flatten()
             .map {file -> tuple(file.baseName, file)}
             .set { low_ch }
@@ -34,7 +31,7 @@ workflow PolishMinimap {
             .set{ low_abundance_ch }
         SubsetReads( low_abundance_ch )
         Search(SubsetReads.out, MakeDB.out)
-        Lca( Search.out , silva_acctax_ch, "minimap2" )
+        Lca( Search.out , silva_acctax_ch )
         GetReadInfo( Lca.out )
         base_read_assingments_ch
             .join( GetReadInfo.out )
@@ -61,9 +58,16 @@ workflow PolishMinimap {
                 val, file -> 
                 [ "${val}_polished.read_info" , file ]
             }
+            .collect()
+            .set{ all_polished_assignments }
+
+        // Compute polished taxa counts and classification
+        ComputeAbundances( all_polished_assignments, silva_acctax_ch, false ) 
+
 
     emit:
-        CorrectAssignment.out
+        counts = ComputeAbundances.out.counts
+        taxcla = ComputeAbundances.out.taxcla
 
 }
 

@@ -111,60 +111,114 @@ include {SetSilva} from './workflows/Silva'
 include {Demultiplex} from './workflows/Demultiplex'
 include {QFilt} from './workflows/QFiltWorkflow'
 include {QCheck} from './workflows/QCheckWorkflow'
+
+// include modules
 include {MakeMinimapDB} from './modules/processes'
 include {Minimap2} from './modules/processes'
 include {Sam2Rma} from './modules/processes'
 include {Rma2InfoR2C} from './modules/processes'
-include {MergeResults} from './modules/processes'
+include {ComputeAbundances} from './modules/processes'
+//include {MergeResults} from './modules/processes'
 include {PolishMinimap} from './workflows/PolishMinimap'
 
 workflow {
+
+  // Download, if not available, and generate synonyms
   SetSilva()
     SetSilva.out.fasta
       .set{ silva_fasta_ch }
     SetSilva.out.synonyms
       .set{ silva_synonyms_ch }
+
+
+  // Demultiplex if not already
   if (! params.isDemultiplexed ){
+    
     Demultiplex( fqs_ch )
     Demultiplex.out
       .flatten()
       .map { file -> tuple(file.baseName, file) }
       .set{ barcode_ch }
+
   } else {
+
     fqs_ch
       .flatten()
       .map { file -> tuple(file.baseName, file) }
       .set{ barcode_ch }
+
   }
+
+  // Quality control sub-workflow
   QFilt( barcode_ch )
   QFilt.out.set{ filtered_scrubbed_ch }
   if (! params.noNanoplot ) {
     QCheck( barcode_ch, filtered_scrubbed_ch )
   }
+
   Fastq2Fasta( filtered_scrubbed_ch )
   Fastq2Fasta.out.set{ fasta_ch }
 
-  selected_wf = "minimap2"
   MakeMinimapDB( silva_fasta_ch )
   Minimap2( fasta_ch, MakeMinimapDB.out )
-  Sam2Rma( Minimap2.out, silva_synonyms_ch, selected_wf )
+  Sam2Rma( Minimap2.out, silva_synonyms_ch )
+
+  Sam2Rma.out
+    .collectFile(storeDir: "$params.outdir/Rma")
+
   Rma2InfoR2C( Sam2Rma.out )
   Rma2InfoR2C.out
       .set{ base_read_assingments_ch }
+
   // Publish read taxonomy assignments
   base_read_assingments_ch
       .collectFile(storeDir: "$params.outdir/Read_Assignments") {
           val, file -> 
           [ "${val}.read_info" , file ]
       }
+
+  // Compute taxa counts and classification
+  base_read_assingments_ch
+    .map{val, file -> file}
+    .collect()
+    .set{ all_read_assignments }
   
+  ComputeAbundances( 
+    all_read_assignments, 
+    silva_synonyms_ch, 
+    !params.noSpeciesPolishing 
+  )
+
+  // Publish taxa counts and classification
+  ComputeAbundances.out.counts
+    .collectFile(storeDir: "$params.outdir/")
+  ComputeAbundances.out.taxcla
+    .collectFile(storeDir: "$params.outdir/")
+
+  // Polish sub-Workflow
   if (!params.noSpeciesPolishing){
-      PolishMinimap( base_read_assingments_ch, fasta_ch, silva_fasta_ch, silva_synonyms_ch )
-      PolishMinimap.out
-          .set{ result }
-  } else {
-      base_read_assingments_ch.set{ result }
+
+      PolishMinimap( 
+        fasta_ch, 
+        silva_fasta_ch, 
+        silva_synonyms_ch, 
+        base_read_assingments_ch,
+        ComputeAbundances.out.silva_ids,
+        ComputeAbundances.out.read_ids 
+      )
+
+      // Publish polished taxa counts and classification
+      PolishMinimap.out.counts
+        .collectFile(storeDir: "$params.outdir/"){
+          file -> [ "COUNTS_polished.tsv" , file ]
+        }
+      PolishMinimap.out.taxcla
+        .collectFile(storeDir: "$params.outdir/"){
+          file -> [ "TAXCLA_polished.tsv" , file ]
+        }
+
   }
+
 }
 
 
