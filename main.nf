@@ -232,17 +232,10 @@ def helpMessage() {
     Usage:
     A typical command for running the pipeline would be as follows:
 
-        nextflow run microgenlab/porefile --fq 'data/*.fastq' --minimap2
+        nextflow run microgenlab/porefile --fq "data/*.fastq"
 
-    Mandatory arguments:
-        --fq                          Path to input data (must be surrounded with quotes).
-
-    Available workflows:
-      --minimap2                      Run Minimap2Workflow (Fast and accurate). This is the DEFAULT, get set if 
-                                      any other provided.
-      --last                          Run LastWorkflow:Last (Not so fast but accurate).
-      --lasttrain                     Run LastWorkflow:Train (Slow but more accurate).
-      --megablast                     Run MegablastWorkflow (Very slow and not so accurate).
+    Input fastq file(s):
+        --fq                          Path to input data (must be surrounded with quotes), e.g.: "./path/to/fastqs/*.fastq".
 
     Other:
         --silvaFasta                  Path to SILVA_*_SSURef_NR99_tax_silva.fasta.gz file. You can provide it 
@@ -255,7 +248,7 @@ def helpMessage() {
         --silvaTaxNcbiSp              Path to tax_ncbi-species_ssu_ref_nr99_*.txt.gz file. You can provide it
                                       either compressed (.gz) or not. If not provided, the workflow automatically
                                       adds a download step.
-        ---silvaTaxNcbiSpURL          URL to tax_ncbi-species_ssu_ref_nr99_*.txt.gz file. It will be used if you
+        --silvaTaxNcbiSpURL          URL to tax_ncbi-species_ssu_ref_nr99_*.txt.gz file. It will be used if you
                                       don't provide the --silvaFasta parameter (above). Default is:
                                       'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/ncbi/tax_ncbi-species_ssu_ref_nr99_138.1.txt.gz'.
 
@@ -294,16 +287,12 @@ def helpMessage() {
         --minimap2_f                  The '-f' parameter of minimap2. Default: 1000. Only applied in the Automap module.
         --minimap2_KM                 The '-K' parameter of minimap2, in Megabases. Default: 200.
 
-        Last parameters:
-        --last_E                      The '-E' parameter of lastal (e-value). Default: 1e-50.
-        
-        Megablast parameters:
-        --megablast_evalue            The '-evalue' parameter of megablast. Default: 1e-50.
-        
         Megan6 parameters:
-        --megan_lcaAlgorithm          The '--lcaAlgorithm' parameter of sam2rma and blast2rma tools (Megan6). Default: 
-                                      naive. Possible values are: 'naive', 'weighted', or 'longReads'.
-        --megan_topPercent            The '--topPercent' parameter of sam2rma and blast2rma tools (Megan6). Default: 10.
+        --megan_lcaAlgorithm          The '--lcaAlgorithm' parameter of sam2rma tool (Megan6). Default: 'naive'.
+                                      Possible values are: 'naive', 'weighted', or 'longReads'.
+        --megan_topPercent            The '--topPercent' parameter of sam2rma tool (Megan6). Default: 10.
+        --megan_topPercentPolish      The '--topPercent' parameter of sam2rma tool (Megan6) applied when polishing step
+                                      is activated. Default: 5.
         --megan_minPercentReadCover   The '--minPercentReadCover' parameter of sam2rma and blast2rma tools (Megan6).
                                       Default: 70.
         --megan_lcaCoveragePercent    The '--lcaCoveragePercent' parameter of sam2rma and blast2rma tools (Megan6). 
