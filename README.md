@@ -13,8 +13,8 @@ flowchart TD
    subgraph Demultiplex
    p3[Concatenate] --> p4[Porechop] 
    end
-   p2-- Yes --> p3
-   p2-- No --> p5[NanoFilt]
+   p2-- No --> p3
+   p2-- Yes --> p5[NanoFilt]
    subgraph QFilt
    p5[Nanofilt] --> p6[Automap]
    p6 --> p7[Yacrd]
