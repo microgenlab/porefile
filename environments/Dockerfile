@@ -10,7 +10,7 @@ COPY environment.yml /
 RUN micromamba create -n porefile -y -f /environment.yml && \
 		micromamba clean --all --yes
 
-# Export  PATH to allow MEGAN installation (needs openjdk and wget)
+# Export PATH to env
 ENV PATH=/opt/conda/envs/porefile/bin:$PATH
 
 
