@@ -1,3 +1,28 @@
+process GetVersions {
+	label 'small_cpus'
+	label 'smal_mem'
+
+	publishDir "$params.outdir/", mode: "copy"
+
+	output:
+	path("versions.txt")
+
+	script:
+	"""
+	echo '# Name                    Version                   Build  Channel' > versions.txt
+	(micromamba list -n porefile | sed 's/^[ ]*//') | grep -E \
+		"\$(cat /environment.yml | \
+			sed -n '/dependencies/,\${//!p}' | \
+			cut -d' ' -f 4- | \
+			cut -d'=' -f 1 | \
+			sed 's/\$/ /' | \
+			sed 's/^/\\^/' | \
+			paste -sd '|')" >> \
+		versions.txt
+	"""
+}
+
+
 
 process gunzip {
 	label 'small_cpus'

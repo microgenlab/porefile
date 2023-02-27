@@ -103,6 +103,7 @@ Channel
   .set{ fqs_ch }
 
 // include modules
+include {GetVersions} from './modules/processes'
 include {Fastq2Fasta} from './modules/processes'
 include {MakeDB} from './modules/processes'
 include {Minimap2} from './modules/processes'
@@ -119,6 +120,7 @@ include {QCheck} from './workflows/QCheckWorkflow'
 
 
 workflow {
+  GetVersions()
 
   // Download, if not available, and generate synonyms
   SetSilva()
