@@ -11,7 +11,6 @@ Reads are then classified by [MEGAN6 CE](https://software-ab.informatik.uni-tueb
 Porefile uses SILVA SSU NR99 version 138.1 by default, which is the latest available up to this date (Feb 2023). If a new version were released, users can manually provide the new links to tell `Porefile` to download it.
 
 Contents:
-- [Porefile: a Nextflow full-length 16S profiling pipeline for ONT reads](#porefile-a-nextflow-full-length-16s-profiling-pipeline-for-ont-reads)
   - [Introduction](#introduction)
   - [Workflow scheme](#workflow-scheme)
   - [Running Porefile](#running-porefile)
