@@ -1,28 +1,16 @@
 Bootstrap: docker
-From: conda/miniconda3
+From: mambaorg/micromamba:1.3.1
 
 %files
 	environment.yml /environment.yml
 
 %post
-	apt-get update -y && apt-get install default-jdk -y
-
-	## Update conda
-	conda update -n base -c defaults conda
-
-	## Install dependencies with conda
-	conda env create -f /environment.yml && conda clean -afy
-
-	## Export temporary PATH to allow MEGAN installation (needs openjdk)
-	export PATH="/usr/local/envs/porefile/bin:$PATH"
-
-	## Install megan6
-	MEGAN="MEGAN_Community_unix_6_21_9.sh"
-	wget -P /opt https://software-ab.informatik.uni-tuebingen.de/download/megan6/"$MEGAN"
-	bash /opt/"$MEGAN" -q && rm /opt/"$MEGAN" && echo "-Xmx8G" > /opt/megan/MEGAN.vmoptions
+	## Install dependencies with mamba
+	micromamba create -n porefile -y -f /environment.yml && \
+		micromamba clean --all --yes
 
 %environment
-	export PATH="/usr/local/envs/porefile/bin:/opt/megan/tools:$PATH"
+	export PATH="/opt/conda/envs/porefile/bin:$PATH"
 
 %labels
 	Authors: Cecilia Salazar (csalazar@pasteur.edu.uy) & Ignacio Ferres (iferres@pasteur.edu.uy)

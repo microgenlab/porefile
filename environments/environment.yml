@@ -4,17 +4,18 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - bc=1.07.1
-  - wget=1.20.3
+  - bc
+  - wget
   - procps-ng
-  - porechop=0.2.4
-  - nanofilt=2.8.0
-  - nanoplot=1.39.0
-  - seqkit=2.3.1
-  - minimap2=2.24
-  - r-base=4.1.0
+  - porechop
+  - nanofilt
+  - nanoplot
+  - seqkit
+  - minimap2
+  - r-base
   - r-optparse
   - r-magrittr
   - r-dplyr
-  - yacrd=0.6.2
+  - yacrd
   - samtools
+  - megan

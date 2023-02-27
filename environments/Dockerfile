@@ -1,4 +1,4 @@
-FROM docker.io/conda/miniconda3
+FROM docker.io/mambaorg/micromamba:1.3.1
 
 LABEL authors="Cecilia Salazar <csalazar@pasteur.edu.uy> & Ignacio Ferres <iferres@pasteur.edu.uy>"
 LABEL org.opencontainers.image.source https://github.com/microgenlab/porefile
@@ -6,18 +6,11 @@ LABEL org.opencontainers.image.source https://github.com/microgenlab/porefile
 # Copy conda recipe 
 COPY environment.yml /
 
-# Update conda 
-RUN conda update -n base -c defaults conda 
-
-# Create env and clean
-RUN conda env create -f /environment.yml && \
-    conda clean -afy
+# Update conda, create env, and clean 
+RUN micromamba create -n porefile -y -f /environment.yml && \
+		micromamba clean --all --yes
 
 # Export  PATH to allow MEGAN installation (needs openjdk and wget)
-ENV PATH=/usr/local/envs/porefile/bin:/opt/megan/tools:$PATH
+ENV PATH=/opt/conda/envs/porefile/bin:$PATH
 
-# Install MEGAN6
-ARG MEGAN=MEGAN_Community_unix_6_21_9.sh
-RUN wget -P /opt https://software-ab.informatik.uni-tuebingen.de/download/megan6/$MEGAN && \
-    bash /opt/$MEGAN -q && rm /opt/$MEGAN && echo "-Xmx8G" > /opt/megan/MEGAN.vmoptions
 
