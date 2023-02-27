@@ -1,12 +1,31 @@
 [![Nextflow](https://img.shields.io/badge/Nextflow-22.10.2-brightgreen)](https://www.nextflow.io/)
 
 # Porefile: a Nextflow full-length 16S profiling pipeline for ONT reads
+
+
+## Introduction
 `Porefile` is a Nextflow pipeline that wraps a bunch of third-party software to process and classify full length 16S (SSU) long reads generated using Oxford Nanopore sequencing, against the [SILVAdb](https://www.arb-silva.de/) SSU NR99 database, which is downloaded on the fly if not provided by the user.
 
 Reads are then classified by [MEGAN6 CE](https://software-ab.informatik.uni-tuebingen.de/download/megan6/welcome.html) tools, and using a SILVA-to-NCBI accession mapping file generated on-the-fly. 
 
 Porefile uses SILVA SSU NR99 version 138.1 by default, which is the latest available up to this date (Feb 2023). If a new version were released, users can manually provide the new links to tell `Porefile` to download it.
 
+Contents:
+- [Porefile: a Nextflow full-length 16S profiling pipeline for ONT reads](#porefile-a-nextflow-full-length-16s-profiling-pipeline-for-ont-reads)
+  - [Introduction](#introduction)
+  - [Workflow scheme](#workflow-scheme)
+  - [Running Porefile](#running-porefile)
+  - [Help](#help)
+  - [Dependencies](#dependencies)
+      - [Dependencies included in the container](#dependencies-included-in-the-container)
+  - [Profiles](#profiles)
+      - [Container engines](#container-engines)
+      - [Other configuration (for dev mostly)](#other-configuration-for-dev-mostly)
+  - [Usage](#usage)
+  - [Output files](#output-files)
+  - [Citation](#citation)
+  
+## Workflow scheme
 ```mermaid
 flowchart TD
    p1((("--fq './path/to/*fastq'"))) --> p2{--isDemultiplexed}
@@ -207,6 +226,70 @@ Container options (note single dash usage!):
 Help:
     --help                        Print this help and exit.
 ```
+
+## Output files
+The `results` directory contains the following directories/files:
+```
+results/
+├── COUNTS.tsv
+├── COUNTS_polished.tsv
+├── TAXCLA.tsv
+├── TAXCLA_polished.tsv
+├── Read_Assignments/
+│   ├── BC01.read_info
+│   ├── BC02.read_info
+│   └── ...
+├── Read_Assignments_Polished/
+│   ├── BC01_polished.read_info
+│   ├── BC02_polished.read_info
+│   └──...
+├── NanoPlots/
+│   ├── BC01/
+│   ├── BC02/
+│   ├── ...
+│   └── summary.tsv
+├── Rma/
+│   ├── BC01.rma
+│   ├── BC02.rma
+│   └── ...
+├── silva_to_NCBI_synonyms.map
+└── versions.txt
+```
+`COUNTS.tsv` and `COUNTS_polished.tsv` are a tabular text files with the counts for each taxa. 
+```
+                BC01    BC02    BC03    ...
+TAXA_001        1       0       0       ...
+TAXA_002        4       0       0       ...
+TAXA_003        0       3       10      ... 
+...
+```
+`TAXCLA.tsv` and `TAXCLA_polished.tsv` are tabular text files with the taxon path classification of each taxa.
+```
+                Kingdom Phylum  Class   Order   Family  Genus   Species
+TAXA_001        Bacteria        NA      NA      NA      NA      NA      NA
+TAXA_002        Bacteria        Proteobacteria  Alphaproteobacteria     Rhodobacterales Rhodobacteraceae               Paracoccus      NA
+TAXA_003        Bacteria        Proteobacteria  Gammaproteobacteria     Pseudomonadales Pseudomonadaceae               Pseudomonas     NA
+...
+```
+Take into account that the `TAXA` labels are arbitrarily generated for each pipeline, so the `TAXA` labels in `TAXCLA.tsv` do not match the ones in `TAXCLA_polished.tsv` (and the same to the `COUNTS*` files).
+
+The `Read_Assignments` and `Read_Assignments_Polished` contains taxonomic classification for each read.
+```
+001e48d4-cacc-4f78-b5f4-1b578a652ab2_0_1409     C       186801  [D] Bacteria; [P] Firmicutes; [C] Clostridia;
+027b1258-66df-4703-bfe8-bf93957a142d_0_1409     F       171552  [D] Bacteria; [P] Bacteroidetes; [C] Bacteroidia; [O] Bacteroidales; [F] Prevotellaceae;
+029f8418-4d6a-46b9-a98f-e0784e620fa2_0_1464     F       541000  [D] Bacteria; [P] Firmicutes; [C] Clostridia; [O] Clostridiales; [F] Ruminococcaceae;
+...
+```
+The columns correspond to: 1) Read id (header); 2) Taxonomic rank at which each read was possible to assign; 3) NCBI id of each taxonomic rank; 4) The taxon path assigned to each read.
+
+The `NanoPlots/` directory contain QC plots, pre and post filtering, and a summary tabular data file.
+
+The `Rma/` directory contains binary `.rma` files which can be analyzed with MEGAN. There isn't an equivalent directory for the polished pipeline since the second LCA assignment is done only with a subset of reads, and then `porefile` re-writes the base algorithm's assignments.
+
+The `silva_to_NCBI_synonyms.map` is the SILVA to NCBI synonyms mapping file generated on-the-fly by using SILVA's `tax_ncbi-species` and `taxmap` files.
+
+The `versions.txt` prints the versions of the porefile dependencies.
+
 
 ## Citation
 A manuscript is under preparation.
