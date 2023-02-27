@@ -161,7 +161,10 @@ workflow {
   Minimap2( fasta_ch, MakeDB.out )
   MeganLca( Minimap2.out, silva_synonyms_ch )
   MeganLca.out
-    .collectFile(storeDir: "$params.outdir/Rma")
+    .collectFile(storeDir: "$params.outdir/Rma"){
+      val, file ->
+      ["${val}.rma", file]
+    }
   GetReadInfo( MeganLca.out )
   GetReadInfo.out
       .set{ base_read_assingments_ch }
