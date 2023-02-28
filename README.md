@@ -123,7 +123,7 @@ Dependencies used by the pipeline and included in the container are:
  * [R](https://www.r-project.org/) (Processing)
  * [MEGAN6](https://software-ab.informatik.uni-tuebingen.de/download/megan6/welcome.html) (Taxonomy assignment)
 
-If you use Porefile, please cite them accordingly. Also cite [SILVAdb](https://www.arb-silva.de/), and [Nextflow](https://www.nature.com/articles/nbt.3820%7B).
+If you use Porefile, please also cite them since we are _**standing on the shoulders of giants**_. Also cite [SILVAdb](https://www.arb-silva.de/), and [Nextflow](https://www.nature.com/articles/nbt.3820%7B).
 
 ## Profiles
 Porefile comes with a minimal set of configuration profiles. Please, refer to [Nextflow documentation](https://www.nextflow.io/) to create a configuration file for your HPC infrastructure.
@@ -254,7 +254,7 @@ results/
 ├── silva_to_NCBI_synonyms.map
 └── versions.txt
 ```
-`COUNTS.tsv` and `COUNTS_polished.tsv` are a tabular text files with the counts for each taxa. 
+`COUNTS.tsv` and `COUNTS_polished.tsv` are a tabular text files with the counts for each taxa (rows), on each barcode (columns).
 ```
                 BC01    BC02    BC03    ...
 TAXA_001        1       0       0       ...
@@ -279,9 +279,9 @@ The `Read_Assignments` and `Read_Assignments_Polished` contains taxonomic classi
 029f8418-4d6a-46b9-a98f-e0784e620fa2_0_1464     F       541000  [D] Bacteria; [P] Firmicutes; [C] Clostridia; [O] Clostridiales; [F] Ruminococcaceae;
 ...
 ```
-The columns correspond to: 1) Read id (header); 2) Taxonomic rank at which each read was possible to assign; 3) NCBI id of each taxonomic rank; 4) The taxon path assigned to each read.
+The columns correspond to: 1) Read id (header); 2) Taxonomic rank at which each read was possible to assign; 3) NCBI id of each taxon; 4) The taxon path assigned to each read.
 
-The `NanoPlots/` directory contain QC plots, pre and post filtering, and a summary tabular data file.
+The `NanoPlots/` directory contain QC plots (see [NanoPlot](https://github.com/wdecoster/NanoPlot)), pre and post filtering, and a summary tabular data file.
 
 The `Rma/` directory contains binary `.rma` files which can be analyzed with MEGAN. There isn't an equivalent directory for the polished pipeline since the second LCA assignment is done only with a subset of reads, and then `porefile` re-writes the base algorithm's assignments.
 
