@@ -37,12 +37,6 @@ parser <- add_option(parser,
                      help = "The output tsv file with taxa classification.")
 
 parser <- add_option(parser, 
-                     c("-k", "--out_keys"), 
-                     action = "store",
-                     type = "character",
-                     help = "The output tsv file with TAXA to ncbi_id.")
-
-parser <- add_option(parser, 
                      c("-p", "--polish"), 
                      action = "store",
                      type = "character",
@@ -71,7 +65,6 @@ in_suffix <- opt$in_suffix
 synonyms <- opt$synonyms
 out_counts <- opt$out_counts
 out_taxcla <- opt$out_taxcla
-out_keys <- opt$out_keys
 lat <- opt$lowAbundanceThreshold
 out_silva <- opt$out_silva
 out_suffix <- opt$out_suffix
@@ -79,7 +72,7 @@ out_suffix <- opt$out_suffix
 read_info <- list.files(pattern = paste0("[.]", in_suffix, "$"))
 syno <- read.table(synonyms, colClasses = "character")
 
-info <- lapply(setNames(read_info, sub(paste0("[.]", in_suffix, "$"), "", read_info)), read.table, sep="\t") %>%
+info <- lapply(setNames(read_info, sub(paste0("[.]", in_suffix, "$"), "", read_info)), read.table, sep="\t", quote = "") %>%
   mapply(function(x, nm){
     colnames(x) <- c("read_id", "rank", "ncbi_id", "path")
     x$barcode <- nm
@@ -95,7 +88,6 @@ keys <- keys[order(keys$ncbi_id), ]
 lntx <- dim(keys)[1]
 wdtx <- nchar(lntx)
 keys$taxa <- paste0("TAXA_", formatC(seq_len(lntx), width=wdtx, format = "d", flag = "0"))
-# write.table(keys, out_keys, sep="\t", quote=F)
 
 # Write counts
 counts <- table(info$ncbi_id, info$barcode)
