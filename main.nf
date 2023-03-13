@@ -309,6 +309,8 @@ def helpMessage() {
                                       processed as a different barcode.
         --noNanoplot                  Set this flag to avoid QCheck sub-workflow. 
         --noSpeciesPolishing          Avoid the polishing sub-workflow.
+        --lowAbundanceThreshold       The threshold of total abundance (counts) to be considered as "low", and
+                                      which the pipeline will try to re assign.
 
     Container options (note single dash usage!):
         -profile docker               Use docker as container engine (default).
