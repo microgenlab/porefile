@@ -10,9 +10,16 @@ workflow QFilt {
 
     main:
         NanoFilt( barcode_ch )
-        AutoMap( NanoFilt.out )
-        Yacrd( AutoMap.out )
+        if (!params.noYacrd){
+            AutoMap( NanoFilt.out )
+            Yacrd( AutoMap.out )
+            Yacrd.out
+                .set{ qfilt_out }
+        } else{
+            NanoFilt.out
+                .set{ qfilt_out }
+        }
 
     emit:
-        Yacrd.out
+        qfilt_out
 }

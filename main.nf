@@ -16,6 +16,7 @@ params.nanofilt_headcrop = 0
 params.nanofilt_tailcrop = 0
 params.yacrd_c = 4
 params.yacrd_n = 0.4
+params.noYacrd = false
 params.megan_lcaAlgorithm = "naive"
 params.megan_lcaCoveragePercent = 100
 params.megan_topPercent = 10
@@ -62,6 +63,7 @@ def parameters_expected = [
   'nanofilt_tailcrop',
   'yacrd_c',
   'yacrd_n',
+  'noYacrd', 'no-yacrd',
   'megan_lcaAlgorithm', 'megan_lca-algorithm',
   'megan_lcaCoveragePercent', 'megan_lca-coverage-percent',
   'megan_topPercent', 'megan_top-percent',
@@ -307,6 +309,7 @@ def helpMessage() {
     Other control options:
         --isDemultiplexed             Set this flag to avoid Demultiplex sub-workflow. If set, each fastq file is 
                                       processed as a different barcode.
+        --noYacrd                     Set this flag to avoid chimera-removing step with Yacrd.
         --noNanoplot                  Set this flag to avoid QCheck sub-workflow. 
         --noSpeciesPolishing          Avoid the polishing sub-workflow.
         --lowAbundanceThreshold       The threshold of total abundance (counts) to be considered as "low", and
@@ -388,6 +391,7 @@ NanoFilt
   --nanofilt_headcrop:          $params.nanofilt_headcrop
   --nanofilt_tailcrop:          $params.nanofilt_tailcrop
 Yacrd
+  --noYacrd:                    $params.noYacrd
   --yacrd_c:                    $params.yacrd_c
   --yacrd_n:                    $params.yacrd_n
 NanoPlot
