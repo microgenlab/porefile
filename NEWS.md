@@ -1,4 +1,4 @@
-# porefile 1.0.0.9000 `(xx/02/2023)`
+# porefile 1.0.0.9000 `(xx/03/2023)`
 * Refactoring. Rscripts are now in bin/ folder.
 * Added seqkit to environment.yml
 * Added reduceSilva process to remove eukaryota and phage sequences. Deactivate it with `--fullSilva` flag. This reduction step improves 16S classification and possibly reduces the running time a bit.
@@ -10,6 +10,12 @@
 * Added the Polishing workflow. Related: added megan_topPercentPolish params.
 * Now read assignments get published.
 * Removed Last, LastTrain, and Megablast workflows since added complexity to the code and any of them wasn't good enough as Minimap2 workflow.
+* New `--help`.
+* New `README.md`.
+* New container, now based on micromamba instead of conda.
+* New process `GetVersions` to print a file with the versions of the dependencies used (installed in the container).
+* Added `--removeChimeras` to activate chimera-removing step with (Yacrd).
+* Added PacBio management if user provides --minimap2_x map-pb or --minimap2_x map-hifi
 
 # porefile 0.2.2 `14/12/2022`
 * Minor fix in "nagual" config, which was using a "dev" tagged docker container. Now it uses the "latest".
