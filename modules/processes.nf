@@ -151,19 +151,19 @@ process Porechop {
 	label "big_mem"
 
 	input:
-	file fq
+	file("fq.fastq")
 
 	output:
-	file "porechop_results/*"
+	file "porechop_results/*.fastq"
 
-	shell:
+	script:
 	"""
 	porechop \
 		-t ${task.cpus} \
 		--extra_end_trim ${params.porechop_extra_end_trim} \
-		-i ${fq} \
+		-i fq.fastq \
 		-b porechop_results
-	rm -f porechop_results/none.fastq
+	[ -s porechop_results/none.fastq ] && rm porechop_results/none.fastq
 	"""
 }
 
@@ -177,7 +177,7 @@ process NanoFilt {
 	output:
 	tuple val(barcode_id), file("Filt_${barcode_id}.fastq"), optional: true
 
-	shell:
+	script:
 	"""
 	cat "${barcode_id}.fastq" | \
 		NanoFilt \
@@ -204,16 +204,28 @@ process AutoMap {
 	output:
 	tuple val(barcode_id), file("Filt_${barcode_id}.fastq"), file("overlap_${barcode_id}.paf"), optional: true
 
-	shell:
-	"""
-	minimap2 \
-		-x ava-ont \
-		-t ${task.cpus} \
-		-g 500 \
-		-f${params.minimap2_f} \
-		Filt_${barcode_id}.fastq Filt_${barcode_id}.fastq > overlap_${barcode_id}.paf
-		[ -s overlap_${barcode_id}.paf ] || rm overlap_${barcode_id}.paf
-	"""
+	script:
+	if ( (params.minimap2_x == "map-pb" || params.minimap2_x == "map-hifi") ){
+		"""
+		minimap2 \
+			-x ava-pb \
+			-t ${task.cpus} \
+			-g 500 \
+			-f${params.minimap2_f} \
+			Filt_${barcode_id}.fastq Filt_${barcode_id}.fastq > overlap_${barcode_id}.paf
+			[ -s overlap_${barcode_id}.paf ] || rm overlap_${barcode_id}.paf
+		"""
+	} else {
+		"""
+		minimap2 \
+			-x ava-ont \
+			-t ${task.cpus} \
+			-g 500 \
+			-f${params.minimap2_f} \
+			Filt_${barcode_id}.fastq Filt_${barcode_id}.fastq > overlap_${barcode_id}.paf
+			[ -s overlap_${barcode_id}.paf ] || rm overlap_${barcode_id}.paf
+		"""
+	}
 }
 
 process Yacrd {
@@ -226,7 +238,7 @@ process Yacrd {
 	output:
 	tuple val(barcode_id), file("Filt_Scrubb_${barcode_id}.fastq")
 
-	shell:
+	script:
 	"""
 	yacrd \
 		-i overlap_${barcode_id}.paf \
@@ -306,7 +318,7 @@ process SummaryTable{
 	output:
 	file "summary.tsv"
 
-	shell:
+	script:
 	"""
 	summarizeQC.R \
 		--prefix_filt_scrubb count_Filt_Scrubb_ \
@@ -326,7 +338,7 @@ process Fastq2Fasta {
 	output:
 	tuple val(barcode_id), path("${barcode_id}.fasta")
 
-	shell:
+	script:
 	"""
 	seqkit fq2fa --threads 1 ${barcode_id}.fastq -o ${barcode_id}.fasta
 	"""
@@ -341,7 +353,7 @@ process MakeDB {
 	output:
 	path("silva_k${params.minimap2_k}.mmi")
 
-	shell:
+	script:
 	"""
 	minimap2 \
 		-t ${task.cpus} \
@@ -362,7 +374,7 @@ process Minimap2 {
 	output:
 	tuple val(barcode_id), path("${barcode_id}.sam"), path("${barcode_id}.fasta"), optional: true
 
-	shell:
+	script:
 	"""
 	minimap2 \
 		-K ${params.minimap2_KM}M \
@@ -389,7 +401,7 @@ process MeganLca {
 	output:
 	tuple val(barcode_id), path("${barcode_id}.rma")
 
-	shell:
+	script:
 	"""
 	sam2rma \
 		-i ${barcode_id}.sam \
@@ -416,7 +428,7 @@ process GetReadInfo {
 	output:
 	tuple val(barcode_id), path("${barcode_id}.read_info")
 
-	shell:
+	script:
 	"""
 	rma2info \
 		-i ${barcode_id}.rma \
