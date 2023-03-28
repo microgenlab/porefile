@@ -10,7 +10,7 @@ workflow QFilt {
 
     main:
         NanoFilt( barcode_ch )
-        if (!params.noYacrd){
+        if (params.removeChimeras){
             AutoMap( NanoFilt.out )
             Yacrd( AutoMap.out )
             Yacrd.out

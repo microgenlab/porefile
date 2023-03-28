@@ -213,6 +213,7 @@ Process specific parameters:
 
 Other control options:
     --isDemultiplexed             Set this flag to avoid Demultiplex sub-workflow. If set, each fastq file is
+    --removeChimeras              Set this flag to activate the chimera-removing step with Yacrd.
                                   processed as a different barcode.
     --noNanoplot                  Set this flag to avoid QCheck sub-workflow.
     --noSpeciesPolishing          Avoid the polishing sub-workflow.
