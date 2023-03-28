@@ -290,7 +290,7 @@ def helpMessage() {
         Minimap2 parameters:
         --minimap2_k                  The '-k' parameter of minimap2. Default: 15.
         --minimap2_x                  The '-x' parameter of minimap2. Default: 'map-ont'. Possible values: 'map-ont', 
-                                      'asm5', 'asm10', 'asm20'.
+                                      'asm5', 'asm10', 'asm20', 'map-pb', or 'map-hifi'. 
         --minimap2_f                  The '-f' parameter of minimap2. Default: 1000. Only applied in the Automap module.
         --minimap2_KM                 The '-K' parameter of minimap2, in Megabases. Default: 200.
 
@@ -391,7 +391,7 @@ NanoFilt
   --nanofilt_headcrop:          $params.nanofilt_headcrop
   --nanofilt_tailcrop:          $params.nanofilt_tailcrop
 Yacrd
-  --noYacrd:                    $params.noYacrd
+  --removeChimeras:             $params.removeChimeras
   --yacrd_c:                    $params.yacrd_c
   --yacrd_n:                    $params.yacrd_n
 NanoPlot
