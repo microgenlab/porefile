@@ -94,7 +94,7 @@ If a local copy of the required SILVAdb files were provided, the workflow avoids
 nextflow run microgenlab/porefile --fq "./fastq/*.fastq" \
     --silvaFasta "./SILVA_138.1_SSURef_NR99_tax_silva.fasta.gz" \
     --silvaTaxNcbiSp "./tax_ncbi-species_ssu_ref_nr99_138.1.txt.gz" \
-    --silvaTaxmap "./taxmap_slv_ssu_ref_nr_138.1.txt.gz"
+    --silvaTaxmap "./taxmap_slv_ssu_ref_nr_138.1.txt.gz" \
     -profile docker
 ```
 
@@ -144,7 +144,7 @@ Porefile comes with a minimal set of configuration profiles. Please, refer to [N
 Usage:
 A typical command for running the pipeline would be as follows:
 
-    nextflow run microgenlab/porefile --fq 'data/*.fastq' --minimap2
+    nextflow run microgenlab/porefile --fq 'data/*.fastq'
 
 Input fastq file(s):
     --fq                          Path to input data (must be surrounded with quotes).
