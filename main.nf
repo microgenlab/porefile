@@ -336,7 +336,9 @@ def helpMessage() {
 def helloParameters(){
 
   log.info """  Nextflow-version:             $nextflow.version
-  Porefile-version:             $workflow.revision
+  Porefile-version:             $workflow.manifest.version
+  Porefile-commit:              $workflow.commitId
+  Porefile-branch:              $workflow.revision
   Profile:                      $workflow.profile
   Work directory:               $workflow.workDir
   Container:                    $workflow.container
