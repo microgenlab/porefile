@@ -344,6 +344,7 @@ def helloParameters(){
   Container:                    $workflow.container
   Input directory:              $params.fq
   Output directory:             $params.outdir
+  Command:                      $workflow.commandLine
   ⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻⎻""".stripIndent()
   log.info """ Minimap2 related parameters:
   --minimap2_k:                 $params.minimap2_k
