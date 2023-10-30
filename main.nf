@@ -312,8 +312,8 @@ def helpMessage() {
         --removeChimeras              Set this flag to activate the chimera-removing step with Yacrd.
         --noNanoplot                  Set this flag to avoid QCheck sub-workflow. 
         --noSpeciesPolishing          Avoid the polishing sub-workflow.
-        --lowAbundanceThreshold       The threshold of total abundance (counts) to be considered as "low", and
-                                      which the pipeline will try to re assign.
+        --lowAbundanceThreshold       The threshold of total abundance (from 0 to 1) to be considered as "low", and
+                                      which the pipeline will try to re assign (default: 0.02).
 
     Container options (note single dash usage!):
         -profile docker               Use docker as container engine (default).
