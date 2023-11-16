@@ -255,7 +255,7 @@ def helpMessage() {
         --silvaTaxNcbiSp              Path to tax_ncbi-species_ssu_ref_nr99_*.txt.gz file. You can provide it
                                       either compressed (.gz) or not. If not provided, the workflow automatically
                                       adds a download step.
-        --silvaTaxNcbiSpURL          URL to tax_ncbi-species_ssu_ref_nr99_*.txt.gz file. It will be used if you
+        --silvaTaxNcbiSpURL           URL to tax_ncbi-species_ssu_ref_nr99_*.txt.gz file. It will be used if you
                                       don't provide the --silvaFasta parameter (above). Default is:
                                       'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/ncbi/tax_ncbi-species_ssu_ref_nr99_138.1.txt.gz'.
 
@@ -323,8 +323,11 @@ def helpMessage() {
     Help:
         --help                        Print this help and exit.
 
-    Authors: Cecilia Salazar (csalazar@pasteur.edu.uy) & Ignacio Ferrés (iferres@pasteur.edu.uy)
-    Maintainer: Ignacio Ferrés (iferres@pasteur.edu.uy)
+    Authors: 
+        Cecilia Salazar (csalazar@pasteur.edu.uy) 
+        Ignacio Ferrés (igferres@gmail.com)
+        Matías Giménez (mgimenez@pasteur.edu.uy)
+        Gregorio Iraola (giraola@pasteur.edu.uy)
 
     Microbial Genomics Laboratory
     Institut Pasteur de Montevideo (Uruguay)
